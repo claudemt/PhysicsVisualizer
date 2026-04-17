@@ -7,7 +7,9 @@ A collection of physics visualization projects for students, teachers, and resea
 - [ChladniFigures-matlab](https://github.com/claudemt/ChladniFigures-matlab)  
   Chladni pattern and vibrating plate simulations.
 - [MovingChargeFields-matlab](https://github.com/claudemt/MovingChargeFields-matlab)  
-  Moving charge field visualization.
+  Harmonically and circularly moving point charge field visualization.
+- [MieScattering-matlab](https://github.com/claudemt/MieScattering-matlab)  
+  Spheres and cylinders scattering fields visualization.
 
 ## Notes
 
