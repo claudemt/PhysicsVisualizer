@@ -10,6 +10,8 @@ A collection of physics visualization projects for students, teachers, and resea
   Harmonically and circularly moving point charge field visualization.
 - [MieScattering-matlab](https://github.com/claudemt/MieScattering-matlab)  
   Spheres and cylinders scattering fields visualization.
+- [CrystalOpticsBoundary-matlab](https://github.com/claudemt/CrystalOpticsBoundary-matlab)  
+  Air-crystal boundary electromagnetic waves calculation.
 
 ## Notes
 
