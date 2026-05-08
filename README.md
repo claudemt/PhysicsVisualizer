@@ -1,18 +1,47 @@
 # PhysicsVisualizer
 
-A collection of physics visualization projects for students, teachers, and researchers.
+PhysicsVisualizer is a collection of MATLAB-based visualization projects for physics, engineering, optics, mechanics, electromagnetics, and applied mathematics.
+
+The repository is designed for research demonstrations, classroom teaching, exploratory modeling, and visual interpretation of physical or mathematical systems.
 
 ## Projects
 
-- [ChladniFigures-matlab](https://github.com/claudemt/ChladniFigures-matlab)  
-  Chladni pattern and vibrating plate simulations.
-- [MovingChargeFields-matlab](https://github.com/claudemt/MovingChargeFields-matlab)  
-  Harmonically and circularly moving point charge field visualization.
-- [MieScattering-matlab](https://github.com/claudemt/MieScattering-matlab)  
-  Spheres and cylinders scattering fields visualization.
-- [CrystalOpticsBoundary-matlab](https://github.com/claudemt/CrystalOpticsBoundary-matlab)  
-  Air-crystal boundary electromagnetic waves calculation.
+| Project | What it does |
+|---|---|
+| ChladniFigures | Visualizes thin-plate vibration modes and static plate deflection under external loads. |
+| CreativePlotStudio | Provides generative art, fractal, and nonlinear plotting scripts. |
+| CrystalOpticsBoundary | Generates text reports for reflection and transmission at anisotropic crystal boundaries. |
+| MieScattering | Visualizes electromagnetic scattering fields for sphere- and cylinder-style models. |
+| MovingChargeFields | Visualizes retarded electric and magnetic fields, Poynting flow, and phase-sweep videos for moving charges. |
+| OpticsStudio | Includes Fourier optics, wave propagation, imaging, interference, ray optics, and tomography modules. |
+| RigidBodyRotation | Simulates free and fixed-point rigid-body attitude dynamics with image and video output. |
+| SpecialFunctionsStudio | Plots curves, surfaces, and vector-style visualizations for special functions. |
+| ThinFilm | Generates layered elastic-wave transfer-matrix text reports. |
+| Waveguide | Visualizes metallic and dielectric waveguide modes, cutoff behavior, dispersion, and field profiles. |
 
-## Notes
+## Running
 
-Each project is maintained in its own repository and has its own README, history, and issue tracking.
+Open MATLAB in the desired project folder and run:
+
+```m
+main
+````
+
+Generated images, reports, parameter files, and reproduction scripts are written to the project-specific `output/` folder.
+
+## Repository Layout
+
+All projects share a root-level `utils/` layer. This shared layer provides the common GUI layout, control styling, preview behavior, notes browsing, export naming, parameter reports, and reproduction-code output.
+
+Each project follows a similar organization:
+
+- `main.m` launches the project GUI.
+- `app/tabs/` contains GUI tabs, controls, default inputs, tooltips, and user-facing workflow logic.
+- `core/` contains the project-specific physical, mathematical, or numerical algorithms.
+- `docs/physical_formulas.md` explains the relevant physics or mathematics and how to interpret the generated images or reports.
+- `output/` is created automatically when results are exported.
+
+
+## License
+
+This project is released under the MIT License.
