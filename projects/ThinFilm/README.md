@@ -2,7 +2,7 @@
 
 ## Scope
 
-Layered elastic-wave transfer-matrix report generator.
+Layered thin-film transfer-matrix reports: **elastic waves** (P/SV/SH) and **optical multilayers** (s/p polarization, dielectric stack).
 
 Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
 
@@ -18,10 +18,19 @@ Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for 
 
 ## Main algorithms
 
+**Elastic**
+
 - P/SV potential representation
 - Layer interface matching
 - Stack transfer matrices
 - Reflection/transmission diagnostics
+
+**Optical**
+
+- Characteristic admittance \(\zeta=\sqrt{\varepsilon/\mu}\), Snell via fixed \(k_x\)
+- Layer matrices \(P\) (s) and \(Q\) (p), stack products
+- Fresnel limits at \(N=0\), energy-weighted \(R,T\)
+- Layer thickness may be numeric or `coeff*lambda` (wavelength in medium **a**); see `docs/physical_formulas.md`
 
 ## Maintenance notes
 

@@ -16,7 +16,7 @@ The repository is designed for research demonstrations, classroom teaching, expl
 | OpticsStudio | Includes Fourier optics, wave propagation, imaging, interference, ray optics, and tomography modules. |
 | RigidBodyRotation | Simulates free and fixed-point rigid-body attitude dynamics with image and video output. |
 | SpecialFunctionsStudio | Plots curves, surfaces, and vector-style visualizations for special functions. |
-| ThinFilm | Generates layered elastic-wave transfer-matrix text reports. |
+| ThinFilm | Generates layered elastic-wave and electromagnetic-wave transfer-matrix text reports. |
 | Waveguide | Visualizes metallic and dielectric waveguide modes, cutoff behavior, dispersion, and field profiles. |
 
 ## Running

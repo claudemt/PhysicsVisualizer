@@ -33,7 +33,7 @@ function data = defaultInput()
 
     data.N = 1;
     data.omega = omega;
-    data.kx = 0.1 * omega * sqrt(eta_a / mu_a);
+    data.kx = round(0.1 * omega * sqrt(eta_a / mu_a), 3);
     data.phii = 1.0;
     data.psii = 1.0;
 
@@ -49,7 +49,7 @@ function data = defaultInput()
         'lambda', 4.0 * mu_a, ...
         'mu',     1.5 * mu_a, ...
         'eta',    4.4 * eta_a, ...
-        'h',      9.8 * sqrt(mu_a / (omega^2 * eta_a)));
+        'h',      round(9.8 * sqrt(mu_a / (omega^2 * eta_a)), 3));
 end
 
 function R = solveElasticFilm(data)
@@ -226,7 +226,9 @@ end
 
 function out = cleanSmallImag(out)
     if isstruct(out)
-        if numel(out) > 1
+        if numel(out) == 0
+            return;
+        elseif numel(out) > 1
             for jj = 1:numel(out)
                 out(jj) = cleanSmallImag(out(jj));
             end

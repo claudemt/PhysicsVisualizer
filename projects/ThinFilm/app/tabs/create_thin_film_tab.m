@@ -18,9 +18,11 @@ psii_edit = create_control_panel(general.grid, 'numeric', 'psi_i', defaults.psii
 
 media = create_control_panel(ui.control_grid, 'section', 'boundary media', 2);
 air_area = create_control_panel(media.grid, 'text', 'air a [lambda mu eta]', ...
-    sprintf('%g %g %g', defaults.a.lambda, defaults.a.mu, defaults.a.eta), 'Incident-side medium.');
+    sprintf('%s %s %s', fmtShort(defaults.a.lambda), fmtShort(defaults.a.mu), fmtShort(defaults.a.eta)), ...
+    'Incident-side medium.');
 substrate_area = create_control_panel(media.grid, 'text', 'substrate g [lambda mu eta]', ...
-    sprintf('%g %g %g', defaults.g.lambda, defaults.g.mu, defaults.g.eta), 'Substrate-side medium.');
+    sprintf('%s %s %s', fmtShort(defaults.g.lambda), fmtShort(defaults.g.mu), fmtShort(defaults.g.eta)), ...
+    'Substrate-side medium.');
 
 layers = create_control_panel(ui.control_grid, 'section', 'film layers', {110});
 layer_area = create_control_panel(layers.grid, 'textarea', 'layers [lambda mu eta h]', ...
@@ -75,8 +77,8 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         kx_edit.Value = defaults.kx;
         phii_edit.Value = defaults.phii;
         psii_edit.Value = defaults.psii;
-        air_area.Value = sprintf('%g %g %g', defaults.a.lambda, defaults.a.mu, defaults.a.eta);
-        substrate_area.Value = sprintf('%g %g %g', defaults.g.lambda, defaults.g.mu, defaults.g.eta);
+        air_area.Value = sprintf('%s %s %s', fmtShort(defaults.a.lambda), fmtShort(defaults.a.mu), fmtShort(defaults.a.eta));
+        substrate_area.Value = sprintf('%s %s %s', fmtShort(defaults.g.lambda), fmtShort(defaults.g.mu), fmtShort(defaults.g.eta));
         layer_area.Value = splitlines(default_layer_text(defaults));
         ui.preview_text.Value = {'run to generate a text report'};
         state.data = struct();
@@ -115,9 +117,19 @@ end
 lines = cell(defaults.N, 1);
 for i = 1:defaults.N
     L = defaults.layers(i);
-    lines{i} = sprintf('%g %g %g %g', L.lambda, L.mu, L.eta, L.h);
+    lines{i} = sprintf('%s %s %s %s', fmtShort(L.lambda), fmtShort(L.mu), fmtShort(L.eta), fmtShort(L.h));
 end
 txt = strjoin(lines, newline);
+end
+
+function s = fmtShort(x)
+x = double(x);
+if abs(x) >= 1 || x == 0
+    x = round(x, 3);
+else
+    x = round(x, 4);
+end
+s = sprintf('%g', x);
 end
 
 function lines = local_notes()
