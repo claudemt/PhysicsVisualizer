@@ -37,7 +37,7 @@ custom_list.ItemsData = field_items;
 custom_list.Value = default_custom;
 
 actions = create_control_panel(ui.control_grid, 'section', 'actions', 1);
-state = struct('png_paths', {{}}, 'params', struct());
+state = struct('png_paths', {{}}, 'params', struct(), 'runs', {{}});
 custom_list.ValueChangedFcn = @(~,~) refresh_notes();
 refresh_notes();
 bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_callback, ...
@@ -48,9 +48,9 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
     end
 
     function params = read_params()
-        selected = local_cellstr(custom_list.Value);
+        selected = local_selected_fields(custom_list, field_items, field_labels);
         if isempty(selected)
-            selected = default_custom;
+            error('Select at least one custom field to generate.');
         end
         params = struct();
         params.motionType = motion_dd.Value;
@@ -75,9 +75,10 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         preview_params = params;
         preview_params.outputMode = 'image';
         result = run_moving_charge_generation('generate', preview_params, project_root);
-        image_output('bind_preview_list', ui.preview_list, ui.preview_axes, result.files);
-        state.png_paths = result.files;
+        stored_paths = image_output('bind_preview_list', ui.preview_list, ui.preview_axes, result.files);
+        state.png_paths = image_output('all_preview_paths', ui.preview_list);
         state.params = params;
+        state.runs{end+1} = struct('paths', {stored_paths}, 'params', preview_params);
         refresh_notes();
     end
 
@@ -93,6 +94,7 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         custom_list.Value = default_custom;
         state.png_paths = {};
         state.params = struct();
+        state.runs = {};
         image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
         refresh_notes();
     end
@@ -104,17 +106,26 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
             return;
         end
 
-        if isempty(state.png_paths)
-            result = run_moving_charge_generation('generate', params, project_root);
-            state.png_paths = result.files;
+        if isempty(state.runs)
+            preview_params = params;
+            preview_params.outputMode = 'image';
+            result = run_moving_charge_generation('generate', preview_params, project_root);
+            stored_paths = image_output('bind_preview_list', ui.preview_list, ui.preview_axes, result.files);
+            state.png_paths = image_output('all_preview_paths', ui.preview_list);
             state.params = params;
-            image_output('bind_preview_list', ui.preview_list, ui.preview_axes, state.png_paths);
+            state.runs{end+1} = struct('paths', {stored_paths}, 'params', preview_params);
         end
-        paths = image_output('selected_preview_paths', ui.preview_list, state.png_paths);
+        paths = image_output('selected_preview_paths', ui.preview_list, {});
         layout = image_output('preview_layout', ui, 'auto');
-        code = local_reproduce_code(params);
+        [selected_runs, refs] = local_collect_selected_runs(state.runs, paths);
+        dest_names = cell(1, numel(paths));
+        for ii = 1:numel(paths)
+            dest_names{ii} = image_output('indexed_name', paths{ii}, ii, '.png');
+        end
+        code = local_history_reproduce_code(selected_runs, refs, dest_names, layout);
+        params_struct = local_history_params(selected_runs, dest_names, layout);
         image_output('export_bundle', project_root, 'moving_charge', paths, ...
-            'Params', params, 'ReproduceCode', code, ...
+            'Params', params_struct, 'ReproduceCode', code, ...
             'Composite', true, 'Layout', layout);
     end
 
@@ -169,10 +180,112 @@ else
     param_lines = {'params = struct();'};
 end
 lines = [ ...
-    {'project_root = fileparts(mfilename(''fullpath''));'; ...
-     'addpath(genpath(fullfile(project_root,''app'')));'; ...
-     'addpath(genpath(fullfile(project_root,''core'')));'}; ...
+    {'export_dir = fileparts(mfilename(''fullpath''));'; ...
+     'project_root = fileparts(fileparts(export_dir));'; ...
+     'addpath(genpath(project_root));'}; ...
      param_lines(:); ...
     {'run_moving_charge_generation(''export'', params, project_root);'}];
 code = strjoin(lines, newline);
+end
+
+
+function selected = local_selected_fields(listbox, field_items, field_labels)
+raw = local_cellstr(listbox.Value);
+selected = {};
+for ii = 1:numel(raw)
+    idx = find(strcmp(field_items, raw{ii}), 1, 'first');
+    if isempty(idx)
+        idx = find(strcmp(field_labels, raw{ii}), 1, 'first');
+    end
+    if ~isempty(idx)
+        selected{end+1} = field_items{idx}; %#ok<AGROW>
+    end
+end
+selected = unique(selected, 'stable');
+end
+
+function [selected_runs, refs] = local_collect_selected_runs(runs, selected_paths)
+selected_paths = local_cellstr(selected_paths);
+selected_runs = {};
+refs = struct('run_slot', {}, 'file_index', {});
+run_slots = [];
+for ii = 1:numel(selected_paths)
+    found = false;
+    for rr = 1:numel(runs)
+        idx = find(strcmp(runs{rr}.paths, selected_paths{ii}), 1, 'first');
+        if ~isempty(idx)
+            slot = find(run_slots == rr, 1, 'first');
+            if isempty(slot)
+                selected_runs{end+1} = runs{rr}; %#ok<AGROW>
+                run_slots(end+1) = rr; %#ok<AGROW>
+                slot = numel(selected_runs);
+            end
+            refs(end+1) = struct('run_slot', slot, 'file_index', idx); %#ok<AGROW>
+            found = true;
+            break;
+        end
+    end
+    if ~found
+        error('Could not resolve one or more selected preview images to their generating run.');
+    end
+end
+end
+
+function params_struct = local_history_params(selected_runs, dest_names, layout)
+params_struct = struct();
+params_struct.export = struct('layout', layout, 'selected_files', {dest_names});
+for ii = 1:numel(selected_runs)
+    params_struct.(sprintf('run_%02d', ii)) = selected_runs{ii}.params;
+end
+end
+
+function code = local_history_reproduce_code(selected_runs, refs, dest_names, layout)
+lines = local_reproduce_header();
+for ii = 1:numel(selected_runs)
+    suffix = sprintf('%02d', ii);
+    param_lines = local_param_assignment_lines(selected_runs{ii}.params);
+    lines = [lines; {sprintf('%% Reproduce run %s', suffix); 'params = struct();'}; param_lines(:); ...
+        {sprintf('params.outputMode = ''image'';'); ...
+         sprintf('result_%s = run_moving_charge_generation(''generate'', params, project_root);', suffix); ...
+         sprintf('run_files_%s = result_%s.files;', suffix, suffix); ...
+         ''}]; %#ok<AGROW>
+end
+for ii = 1:numel(refs)
+    suffix = sprintf('%02d', refs(ii).run_slot);
+    lines{end+1,1} = sprintf('copyfile(run_files_%s{%d}, fullfile(export_dir, %s), ''f'');', suffix, refs(ii).file_index, local_quote(dest_names{ii})); %#ok<AGROW>
+end
+if numel(dest_names) > 1
+    lines{end+1,1} = 'selected_files = {'; %#ok<AGROW>
+    for ii = 1:numel(dest_names)
+        lines{end+1,1} = sprintf('    fullfile(export_dir, %s);', local_quote(dest_names{ii})); %#ok<AGROW>
+    end
+    lines{end+1,1} = '};'; %#ok<AGROW>
+    lines{end+1,1} = sprintf('image_output(''compose_grid'', selected_files, fullfile(export_dir, ''composite.png''), ''Layout'', %s);', local_quote(layout)); %#ok<AGROW>
+end
+code = strjoin(lines, newline);
+end
+
+function lines = local_reproduce_header()
+lines = { ...
+    'export_dir = fileparts(mfilename(''fullpath''));'; ...
+    'project_root = fileparts(fileparts(export_dir));'; ...
+    'addpath(genpath(project_root));'; ...
+    ''};
+end
+
+function lines = local_param_assignment_lines(params)
+tmp = params_output('reproduce_code', 'unused_function', params);
+parts = splitlines(tmp);
+if numel(parts) >= 2
+    lines = parts(1:end-1);
+else
+    lines = {'params = struct();'};
+end
+if ~isempty(lines) && strcmp(strtrim(lines{1}), 'params = struct();')
+    lines = lines(2:end);
+end
+end
+
+function s = local_quote(txt)
+s = ['''' strrep(char(string(txt)), '''', '''''') ''''];
 end

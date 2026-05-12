@@ -55,7 +55,7 @@ if ~isfield(cfg, 'R_over_lambda') || isempty(cfg.R_over_lambda), cfg.R_over_lamb
 if ~isfield(cfg, 'nu') || isempty(cfg.nu), cfg.nu = 1.1; end
 if ~isfield(cfg, 'psi') || isempty(cfg.psi), cfg.psi = 0.2; end
 if ~isfield(cfg, 'geometry') || isempty(cfg.geometry), cfg.geometry = 'sphere'; end
-if ~isfield(cfg, 'mode') || isempty(cfg.mode), cfg.mode = 'sca'; end
+if ~isfield(cfg, 'mode') || isempty(cfg.mode), cfg.mode = 'custom'; end
 if ~isfield(cfg, 'customSelection') || isempty(cfg.customSelection)
     cfg.customSelection = {'sca_rex','sca_rey','sca_rez','sca_aex','sca_aey','sca_aez','sca_emag'};
 end
@@ -66,25 +66,10 @@ if ~isfield(cfg, 'maskInside') || isempty(cfg.maskInside), cfg.maskInside = true
 end
 
 function specs = local_resolve_specs(cfg)
-all_codes = {'sca_rex','sca_rey','sca_rez','sca_aex','sca_aey','sca_aez','sca_emag', ...
-             'tot_rex','tot_rey','tot_rez','tot_aex','tot_aey','tot_aez','tot_emag'};
-sca_codes = all_codes(1:7);
-tot_codes = all_codes(8:14);
-
-switch lower(strtrim(cfg.mode))
-    case 'sca'
-        selected = sca_codes;
-    case 'tot'
-        selected = tot_codes;
-    case 'all'
-        selected = all_codes;
-    case 'custom'
-        selected = cfg.customSelection;
-        if isempty(selected), selected = sca_codes; end
-    otherwise
-        error('Unsupported mode: %s', cfg.mode);
+selected = cfg.customSelection;
+if isempty(selected)
+    error('At least one field must be selected.');
 end
-
 specs = cell(size(selected));
 for i = 1:numel(selected)
     specs{i} = local_build_one_spec(selected{i});

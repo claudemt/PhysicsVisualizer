@@ -25,7 +25,7 @@ Open MATLAB in the desired project folder and run:
 
 ```m
 main
-````
+```
 
 Generated images, reports, parameter files, and reproduction scripts are written to the project-specific `output/` folder.
 

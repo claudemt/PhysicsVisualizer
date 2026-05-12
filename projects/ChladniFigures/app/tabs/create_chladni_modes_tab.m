@@ -26,7 +26,7 @@ xi0_edit = create_control_panel(physical.grid, 'numeric', 'xi_0', 0.45, [], ...
     'For rect, xi_0=b/a with a=2 and b=2*xi_0. For annulus, xi_0=R0/R. Disabled for circ.');
 
 actions = create_control_panel(ui.control_grid, 'section', 'actions', 1);
-state = struct('png_paths', {{}}, 'params', struct());
+state = struct('png_paths', {{}}, 'params', struct(), 'runs', {{}});
 
 bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_callback, 'GenerateText', 'Run');
 type_dd.ValueChangedFcn = @(~,~) on_domain_changed();
@@ -119,9 +119,10 @@ image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
         cache_dir = image_output('clear_cache', project_root, 'chladni_modes');
         result = compute_chladni_modes(params);
         png_paths = render_result('render', result, cache_dir, 'Prefix', sprintf('chladni_%s_%s', params.type, params.boundary));
-        image_output('bind_preview_list', ui.preview_list, ui.preview_axes, png_paths);
-        state.png_paths = png_paths;
+        stored_paths = image_output('bind_preview_list', ui.preview_list, ui.preview_axes, png_paths);
+        state.png_paths = image_output('all_preview_paths', ui.preview_list);
         state.params = params;
+        state.runs{end+1} = struct('paths', {stored_paths}, 'params', params);
     end
 
     function reset_callback()
@@ -135,22 +136,25 @@ image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
         refresh_notes();
         state.png_paths = {};
         state.params = struct();
+        state.runs = {};
         image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
     end
 
     function export_callback()
-        if isempty(state.png_paths)
+        if isempty(state.runs)
             error('Generate images before exporting.');
         end
-        paths = image_output('selected_preview_paths', ui.preview_list, state.png_paths);
+        paths = image_output('selected_preview_paths', ui.preview_list, {});
         layout = image_output('preview_layout', ui, 'auto');
-        code = strjoin({ ...
-            'project_root = fileparts(mfilename(''fullpath''));', ...
-            'addpath(genpath(fullfile(project_root,''app'')));', ...
-            'addpath(genpath(fullfile(project_root,''core'')));', ...
-            params_output('reproduce_code', 'compute_chladni_modes', state.params)}, newline);
-        image_output('export_bundle', project_root, sprintf('chladni_%s_%s', state.params.type, state.params.boundary), paths, ...
-            'Params', state.params, 'ReproduceCode', code, ...
+        [selected_runs, refs] = local_collect_selected_runs(state.runs, paths);
+        dest_names = cell(1, numel(paths));
+        for ii = 1:numel(paths)
+            dest_names{ii} = image_output('indexed_name', paths{ii}, ii, '.png');
+        end
+        code = local_history_reproduce_code(selected_runs, refs, dest_names, layout);
+        params_struct = local_history_params(selected_runs, dest_names, layout);
+        image_output('export_bundle', project_root, sprintf('chladni_%s_%s', selected_runs{1}.params.type, selected_runs{1}.params.boundary), paths, ...
+            'Params', params_struct, 'ReproduceCode', code, ...
             'Composite', true, 'Layout', layout);
     end
 end
@@ -165,4 +169,102 @@ lines = { ...
     'number of modes controls how many eigenmodes are rendered; grid N controls image resolution and runtime.', ...
     'The color map shows normalized transverse deflection w/w_max. Dark/bright sign changes reveal nodal curves.', ...
     'Use the preview list to select, reorder, preview-combine, and export selected mode images.'};
+end
+
+
+function [selected_runs, refs] = local_collect_selected_runs(runs, selected_paths)
+selected_paths = local_cellstr(selected_paths);
+selected_runs = {};
+refs = struct('run_slot', {}, 'file_index', {});
+run_slots = [];
+for ii = 1:numel(selected_paths)
+    found = false;
+    for rr = 1:numel(runs)
+        idx = find(strcmp(runs{rr}.paths, selected_paths{ii}), 1, 'first');
+        if ~isempty(idx)
+            slot = find(run_slots == rr, 1, 'first');
+            if isempty(slot)
+                selected_runs{end+1} = runs{rr}; %#ok<AGROW>
+                run_slots(end+1) = rr; %#ok<AGROW>
+                slot = numel(selected_runs);
+            end
+            refs(end+1) = struct('run_slot', slot, 'file_index', idx); %#ok<AGROW>
+            found = true;
+            break;
+        end
+    end
+    if ~found
+        error('Could not resolve one or more selected preview images to their generating run.');
+    end
+end
+end
+
+function params_struct = local_history_params(selected_runs, dest_names, layout)
+params_struct = struct();
+params_struct.export = struct('layout', layout, 'selected_files', {dest_names});
+for ii = 1:numel(selected_runs)
+    params_struct.(sprintf('run_%02d', ii)) = selected_runs{ii}.params;
+end
+end
+
+function code = local_history_reproduce_code(selected_runs, refs, dest_names, layout)
+lines = local_reproduce_header();
+for ii = 1:numel(selected_runs)
+    suffix = sprintf('%02d', ii);
+    param_lines = local_param_assignment_lines(selected_runs{ii}.params);
+    prefix = sprintf('chladni_%s_%s', selected_runs{ii}.params.type, selected_runs{ii}.params.boundary);
+    lines = [lines; {sprintf('%% Reproduce run %s', suffix); 'params = struct();'}; param_lines(:); ...
+        {sprintf('result_%s = compute_chladni_modes(params);', suffix); ...
+         sprintf('run_dir_%s = fullfile(export_dir, ''reproduce_run_%s'');', suffix, suffix); ...
+         sprintf('if exist(run_dir_%s, ''dir'') == 7, rmdir(run_dir_%s, ''s''); end', suffix, suffix); ...
+         sprintf('mkdir(run_dir_%s);', suffix); ...
+         sprintf('run_files_%s = render_result(''render'', result_%s, run_dir_%s, ''Prefix'', %s);', suffix, suffix, suffix, local_quote(prefix)); ...
+         ''}]; %#ok<AGROW>
+end
+for ii = 1:numel(refs)
+    suffix = sprintf('%02d', refs(ii).run_slot);
+    lines{end+1,1} = sprintf('copyfile(run_files_%s{%d}, fullfile(export_dir, %s), ''f'');', suffix, refs(ii).file_index, local_quote(dest_names{ii})); %#ok<AGROW>
+end
+if numel(dest_names) > 1
+    lines{end+1,1} = 'selected_files = {'; %#ok<AGROW>
+    for ii = 1:numel(dest_names)
+        lines{end+1,1} = sprintf('    fullfile(export_dir, %s);', local_quote(dest_names{ii})); %#ok<AGROW>
+    end
+    lines{end+1,1} = '};'; %#ok<AGROW>
+    lines{end+1,1} = sprintf('image_output(''compose_grid'', selected_files, fullfile(export_dir, ''composite.png''), ''Layout'', %s);', local_quote(layout)); %#ok<AGROW>
+end
+code = strjoin(lines, newline);
+end
+
+function lines = local_reproduce_header()
+lines = {'export_dir = fileparts(mfilename(''fullpath''));'; 'project_root = fileparts(fileparts(export_dir));'; 'addpath(genpath(project_root));'; ''};
+end
+
+function lines = local_param_assignment_lines(params)
+tmp = params_output('reproduce_code', 'unused_function', params);
+parts = splitlines(tmp);
+if numel(parts) >= 2
+    lines = parts(1:end-1);
+else
+    lines = {'params = struct();'};
+end
+if ~isempty(lines) && strcmp(strtrim(lines{1}), 'params = struct();')
+    lines = lines(2:end);
+end
+end
+
+function c = local_cellstr(x)
+if isempty(x)
+    c = {};
+elseif iscell(x)
+    c = cellfun(@char, x(:).', 'UniformOutput', false);
+elseif isstring(x)
+    c = cellstr(x(:).');
+else
+    c = {char(string(x))};
+end
+end
+
+function s = local_quote(txt)
+s = ['''' strrep(char(string(txt)), '''', '''''') ''''];
 end

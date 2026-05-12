@@ -1,19 +1,1 @@
-# MATLAB generated folders
 **/output/
-**/.cache/
-**/cache/
-**/slprj/
-**/codegen/
-
-# MATLAB autosave / temporary files
-*.asv
-*.m~
-*.mlx~
-*.mat
-*.fig
-
-# OS/editor noise
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/

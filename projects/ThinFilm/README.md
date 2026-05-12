@@ -29,9 +29,4 @@ Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for 
 
 - Characteristic admittance \(\zeta=\sqrt{\varepsilon/\mu}\), Snell via fixed \(k_x\)
 - Layer matrices \(P\) (s) and \(Q\) (p), stack products
-- Fresnel limits at \(N=0\), energy-weighted \(R,T\)
-- Layer thickness may be numeric or `coeff*lambda` (wavelength in medium **a**); see `docs/physical_formulas.md`
-
-## Maintenance notes
-
-Keep layout, button sizing, preview placement, image export, and notes rendering in the shared `utils/` files.  Project code should contain only parameter collection, domain-specific computation, and calls into the shared rendering/export functions.
+- Fresnel limits at \

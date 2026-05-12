@@ -19,12 +19,16 @@ switch action
         varargout{1} = local_bind_preview_list(varargin{:});
     case 'selected_preview_paths'
         varargout{1} = local_selected_preview_paths(varargin{:});
+    case 'all_preview_paths'
+        varargout{1} = local_all_preview_paths(varargin{:});
     case 'preview_layout'
         varargout{1} = local_preview_layout(varargin{:});
     case 'select_all'
         varargout{1} = local_select_all(varargin{:});
     case 'select_none'
         varargout{1} = local_select_none(varargin{:});
+    case 'delete_selection'
+        varargout{1} = local_delete_selection(varargin{:});
     case 'move_selection'
         varargout{1} = local_move_selection(varargin{:});
     case 'preview_composite'
@@ -234,33 +238,52 @@ end
 function out = local_bind_preview_list(listbox, ax, png_paths)
 png_paths = local_cellstr(png_paths);
 if isempty(listbox) || ~isgraphics(listbox)
-    out = [];
+    out = {};
     return;
 end
-names = cellfun(@(p) local_display_name(p), png_paths, 'UniformOutput', false);
-listbox.Items = names;
-listbox.UserData = png_paths;
+meta = local_preview_meta(listbox);
+if isempty(png_paths)
+    meta.paths = {};
+    meta.run_ids = [];
+    meta.run_counter = 0;
+    listbox.Items = {};
+    listbox.Value = {};
+    listbox.UserData = meta;
+    if nargin >= 2 && ~isempty(ax), local_reset_preview(ax); end
+    out = {};
+    return;
+end
+run_id = meta.run_counter + 1;
+stored_paths = local_store_preview_paths(meta.project_root, meta.module_key, png_paths, run_id);
+names = cellfun(@(pp) sprintf('#%02d  %s', run_id, local_display_name(pp)), stored_paths, 'UniformOutput', false);
+old_items = local_cellstr(listbox.Items);
+meta.paths = [meta.paths, stored_paths];
+meta.run_ids = [meta.run_ids, repmat(run_id, 1, numel(stored_paths))];
+meta.run_counter = run_id;
+listbox.Items = [old_items, names];
+listbox.UserData = meta;
 if isempty(names)
     listbox.Value = {};
     if nargin >= 2 && ~isempty(ax), local_reset_preview(ax); end
 else
-    listbox.Value = names(1);
-    if nargin >= 2 && ~isempty(ax), local_show_preview(ax, png_paths(1)); end
+    try
+        listbox.Value = names(1);
+    catch
+        listbox.Value = names{1};
+    end
+    if nargin >= 2 && ~isempty(ax), local_show_preview(ax, stored_paths(1)); end
 end
-out = png_paths;
+out = stored_paths;
 end
 
 function paths = local_selected_preview_paths(listbox, fallback_paths)
 if nargin < 2, fallback_paths = {}; end
 fallback_paths = local_cellstr(fallback_paths);
-paths = fallback_paths;
 if isempty(listbox) || ~isgraphics(listbox)
+    paths = fallback_paths;
     return;
 end
-all_paths = local_cellstr(listbox.UserData);
-if isempty(all_paths)
-    all_paths = fallback_paths;
-end
+all_paths = local_all_preview_paths(listbox);
 selected = local_cellstr(listbox.Value);
 items = local_cellstr(listbox.Items);
 if isempty(selected)
@@ -270,6 +293,23 @@ end
 idx = find(ismember(items, selected));
 idx = idx(idx >= 1 & idx <= numel(all_paths));
 paths = all_paths(idx);
+end
+
+function paths = local_all_preview_paths(listbox)
+paths = {};
+if isempty(listbox) || ~isgraphics(listbox)
+    return;
+end
+ud = [];
+try
+    ud = listbox.UserData;
+catch
+end
+if isstruct(ud) && isfield(ud, 'paths')
+    paths = local_cellstr(ud.paths);
+else
+    paths = local_cellstr(ud);
+end
 end
 
 function layout = local_preview_layout(ui, default_layout)
@@ -301,10 +341,69 @@ listbox.Value = {};
 out = {};
 end
 
+function out = local_delete_selection(listbox, ax)
+if nargin < 2, ax = []; end
+if isempty(listbox) || ~isgraphics(listbox), out = {}; return; end
+items = local_cellstr(listbox.Items);
+meta = local_preview_meta(listbox);
+paths = meta.paths;
+run_ids = meta.run_ids;
+selected = local_cellstr(listbox.Value);
+if isempty(items)
+    out = {};
+    return;
+end
+if isempty(selected)
+    idx = [];
+else
+    idx = find(ismember(items, selected));
+end
+if isempty(idx)
+    out = paths;
+    return;
+end
+for ii = idx(:).'
+    if ii >= 1 && ii <= numel(paths)
+        fp = paths{ii};
+        if exist(fp, 'file') == 2
+            try
+                delete(fp);
+            catch
+            end
+        end
+    end
+end
+keep = true(1, numel(items));
+keep(idx) = false;
+items = items(keep);
+paths = paths(keep);
+if ~isempty(run_ids)
+    run_ids = run_ids(keep);
+end
+meta.paths = paths;
+meta.run_ids = run_ids;
+listbox.Items = items;
+listbox.UserData = meta;
+if isempty(items)
+    listbox.Value = {};
+    if ~isempty(ax), local_reset_preview(ax); end
+else
+    try
+        listbox.Value = items(1);
+    catch
+        listbox.Value = items{1};
+    end
+    if ~isempty(ax), local_show_preview(ax, paths(1)); end
+end
+out = paths;
+end
+
 function out = local_move_selection(listbox, direction)
 if isempty(listbox) || ~isgraphics(listbox), out = []; return; end
 items = local_cellstr(listbox.Items);
-paths = local_cellstr(listbox.UserData);
+meta = local_preview_meta(listbox);
+paths = meta.paths;
+run_ids = meta.run_ids;
 sel = local_cellstr(listbox.Value);
 if isempty(sel) || isempty(items), out = items; return; end
 idx = find(ismember(items, sel));
@@ -317,6 +416,11 @@ if direction < 0
         if i > 1 && ~ismember(i-1, idx)
             [items{i-1}, items{i}] = deal(items{i}, items{i-1});
             [paths{i-1}, paths{i}] = deal(paths{i}, paths{i-1});
+            if ~isempty(run_ids)
+                tmp_run_id = run_ids(i-1);
+                run_ids(i-1) = run_ids(i);
+                run_ids(i) = tmp_run_id;
+            end
             idx(k) = i-1;
         end
     end
@@ -327,15 +431,24 @@ else
         if i < numel(items) && ~ismember(i+1, idx)
             [items{i+1}, items{i}] = deal(items{i}, items{i+1});
             [paths{i+1}, paths{i}] = deal(paths{i}, paths{i+1});
+            if ~isempty(run_ids)
+                tmp_run_id = run_ids(i+1);
+                run_ids(i+1) = run_ids(i);
+                run_ids(i) = tmp_run_id;
+            end
             idx(k) = i+1;
         end
     end
 end
+
 listbox.Items = items;
-listbox.UserData = paths;
+meta.paths = paths;
+meta.run_ids = run_ids;
+listbox.UserData = meta;
 listbox.Value = sel;
 out = items;
 end
+
 
 function out = local_preview_composite(varargin)
 % Supports both signatures:
@@ -880,6 +993,52 @@ elseif iscell(paths)
     paths = paths(:).';
 else
     paths = cellstr(string(paths));
+end
+end
+
+
+
+function meta = local_preview_meta(listbox)
+meta = struct('paths', {{}}, 'run_ids', [], 'project_root', pwd, 'module_key', 'preview', 'run_counter', 0);
+if isempty(listbox) || ~isgraphics(listbox)
+    return;
+end
+try
+    ud = listbox.UserData;
+catch
+    ud = [];
+end
+if isstruct(ud)
+    if isfield(ud, 'paths'), meta.paths = local_cellstr(ud.paths); end
+    if isfield(ud, 'run_ids') && isnumeric(ud.run_ids), meta.run_ids = double(ud.run_ids(:).'); end
+    if isfield(ud, 'project_root') && ~isempty(ud.project_root), meta.project_root = char(string(ud.project_root)); end
+    if isfield(ud, 'module_key') && ~isempty(ud.module_key), meta.module_key = char(string(ud.module_key)); end
+    if isfield(ud, 'run_counter') && ~isempty(ud.run_counter), meta.run_counter = double(ud.run_counter); end
+else
+    meta.paths = local_cellstr(ud);
+end
+if numel(meta.run_ids) ~= numel(meta.paths)
+    meta.run_ids = zeros(1, numel(meta.paths));
+end
+end
+
+function stored_paths = local_store_preview_paths(project_root, module_key, png_paths, run_id)
+png_paths = local_cellstr(png_paths);
+stored_paths = cell(1, numel(png_paths));
+history_dir = fullfile(project_root, '.cache', 'preview_history', local_slug(module_key), sprintf('run_%02d', run_id));
+if exist(history_dir, 'dir') ~= 7
+    mkdir(history_dir);
+end
+for i = 1:numel(png_paths)
+    src = png_paths{i};
+    if exist(src, 'file') ~= 2
+        stored_paths{i} = src;
+        continue;
+    end
+    dst_name = local_indexed_name(src, i, '.png');
+    dst = fullfile(history_dir, dst_name);
+    copyfile(src, dst, 'f');
+    stored_paths{i} = dst;
 end
 end
 

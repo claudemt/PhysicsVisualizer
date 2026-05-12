@@ -31,7 +31,7 @@ ymax_edit = create_control_panel(axis_panel.grid, 'text', 'y max', '', 'Manual y
 legend_dd = create_control_panel(axis_panel.grid, 'legend', 'legend', 'northwest');
 
 actions = create_control_panel(ui.control_grid, 'section', 'actions', 1);
-state = struct('png_paths', {{}}, 'params', struct(), 'result', []);
+state = struct('png_paths', {{}}, 'params', struct(), 'result', [], 'runs', {{}});
 
 family_dd.ValueChangedFcn = @(~,~) refresh_family();
 variant_dd.ValueChangedFcn = @(~,~) refresh_variant();
@@ -74,6 +74,7 @@ refresh_family();
         state.png_paths = {};
         state.params = struct();
         state.result = [];
+        state.runs = {};
         image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
     end
 
@@ -139,10 +140,11 @@ refresh_family();
         png_paths = render_result('render', result, cache_dir, ...
             'Prefix', sprintf('%s_%s', image_output('slug', params.family), image_output('slug', params.variant)), ...
             'DPI', 180, 'Crop', params.crop, 'RenderOptions', params.render_options, 'Layout', params.layout_text);
-        image_output('bind_preview_list', ui.preview_list, ui.preview_axes, png_paths);
-        state.png_paths = png_paths;
+        stored_paths = image_output('bind_preview_list', ui.preview_list, ui.preview_axes, png_paths);
+        state.png_paths = image_output('all_preview_paths', ui.preview_list);
         state.params = params;
         state.result = result;
+        state.runs{end+1} = struct('paths', {stored_paths}, 'params', params);
     end
 
     function reset_callback()
@@ -153,23 +155,20 @@ refresh_family();
     end
 
     function export_callback()
-        if isempty(state.png_paths)
+        if isempty(state.runs)
             error('Run before exporting.');
         end
-        paths = image_output('selected_preview_paths', ui.preview_list, state.png_paths);
+        paths = image_output('selected_preview_paths', ui.preview_list, {});
         layout = image_output('preview_layout', ui, 'auto');
-        export_params = state.params;
-        export_params.layout_text = layout;
-        code_lines = [ ...
-            {'project_root = fileparts(mfilename(''fullpath''));'; ...
-             'addpath(genpath(fullfile(project_root,''app'')));'; ...
-             'addpath(genpath(fullfile(project_root,''core'')));'; ...
-             'params = struct();'}; ...
-            params_output_assignment_lines(export_params); ...
-            {'out = parse_special_functions_params(''render_from_params'', params);'}];
-        code = strjoin(code_lines, newline);
+        [selected_runs, refs] = local_collect_selected_runs(state.runs, paths);
+        dest_names = cell(1, numel(paths));
+        for ii = 1:numel(paths)
+            dest_names{ii} = image_output('indexed_name', paths{ii}, ii, '.png');
+        end
+        code = local_history_reproduce_code(selected_runs, refs, dest_names, layout);
+        params_struct = local_history_params(selected_runs, dest_names, layout);
         image_output('export_bundle', project_root, 'special_functions', paths, ...
-            'Params', export_params, 'ReproduceCode', code, ...
+            'Params', params_struct, 'ReproduceCode', code, ...
             'Composite', true, 'Layout', layout);
     end
 
@@ -212,4 +211,85 @@ lines = { ...
     'legend location controls curve labels. For 3D variants it mostly affects exported 2D curve cases, not surfaces.', ...
     plot_line, ...
     'Run computes the selected tuples. Use the preview list to choose/reorder outputs before export. Notes explains the equations and orthogonality.'};
+end
+
+
+function [selected_runs, refs] = local_collect_selected_runs(runs, selected_paths)
+selected_paths = local_cellstr(selected_paths);
+selected_runs = {};
+refs = struct('run_slot', {}, 'file_index', {});
+run_slots = [];
+for ii = 1:numel(selected_paths)
+    found = false;
+    for rr = 1:numel(runs)
+        idx = find(strcmp(runs{rr}.paths, selected_paths{ii}), 1, 'first');
+        if ~isempty(idx)
+            slot = find(run_slots == rr, 1, 'first');
+            if isempty(slot)
+                selected_runs{end+1} = runs{rr}; %#ok<AGROW>
+                run_slots(end+1) = rr; %#ok<AGROW>
+                slot = numel(selected_runs);
+            end
+            refs(end+1) = struct('run_slot', slot, 'file_index', idx); %#ok<AGROW>
+            found = true;
+            break;
+        end
+    end
+    if ~found
+        error('Could not resolve one or more selected preview images to their generating run.');
+    end
+end
+end
+
+function params_struct = local_history_params(selected_runs, dest_names, layout)
+params_struct = struct();
+params_struct.export = struct('layout', layout, 'selected_files', {dest_names});
+for ii = 1:numel(selected_runs)
+    run_params = selected_runs{ii}.params;
+    run_params.layout_text = layout;
+    params_struct.(sprintf('run_%02d', ii)) = run_params;
+end
+end
+
+function code = local_history_reproduce_code(selected_runs, refs, dest_names, layout)
+lines = {'export_dir = fileparts(mfilename(''fullpath''));'; 'project_root = fileparts(fileparts(export_dir));'; 'addpath(genpath(project_root));'; ''};
+for ii = 1:numel(selected_runs)
+    suffix = sprintf('%02d', ii);
+    run_params = selected_runs{ii}.params;
+    run_params.layout_text = layout;
+    assign_lines = params_output_assignment_lines(run_params);
+    lines = [lines; {sprintf('%% Reproduce run %s', suffix); 'params = struct();'}; assign_lines(:); ...
+        {sprintf('out_%s = parse_special_functions_params(''render_from_params'', params);', suffix); ...
+         sprintf('run_files_%s = out_%s.files;', suffix, suffix); ...
+         ''}]; %#ok<AGROW>
+end
+for ii = 1:numel(refs)
+    suffix = sprintf('%02d', refs(ii).run_slot);
+    lines{end+1,1} = sprintf('copyfile(run_files_%s{%d}, fullfile(export_dir, %s), ''f'');', suffix, refs(ii).file_index, local_quote(dest_names{ii})); %#ok<AGROW>
+end
+if numel(dest_names) > 1
+    lines{end+1,1} = 'selected_files = {'; %#ok<AGROW>
+    for ii = 1:numel(dest_names)
+        lines{end+1,1} = sprintf('    fullfile(export_dir, %s);', local_quote(dest_names{ii})); %#ok<AGROW>
+    end
+    lines{end+1,1} = '};'; %#ok<AGROW>
+    lines{end+1,1} = sprintf('image_output(''compose_grid'', selected_files, fullfile(export_dir, ''composite.png''), ''Layout'', %s);', local_quote(layout)); %#ok<AGROW>
+end
+code = strjoin(lines, newline);
+end
+
+function c = local_cellstr(x)
+if isempty(x)
+    c = {};
+elseif iscell(x)
+    c = cellfun(@char, x(:).', 'UniformOutput', false);
+elseif isstring(x)
+    c = cellstr(x(:).');
+else
+    c = {char(string(x))};
+end
+end
+
+function s = local_quote(txt)
+s = ['''' strrep(char(string(txt)), '''', '''''') ''''];
 end

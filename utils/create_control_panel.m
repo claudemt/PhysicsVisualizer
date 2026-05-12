@@ -264,20 +264,53 @@ end
 end
 
 function row = local_next_row(grid)
+
+rows = [];
+
 try
-    used = arrayfun(@(c) c.Layout.Row, grid.Children);
-    used = used(isfinite(used));
-    if isempty(used)
-        row = 1;
-    else
-        row = max(used) + 1;
+    children = grid.Children;
+    for k = 1:numel(children)
+        try
+            r = children(k).Layout.Row;
+            if isnumeric(r) && isfinite(r)
+                rows(end+1) = r; %#ok<AGROW>
+            end
+        catch
+        end
     end
 catch
-    row = numel(grid.Children) + 1;
 end
+
+if isempty(rows)
+    row = 1;
+else
+    row = max(rows) + 1;
+end
+
 try
-    if isprop(grid, 'RowHeight') && numel(grid.RowHeight) < row
-        grid.RowHeight{row} = 'fit';
+    if isprop(grid, 'RowHeight')
+        rh = grid.RowHeight;
+
+        if isempty(rh)
+            rh = {};
+        elseif ~iscell(rh)
+            rh = num2cell(rh);
+        end
+
+        while numel(rh) < row
+            rh{end+1} = 'fit'; %#ok<AGROW>
+        end
+
+        for ii = 1:numel(rh)
+            if ischar(rh{ii}) || isstring(rh{ii})
+                token = char(string(rh{ii}));
+                if strcmpi(token, '1x')
+                    rh{ii} = 'fit';
+                end
+            end
+        end
+
+        grid.RowHeight = rh;
     end
 catch
 end

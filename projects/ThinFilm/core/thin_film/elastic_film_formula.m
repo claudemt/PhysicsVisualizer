@@ -239,8 +239,4 @@ function out = cleanSmallImag(out)
             end
         end
     elseif isnumeric(out) && isscalar(out)
-        if abs(imag(out)) < 1e-12 * max(1, abs(real(out)))
-            out = real(out);
-        end
-    end
-end
+        if abs(imag(out)) < 1e-12 * max(1

@@ -27,11 +27,26 @@ control_panel = uipanel(root, 'Title', 'controls');
 control_panel.Layout.Row = 1;
 control_panel.Layout.Column = 1;
 
+% Make the controls area scrollable when the project has many parameters.
+% This keeps the public create_tab_layout interface unchanged.
+try
+    control_panel.Scrollable = 'on';
+catch
+end
+
 control_grid = uigridlayout(control_panel, [1 1]);
-control_grid.RowHeight = {'1x'};
+
+control_grid.RowHeight = {'fit'};
 control_grid.ColumnWidth = {'1x'};
 control_grid.Padding = [8 8 8 8];
 control_grid.RowSpacing = 8;
+control_grid.ColumnSpacing = 0;
+
+try
+    control_grid.Scrollable = 'on';
+catch
+end
+
 
 right_grid = uigridlayout(root, [2 1]);
 right_grid.Layout.Row = 1;
@@ -85,9 +100,14 @@ switch preview_mode
         preview_list_grid.ColumnSpacing = 0;
         preview_toolbar = preview_list_grid;
 
-        preview_list = uilistbox(preview_list_grid, 'Multiselect', 'on');
+        preview_list = uilistbox(preview_list_grid, 'Items', {}, 'Multiselect', 'on');
         preview_list.Layout.Row = 1;
         preview_list.Layout.Column = 1;
+        preview_list.UserData = struct('paths', {{}}, 'run_ids', [], 'project_root', project_root, 'module_key', tab_title, 'run_counter', 0);
+        try
+            preview_list.Value = {};
+        catch
+        end
 
         order_grid = uigridlayout(preview_list_grid, [1 4]);
         order_grid.Layout.Row = 2;
@@ -107,7 +127,7 @@ switch preview_mode
         preview_all_button = uibutton(order_grid, 'push', 'Text', 'All');
         preview_all_button.Layout.Row = 1;
         preview_all_button.Layout.Column = 3;
-        preview_none_button = uibutton(order_grid, 'push', 'Text', 'None');
+        preview_none_button = uibutton(order_grid, 'push', 'Text', 'Del');
         preview_none_button.Layout.Row = 1;
         preview_none_button.Layout.Column = 4;
 
@@ -138,9 +158,10 @@ switch preview_mode
         image_output('reset_preview', preview_axes, opt.InitialMessage);
 
         preview_all_button.ButtonPushedFcn = @(~,~) image_output('select_all', preview_list);
-        preview_none_button.ButtonPushedFcn = @(~,~) image_output('select_none', preview_list);
+        preview_none_button.ButtonPushedFcn = @(~,~) image_output('delete_selection', preview_list, preview_axes);
         preview_up_button.ButtonPushedFcn = @(~,~) image_output('move_selection', preview_list, -1);
         preview_down_button.ButtonPushedFcn = @(~,~) image_output('move_selection', preview_list, 1);
+        preview_list.ValueChangedFcn = @(src,~) image_output('show_preview', preview_axes, image_output('selected_preview_paths', src, {}));
         preview_composite_button.ButtonPushedFcn = @(~,~) image_output('preview_composite', preview_axes, preview_list, project_root, tab_title, preview_layout_edit.Value);
     case {'axesgrid','grid','multi_axes','multiaxes'}
         sz = opt.PreviewGridSize;
