@@ -5,5 +5,6 @@ addpath(fullfile(repo_root, 'utils'));
 addpath(genpath(fullfile(project_root, 'app')));
 addpath(genpath(fullfile(project_root, 'core')));
 addpath(genpath(fullfile(project_root, 'docs')));
-tab_builders = {@create_thin_film_tab, @create_optical_thin_film_tab};
-launch_gui_studio(project_root, tab_builders, 'StudioName', 'Thin Fi
+tab_builders = {@create_elastic_thin_film_tab, @create_optical_thin_film_tab};
+launch_gui_studio(project_root, tab_builders, 'StudioName', 'Thin Film Studio');
+end

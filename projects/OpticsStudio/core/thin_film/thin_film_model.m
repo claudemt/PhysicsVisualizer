@@ -4,20 +4,16 @@ function out = thin_film_model(action, varargin)
 % Elastic implementation: elastic_film_formula.m
 % Optical stack: optical_film_formula.m
 
-if nargin == 0
-    action = 'defaults';
-end
-
 switch lower(char(string(action)))
-    case {'defaults','default_params','defaults_elastic','default_params_elastic'}
+    case {'defaults','default_params'}
         out = local_defaults();
     case {'defaults_optical','default_params_optical'}
         out = local_defaults_optical();
-    case {'solve','solve_elastic'}
+    case {'solve'}
         out = elastic_film_formula('solve', varargin{1});
     case {'solve_optical'}
         out = optical_film_formula('solve', varargin{1});
-    case {'report','compute_report','report_elastic','compute_report_elastic'}
+    case {'report','compute_report'}
         data = varargin{1};
         R = elastic_film_formula('solve', data);
         out = struct('data', data, 'result', R, 'text', local_report(data, R));
@@ -65,7 +61,7 @@ lines{end+1} = sprintf('k_x = %s', local_fmt(data.kx));
 lines{end+1} = sprintf('phi_i = %s', local_fmt(data.phii));
 lines{end+1} = sprintf('psi_i = %s', local_fmt(data.psii));
 lines{end+1} = '';
-lines{end+1} = 'Incident side a';
+lines{end+1} = 'Air side a';
 lines{end+1} = sprintf('lambda_a = %s', local_fmt(data.a.lambda));
 lines{end+1} = sprintf('mu_a = %s', local_fmt(data.a.mu));
 lines{end+1} = sprintf('eta_a = %s', local_fmt(data.a.eta));
@@ -125,74 +121,69 @@ for m = 1:data.N
     lines{end+1} = sprintf('eps_%d = %s', m, local_fmt(data.layers(m).eps));
     lines{end+1} = sprintf('mu_%d = %s', m, local_fmt(data.layers(m).mu));
     lines{end+1} = sprintf('h_%d = %s', m, local_fmt(data.layers(m).h));
-    if numel(R.layers) >= m
-        lines{end+1} = sprintf('phase_%d = %s', m, local_fmt(R.layers(m).phi));
-        lines{end+1} = sprintf('cos_theta_%d = %s', m, local_fmt(R.layers(m).cos_theta));
-    end
+    lines{end+1} = sprintf('phi_%d = %s', m, local_fmt(R.layers(m).phi));
     lines{end+1} = '';
 end
 lines{end+1} = 's polarization';
 lines{end+1} = sprintf('r_s = %s', local_fmt(R.rs));
-lines{end+1} = sprintf('R_s = %s', local_fmt(R.Rs));
 lines{end+1} = sprintf('t_s = %s', local_fmt(R.ts));
+lines{end+1} = sprintf('R_s = %s', local_fmt(R.Rs));
 lines{end+1} = sprintf('T_s = %s', local_fmt(R.Ts));
-lines{end+1} = sprintf('Energy sum s = %s', local_fmt(R.Es));
+lines{end+1} = sprintf('R_s + T_s = %s', local_fmt(R.Es));
 lines{end+1} = '';
 lines{end+1} = 'p polarization';
 lines{end+1} = sprintf('r_p = %s', local_fmt(R.rp));
-lines{end+1} = sprintf('R_p = %s', local_fmt(R.Rp));
 lines{end+1} = sprintf('t_p = %s', local_fmt(R.tp));
+lines{end+1} = sprintf('R_p = %s', local_fmt(R.Rp));
 lines{end+1} = sprintf('T_p = %s', local_fmt(R.Tp));
-lines{end+1} = sprintf('Energy sum p = %s', local_fmt(R.Ep));
+lines{end+1} = sprintf('R_p + T_p = %s', local_fmt(R.Ep));
 txt = sprintf('%s\n', lines{:});
 end
 
-function lines = local_result_lines(R, inc)
-lines = {};
-switch upper(inc)
-    case 'P'
-        lines{end+1} = sprintf('r_P = %s', local_fmt(R.rP_P));
-        lines{end+1} = sprintf('R_P = %s', local_fmt(R.RP_P));
-        lines{end+1} = sprintf('r_SV = %s', local_fmt(R.rSV_P));
-        lines{end+1} = sprintf('R_SV = %s', local_fmt(R.RSV_P));
-        lines{end+1} = sprintf('t_P = %s', local_fmt(R.tP_P));
-        lines{end+1} = sprintf('T_P = %s', local_fmt(R.TP_P));
-        lines{end+1} = sprintf('t_SV = %s', local_fmt(R.tSV_P));
-        lines{end+1} = sprintf('T_SV = %s', local_fmt(R.TSV_P));
-        lines{end+1} = sprintf('Energy sum = %s', local_fmt(R.EP));
-    case 'SV'
-        lines{end+1} = sprintf('r_P = %s', local_fmt(R.rP_SV));
-        lines{end+1} = sprintf('R_P = %s', local_fmt(R.RP_SV));
-        lines{end+1} = sprintf('r_SV = %s', local_fmt(R.rSV_SV));
-        lines{end+1} = sprintf('R_SV = %s', local_fmt(R.RSV_SV));
-        lines{end+1} = sprintf('t_P = %s', local_fmt(R.tP_SV));
-        lines{end+1} = sprintf('T_P = %s', local_fmt(R.TP_SV));
-        lines{end+1} = sprintf('t_SV = %s', local_fmt(R.tSV_SV));
-        lines{end+1} = sprintf('T_SV = %s', local_fmt(R.TSV_SV));
-        lines{end+1} = sprintf('Energy sum = %s', local_fmt(R.ESV));
-    otherwise
-        error('Unknown incidence label: %s', inc);
+function lines = local_result_lines(R, kind)
+if strcmp(kind, 'P')
+    lines = { ...
+        sprintf('r_P = %s', local_fmt(R.rP_P)), ...
+        sprintf('R_P = %s', local_fmt(R.RP_P)), ...
+        sprintf('r_SV = %s', local_fmt(R.rSV_P)), ...
+        sprintf('R_SV = %s', local_fmt(R.RSV_P)), ...
+        sprintf('t_P = %s', local_fmt(R.tP_P)), ...
+        sprintf('T_P = %s', local_fmt(R.TP_P)), ...
+        sprintf('t_SV = %s', local_fmt(R.tSV_P)), ...
+        sprintf('T_SV = %s', local_fmt(R.TSV_P)), ...
+        sprintf('Energy sum = %s', local_fmt(R.EP))};
+else
+    lines = { ...
+        sprintf('r_P = %s', local_fmt(R.rP_SV)), ...
+        sprintf('R_P = %s', local_fmt(R.RP_SV)), ...
+        sprintf('r_SV = %s', local_fmt(R.rSV_SV)), ...
+        sprintf('R_SV = %s', local_fmt(R.RSV_SV)), ...
+        sprintf('t_P = %s', local_fmt(R.tP_SV)), ...
+        sprintf('T_P = %s', local_fmt(R.TP_SV)), ...
+        sprintf('t_SV = %s', local_fmt(R.tSV_SV)), ...
+        sprintf('T_SV = %s', local_fmt(R.TSV_SV)), ...
+        sprintf('Energy sum = %s', local_fmt(R.ESV))};
 end
 end
 
 function s = local_fmt(x)
-if isnumeric(x)
-    if isreal(x)
-        if isscalar(x)
-            s = num2str(x, '%.12g');
-        else
-            s = mat2str(x, 8);
-        end
-    else
-        if isscalar(x)
-            s = sprintf('%.12g%+.12gi', real(x), imag(x));
-        else
-            s = mat2str(x, 8);
-        end
-    end
-elseif islogical(x)
-    s = mat2str(x);
+x = local_clean_small_imag(x);
+if isreal(x)
+    s = num2str(real(x), '%.6g');
 else
-    s = char(string(x));
+    xr = real(x); xi = imag(x);
+    if abs(xr) < 1e-14, xr = 0; end
+    if abs(xi) < 1e-14, xi = 0; end
+    if xi >= 0
+        s = [num2str(xr, '%.6g') ' + ' num2str(abs(xi), '%.6g') 'i'];
+    else
+        s = [num2str(xr, '%.6g') ' - ' num2str(abs(xi), '%.6g') 'i'];
+    end
+end
+end
+
+function out = local_clean_small_imag(out)
+if isnumeric(out) && isscalar(out) && abs(imag(out)) < 1e-12 * max(1, abs(real(out)))
+    out = real(out);
 end
 end

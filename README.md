@@ -10,6 +10,7 @@ The repository is designed for research demonstrations, classroom teaching, expl
 |---|---|
 | ChladniFigures | Visualizes thin-plate vibration modes and static plate deflection under external loads. |
 | CreativePlotStudio | Provides generative art, fractal, and nonlinear plotting scripts. |
+| GraphiteLevitation | Visualizes diamagnetic levitation of graphite over compact checkerboard magnet arrays. |
 | CrystalOpticsBoundary | Generates text reports for reflection and transmission at anisotropic crystal boundaries. |
 | MieScattering | Visualizes electromagnetic scattering fields for sphere- and cylinder-style models. |
 | MovingChargeFields | Visualizes retarded electric and magnetic fields, Poynting flow, and phase-sweep videos for moving charges. |

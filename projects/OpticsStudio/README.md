@@ -2,28 +2,37 @@
 
 ## Scope
 
-Unified optics workbench for Fourier optics, propagation, imaging, interference, ray optics, and tomography.
+Computational optics simulations: **CT tomography** (filtered backprojection) and **scalar wave optics** (angular-spectrum propagation, Fourier-plane filtering).
 
 Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
 
 ## User-facing organization
 
-- `app/tabs/` defines the GUI tab, its default input values, and the short control-level hints shown inside the tab.
-- `docs/physical_formulas.md` is the single formula note for this project.  It explains the mathematics/physics behind the previews and reports.
+- `app/tabs/` defines two GUI tabs:
+  - `create_tomography_tab.m` — CT phantom sinogram / filtered backprojection reconstruction.
+  - `create_wave_optics_tab.m` — scalar wave propagation (free-space / 4f-filtering).
+- `docs/physical_formulas.md` is the single formula note for this project.
 - `output/` is created on export and contains images or reports plus `parameters.txt` and `reproduce_code.m`.
 
 ## Core organization
 
-- `core/fourier/`, `core/wave/`, `core/imaging/`, `core/interference/`, `core/ray/`, and `core/tomography/` contain domain models.
-- `core/common/` contains shared optics helpers.
+- `core/imaging/` — PSF, OTF, Zernike wavefront, circular pupil utilities.
+- `core/wave/` — Angular-spectrum propagation, Fourier filter masks.
 
 ## Main algorithms
 
-- FFT-based 4f/Fresnel/angular-spectrum propagation
-- PSF/OTF imaging models
-- Interference and moire simulation
-- ABCD ray matrices
-- Filtered backprojection
+**Tomography (CT)**
+
+- Analytic 2D phantoms (Shepp–Logan, three disks)
+- Parallel-beam Radon transform
+- Filtered backprojection with user-selectable ramp/window filters
+- Reconstruction error metrics (RMSE)
+
+**Wave optics**
+
+- Angular-spectrum propagation with optional band-limiting
+- 4f imaging system with Fourier-plane masks (pinhole, ring, slits)
+- Synthetic objects (bars, mesh, double slit, aperture, gaussian lattice)
 
 ## Maintenance notes
 

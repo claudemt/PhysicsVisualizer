@@ -1,27 +1,26 @@
 function varargout = elastic_film_formula(action, varargin)
-%ELASTIC_FILM_FORMULA Core formulas for elastic-film P/SV/SH calculation.
+% elastic_film_formula
+% Core formulas for elastic-film P / SV / SH calculation.
 %
 % Usage
-%   raw  = elastic_film_formula('defaultInput');
+%   data = elastic_film_formula('defaultInput');
 %   R    = elastic_film_formula('solve', data);
 %
-% The solver accepts either the GUI/facade structure
-%   data.a.lambda, data.a.mu, data.a.eta, data.g.*, data.layers
-% or the raw defaultInput structure
-%   lambda_a, mu_a, eta_a, lambda_g, mu_g, eta_g, layers.
+% This file only stores the computational part so that the GUI logic can
+% stay in main_elastic_film_gui.m.
 
     if nargin == 0
         error('elastic_film_formula requires an action.');
     end
 
-    switch lower(char(string(action)))
+    switch lower(action)
         case 'defaultinput'
             varargout{1} = defaultInput();
         case 'solve'
             if isempty(varargin)
                 error('Missing input data for solve.');
             end
-            varargout{1} = solveElasticFilm(normalizeInput(varargin{1}));
+            varargout{1} = solveElasticFilm(varargin{1});
         otherwise
             error('Unknown action: %s', action);
     end
@@ -53,23 +52,6 @@ function data = defaultInput()
         'h',      round(9.8 * sqrt(mu_a / (omega^2 * eta_a)), 3));
 end
 
-function data = normalizeInput(data)
-    if isfield(data, 'a') && isfield(data, 'g')
-        return;
-    end
-
-    required = {'lambda_a','mu_a','eta_a','lambda_g','mu_g','eta_g'};
-    for ii = 1:numel(required)
-        if ~isfield(data, required{ii})
-            error('elastic_film_formula:badInput', ...
-                'Missing field %s. Expected facade fields data.a/data.g or raw defaultInput fields.', required{ii});
-        end
-    end
-
-    data.a = struct('lambda', data.lambda_a, 'mu', data.mu_a, 'eta', data.eta_a);
-    data.g = struct('lambda', data.lambda_g, 'mu', data.mu_g, 'eta', data.eta_g);
-end
-
 function R = solveElasticFilm(data)
     a = makeMedium(data.a.lambda, data.a.mu, data.a.eta, data.kx, data.omega);
     g = makeMedium(data.g.lambda, data.g.mu, data.g.eta, data.kx, data.omega);
@@ -78,7 +60,8 @@ function R = solveElasticFilm(data)
     Psh  = eye(2);
 
     if data.N > 0
-        layers = repmat(makeBlankLayer(), data.N, 1);
+        blankLayer = makeBlankLayer();
+        layers = repmat(blankLayer, data.N, 1);
     else
         layers = repmat(makeBlankLayer(), 0, 1);
     end
