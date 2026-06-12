@@ -427,6 +427,8 @@ end
 
 function v = local_parse_range(txt)
 s = strtrim(local_text_to_string(txt));
+% Strip parentheses and brackets so '(0, 1)' or '[0, 1]' parse correctly
+s = regexprep(s, '^[\[\(]+|[\]\)]+$', '');
 if isempty(s)
     v = [];
 elseif contains(s, ':')

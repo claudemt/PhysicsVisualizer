@@ -36,6 +36,7 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         result = run_cylindrical_dielectric_generation(project_root, params);
         if isempty(result.files), error('No PNG output files were generated.'); end
         image_output('bind_preview_list', ui.preview_list, ui.preview_axes, result.files);
+        image_output('reset_preview', ui.preview_axes, '');
         state.files = result.files;
         state.params = params;
     end

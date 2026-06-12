@@ -156,6 +156,8 @@ p = inputParser;
 p.addParameter('Title', '');
 p.addParameter('XLabel', '$x$');
 p.addParameter('YLabel', '$y$');
+p.addParameter('XLim', []);
+p.addParameter('YLim', []);
 p.addParameter('LegendLocation', 'best');
 p.addParameter('Legend', 'show');
 p.addParameter('Filename', '');
@@ -168,6 +170,8 @@ item.curves = curves;
 item.title = opt.Title;
 item.xlabel = opt.XLabel;
 item.ylabel = opt.YLabel;
+item.xLim = opt.XLim;
+item.yLim = opt.YLim;
 item.legendLocation = opt.LegendLocation;
 item.legend = opt.Legend;
 item.filename = opt.Filename;
@@ -267,15 +271,7 @@ end
 end
 
 function local_render_file(result, output_path, opt)
-fig = figure('Visible', 'off', ...
-    'HandleVisibility', 'off', ...
-    'IntegerHandle', 'off', ...
-    'MenuBar', 'none', ...
-    'ToolBar', 'none', ...
-    'NumberTitle', 'off', ...
-    'Name', '', ...
-    'Color', [1 1 1], ...
-    'Position', [100 100 1000 780]);
+fig = image_output('hidden_figure', 'Position', [100 100 1000 780]);
 cleanup = onCleanup(@() local_safe_close(fig));
 kind = lower(char(string(local_get(result, 'kind', 'heatmap'))));
 try
@@ -708,6 +704,15 @@ if isstruct(opt) && isfield(opt, 'Crop') && ~isempty(opt.Crop) && ~isempty(allx)
         xlim(ax, xl);
         ylim(ax, yl);
     end
+end
+
+xl = local_get(result, 'xLim', []);
+if ~isempty(xl)
+    xlim(ax, xl);
+end
+yl = local_get(result, 'yLim', []);
+if ~isempty(yl)
+    ylim(ax, yl);
 end
 
 legend_location = local_get(result, 'legendLocation', local_get(opt, 'LegendLocation', 'best'));

@@ -512,8 +512,7 @@ function outDir = local_export_outputs(result, inputData, outputRoot, mainFuncti
         if ismember(k, [2 4 5 6 7])
             figSize = cfg.figureSize3D;
         end
-        f = figure('Color', 'w', 'Position', [80 80 figSize(1) figSize(2)], ...
-            'Units', 'pixels', 'PaperPositionMode', 'auto', 'InvertHardcopy', 'off', 'Visible', 'off');
+        f = image_output('hidden_figure', 'Position', [80 80 figSize(1) figSize(2)]);
         ax = axes(f);
         local_style_axes(ax);
         local_render_single_plot(ax, result, k);
@@ -595,7 +594,7 @@ function local_play_animation(ax, result, writeVideoFlag, videoPath)
     wlPlot = wl / omegaScale;
 
     if writeVideoFlag
-        fig = figure('Color', 'w', 'Position', [100 80 960 780], 'Visible', 'off');
+        fig = figure('Color', 'w', 'Position', [100 80 960 780], 'Visible', 'on');
         axh = axes(fig);
     else
         axh = ax;

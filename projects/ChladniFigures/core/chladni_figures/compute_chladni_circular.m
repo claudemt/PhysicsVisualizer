@@ -15,7 +15,8 @@ else
 end
 
 a = 1.0;
-x = linspace(-a, a, params.n);
+nRender = max(240, round(params.n));
+x = linspace(-a, a, nRender);
 y = x;
 [X, Y] = meshgrid(x, y);
 Rr = hypot(X, Y);
@@ -33,7 +34,7 @@ for i = 1:kUse
     s = modes(i).s;
     coeffs = modes(i).coeffs;
 
-    U = nan(params.n, params.n);
+    U = nan(nRender, nRender);
     radial = evaluate_radial_mode(beta * rr(mask), beta, m, coeffs, xi0);
     if m > 0
         radial = radial .* cos(m * TH(mask));
@@ -137,6 +138,8 @@ sortKeys = [lambdaVals, mVals, sVals];
 modes = modes(idxSort);
 
 if numel(modes) < k
+    warning('Chladni:modeCount', ...
+        'Requested %d modes but only %d were found in the search range.', k, numel(modes));
 end
 end
 

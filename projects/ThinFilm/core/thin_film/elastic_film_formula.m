@@ -152,25 +152,38 @@ function R = solveElasticFilm(data)
     R.phi_t_SV = solSV(3);
     R.psi_t_SV = solSV(4);
 
-    R.rP_P  = R.phi_r_P / data.phii;
-    R.RP_P  = abs(R.rP_P)^2;
-    R.rSV_P = R.psi_r_P / data.phii;
-    R.RSV_P = (a.cP * cos(a.thetaS)) / (a.cS * cos(a.thetaP)) * abs(R.rSV_P)^2;
-    R.tP_P  = R.phi_t_P / data.phii;
-    R.TP_P  = (g.eta * a.cP * cos(g.thetaP)) / (a.eta * g.cP * cos(a.thetaP)) * abs(R.tP_P)^2;
-    R.tSV_P = R.psi_t_P / data.phii;
-    R.TSV_P = (g.eta * a.cP * cos(g.thetaS)) / (a.eta * g.cS * cos(a.thetaP)) * abs(R.tSV_P)^2;
-    R.EP = R.RP_P + R.RSV_P + R.TP_P + R.TSV_P;
+    % Guard against zero incident amplitudes to avoid 0/0 = NaN
+    if abs(data.phii) < eps
+        R.rP_P = 0; R.RP_P = 0; R.rSV_P = 0; R.RSV_P = 0;
+        R.tP_P = 0; R.TP_P = 0; R.tSV_P = 0; R.TSV_P = 0;
+        R.EP = 0;
+    else
+        R.rP_P  = R.phi_r_P / data.phii;
+        R.RP_P  = abs(R.rP_P)^2;
+        R.rSV_P = R.psi_r_P / data.phii;
+        R.RSV_P = (a.cP * cos(a.thetaS)) / (a.cS * cos(a.thetaP)) * abs(R.rSV_P)^2;
+        R.tP_P  = R.phi_t_P / data.phii;
+        R.TP_P  = (g.eta * a.cP * cos(g.thetaP)) / (a.eta * g.cP * cos(a.thetaP)) * abs(R.tP_P)^2;
+        R.tSV_P = R.psi_t_P / data.phii;
+        R.TSV_P = (g.eta * a.cP * cos(g.thetaS)) / (a.eta * g.cS * cos(a.thetaP)) * abs(R.tSV_P)^2;
+        R.EP = R.RP_P + R.RSV_P + R.TP_P + R.TSV_P;
+    end
 
-    R.rP_SV  = R.phi_r_SV / data.psii;
-    R.RP_SV  = (a.cS * cos(a.thetaP)) / (a.cP * cos(a.thetaS)) * abs(R.rP_SV)^2;
-    R.rSV_SV = R.psi_r_SV / data.psii;
-    R.RSV_SV = abs(R.rSV_SV)^2;
-    R.tP_SV  = R.phi_t_SV / data.psii;
-    R.TP_SV  = (g.eta * a.cS * cos(g.thetaP)) / (a.eta * g.cP * cos(a.thetaS)) * abs(R.tP_SV)^2;
-    R.tSV_SV = R.psi_t_SV / data.psii;
-    R.TSV_SV = (g.eta * a.cS * cos(g.thetaS)) / (a.eta * g.cS * cos(a.thetaS)) * abs(R.tSV_SV)^2;
-    R.ESV = R.RP_SV + R.RSV_SV + R.TP_SV + R.TSV_SV;
+    if abs(data.psii) < eps
+        R.rP_SV = 0; R.RP_SV = 0; R.rSV_SV = 0; R.RSV_SV = 0;
+        R.tP_SV = 0; R.TP_SV = 0; R.tSV_SV = 0; R.TSV_SV = 0;
+        R.ESV = 0;
+    else
+        R.rP_SV  = R.phi_r_SV / data.psii;
+        R.RP_SV  = (a.cS * cos(a.thetaP)) / (a.cP * cos(a.thetaS)) * abs(R.rP_SV)^2;
+        R.rSV_SV = R.psi_r_SV / data.psii;
+        R.RSV_SV = abs(R.rSV_SV)^2;
+        R.tP_SV  = R.phi_t_SV / data.psii;
+        R.TP_SV  = (g.eta * a.cS * cos(g.thetaP)) / (a.eta * g.cP * cos(a.thetaS)) * abs(R.tP_SV)^2;
+        R.tSV_SV = R.psi_t_SV / data.psii;
+        R.TSV_SV = (g.eta * a.cS * cos(g.thetaS)) / (a.eta * g.cS * cos(a.thetaS)) * abs(R.tSV_SV)^2;
+        R.ESV = R.RP_SV + R.RSV_SV + R.TP_SV + R.TSV_SV;
+    end
 
     denSH = a.zeta * cos(a.thetaS) * (Psh(1,1) + Psh(1,2) * g.zeta * cos(g.thetaS)) + ...
             (Psh(2,1) + Psh(2,2) * g.zeta * cos(g.thetaS));

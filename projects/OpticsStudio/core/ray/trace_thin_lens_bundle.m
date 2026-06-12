@@ -2,7 +2,12 @@ function result = trace_thin_lens_bundle(object_distance, focal_length, object_h
 %TRACE_THIN_LENS_BUNDLE Build paraxial thin-lens rays from an object point.
 
 ray_heights = linspace(-aperture_radius, aperture_radius, ray_count);
-image_distance = 1 / (1 / focal_length - 1 / object_distance);
+denom = 1 / focal_length - 1 / object_distance;
+if abs(denom) < eps(1) * 1e6
+    image_distance = sign(denom) * 1e12;
+else
+    image_distance = 1 / denom;
+end
 image_height = -image_distance / object_distance * object_height;
 
 segments_in = zeros(ray_count, 4);

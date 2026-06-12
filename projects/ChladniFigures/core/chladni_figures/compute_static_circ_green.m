@@ -31,7 +31,8 @@ else
 end
 
 R = 1.0;
-x = linspace(-R, R, max(81, round(n)));
+nRender = max(240, round(n));
+x = linspace(-R, R, nRender);
 y = x;
 [X, Y] = meshgrid(x, y);
 RR = hypot(X, Y);

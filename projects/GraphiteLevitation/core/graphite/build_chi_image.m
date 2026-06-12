@@ -13,7 +13,10 @@ switch lower(char(string(g.shape)))
     case 'circle'
         mask = X.^2 + Y.^2 <= g.radius^2;
     case 'square'
-        mask = abs(X) <= g.side/2 & abs(Y) <= g.side/2;
+        phi = g.rotationDeg * pi / 180;
+        Xloc =  cos(phi)*X + sin(phi)*Y;
+        Yloc = -sin(phi)*X + cos(phi)*Y;
+        mask = abs(Xloc) <= g.side/2 & abs(Yloc) <= g.side/2;
     otherwise
         mask = false(size(X));
 end

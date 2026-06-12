@@ -194,7 +194,12 @@ plot_graphite_planform(ax, r.params.graphite, r.metrics.xMinOn, r.metrics.yMinOn
 local_plot_stable(ax, r.metrics.stableOff, [0.35 0.35 0.35], 'o');
 local_plot_stable(ax, r.metrics.stableOn, [0.85 0.15 0.15], '+');
 if r.params.laser.enabled
-    plot(ax, (r.metrics.xMinOn + r.params.laser.spotX)*1e3, (r.metrics.yMinOn + r.params.laser.spotY)*1e3, 'ko', 'MarkerFaceColor', 'y', 'MarkerSize', 3.5);
+    % Laser spot is in graphite-local (rotated) coordinates; rotate to lab frame
+    phi = r.params.graphite.rotationDeg * pi / 180;
+    spotX_lab =  cos(phi)*r.params.laser.spotX - sin(phi)*r.params.laser.spotY;
+    spotY_lab =  sin(phi)*r.params.laser.spotX + cos(phi)*r.params.laser.spotY;
+    plot(ax, (r.metrics.xMinOn + spotX_lab)*1e3, (r.metrics.yMinOn + spotY_lab)*1e3, ...
+        'ko', 'MarkerFaceColor', 'y', 'MarkerSize', 3.5);
 end
 end
 
@@ -376,14 +381,7 @@ function fig = local_big_figure(nr, nc, nblocks, hscale)
 if nargin < 4, hscale = 1; end
 w = max(1400, 360*nc + 120);
 h = max(900, round(290*nr*nblocks*hscale + 120));
-fig = figure('Color','w','Position',[80 60 w h],'Visible','off');
-try
-    apply_tex_style(fig, 'Interpreter', 'latex', 'TickInterpreter', 'latex');
-catch
-    try, set(fig, 'DefaultTextInterpreter', 'latex'); catch, end
-    try, set(fig, 'DefaultAxesTickLabelInterpreter', 'latex'); catch, end
-    try, set(fig, 'DefaultLegendInterpreter', 'latex'); catch, end
-end
+fig = image_output('hidden_figure', 'Position', [80 60 w h]);
 end
 
 function local_apply_axes_style(ax, ttl, xl, yl, axisMode)
@@ -643,23 +641,6 @@ end
 function local_export(fig, path, params)
 dpi = 300;
 try, dpi = params.render.dpi; catch, end
-set(fig, 'InvertHardcopy', 'off');
-try
-    if exist('image_output','file') == 2
-        [folder, name, ext] = fileparts(path);
-        image_output('save_figure', fig, folder, [name ext], dpi);
-    else
-        exportgraphics(fig, path, 'Resolution', dpi, 'BackgroundColor', 'white');
-    end
-catch ME
-    try
-        exportgraphics(fig, path, 'Resolution', dpi, 'BackgroundColor', 'white');
-    catch
-        try
-            print(fig, path, '-dpng', sprintf('-r%d', dpi));
-        catch
-            rethrow(ME);
-        end
-    end
-end
+[folder, name, ext] = fileparts(path);
+image_output('save_figure', fig, folder, [name ext], dpi);
 end

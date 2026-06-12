@@ -37,7 +37,7 @@ params.numerics.mapExtraMM = max(params.numerics.mapExtraMM, 0);
 params.numerics.fieldSourceN = max(1, round(params.numerics.fieldSourceN));
 params.numerics.fieldSoftening = max(params.numerics.fieldSoftening, 1e-6);
 
-params.tilt.torsionalStiffness = max(params.tilt.torsionalStiffness, eps);
+params.tilt.torsionalStiffness = max(params.tilt.torsionalStiffness, 1e-15);
 
 if ~isfield(params, 'scan') || ~isstruct(params.scan)
     d0 = default_graphite_levitation_params();

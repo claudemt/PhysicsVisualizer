@@ -329,8 +329,7 @@ tab = ui.tab;
             if ismember(k, [2 4 5 6 7])
                 figSize = app.config.plot.figureSize3D;
             end
-            fig = figure('Color', 'w', 'Position', [80 80 figSize(1) figSize(2)], ...
-                'Units', 'pixels', 'PaperPositionMode', 'auto', 'InvertHardcopy', 'off', 'Visible', 'off');
+            fig = image_output('hidden_figure', 'Position', [80 80 figSize(1) figSize(2)]);
             ax = axes(fig);
             rigid_common_support('style_axes', ax);
             rigid_common_support('render_single_plot', ax, result, k);
