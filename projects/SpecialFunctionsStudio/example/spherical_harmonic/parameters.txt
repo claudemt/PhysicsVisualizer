@@ -1,0 +1,14 @@
+Generated: 2026-06-16 18:12:50
+
+export.layout = 7+5+3+1
+export.selected_files = {01_spherical_harmonics_ylm_l_3_m_3.png, 02_spherical_harmonics_ylm_l_3_m_2.png, 03_spherical_harmonics_ylm_l_3_m_1.png, 04_spherical_harmonics_ylm_l_3_m_0.png, 05_spherical_harmonics_ylm_l_3_m_1.png, 06_spherical_harmonics_ylm_l_3_m_2.png, 07_spherical_harmonics_ylm_l_3_m_3.png, 08_spherical_harmonics_ylm_l_2_m_2.png, 09_spherical_harmonics_ylm_l_2_m_1.png, 10_spherical_harmonics_ylm_l_2_m_0.png, 11_spherical_harmonics_ylm_l_2_m_1.png, 12_spherical_harmonics_ylm_l_2_m_2.png, 13_spherical_harmonics_ylm_l_1_m_1.png, 14_spherical_harmonics_ylm_l_1_m_0.png, 15_spherical_harmonics_ylm_l_1_m_1.png, 16_spherical_harmonics_ylm_l_0_m_0.png}
+run_01.family = spherical_harmonics
+run_01.variant = ylm
+run_01.param_text = (0:3,-3:3)
+run_01.arg_matrix = [0 -3;0 -2;0 -1;0 0;0 1;0 2;0 3;1 -3;1 -2;1 -1;1 0;1 1;1 2;1 3;2 -3;2 -2;2 -1;2 0;2 1;2 2;2 3;3 -3;3 -2;3 -1;3 0;3 1;3 2;3 3]
+run_01.xmin = 0
+run_01.xmax = 1
+run_01.crop.mode = auto
+run_01.crop.y_range = []
+run_01.layout_text = 7+5+3+1
+run_01.render_options.legend_location = northwest

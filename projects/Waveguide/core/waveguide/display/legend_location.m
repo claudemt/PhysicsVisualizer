@@ -6,15 +6,15 @@ if nargin < 1 || isempty(choice)
 end
 choice = lower(strtrim(char(string(choice))));
 switch choice
-    case {'right side', 'right', 'outside right', 'eastoutside', '图右边', '右边'}
+    case {'right side', 'right', 'outside right', 'eastoutside'}
         loc = 'eastoutside';
-    case {'upper left', 'left upper', 'northwest', '左上'}
+    case {'upper left', 'left upper', 'northwest'}
         loc = 'northwest';
-    case {'lower left', 'left lower', 'southwest', '左下'}
+    case {'lower left', 'left lower', 'southwest'}
         loc = 'southwest';
-    case {'upper right', 'right upper', 'northeast', '右上'}
+    case {'upper right', 'right upper', 'northeast'}
         loc = 'northeast';
-    case {'lower right', 'right lower', 'southeast', '右下'}
+    case {'lower right', 'right lower', 'southeast'}
         loc = 'southeast';
     otherwise
         loc = 'eastoutside';

@@ -12,8 +12,9 @@ action_dd = create_control_panel(study.grid, 'dropdown', 'action', {'mode field'
 mode_dd = create_control_panel(study.grid, 'dropdown', 'polarization', {'TE','TM'}, 'TE', 'TE or TM.');
 legend_dd = create_control_panel(study.grid, 'legend', 'legend', 'best');
 
-params_panel = create_control_panel(ui.control_grid, 'section', 'parameters', 5);
-order_edit = create_control_panel(params_panel.grid, 'text', 'order', '(0)', 'Single order or scan expression.');
+params_panel = create_control_panel(ui.control_grid, 'section', 'parameters', 6);
+order_edit = create_control_panel(params_panel.grid, 'text', 'order', '(0:3)', 'Single order or scan expression.');
+freq_edit = create_control_panel(params_panel.grid, 'numeric', 'f (GHz)', 12.0, 'Operating frequency.');
 max_order = create_control_panel(params_panel.grid, 'numeric', 'max order', 5, 'Largest order for batch plots.');
 n1_edit = create_control_panel(params_panel.grid, 'numeric', 'nco core', 1.50, 'Core refractive index.');
 n2_edit = create_control_panel(params_panel.grid, 'numeric', 'ncl cladding', 1.45, 'Cladding refractive index.');
@@ -22,6 +23,8 @@ d_edit = create_control_panel(params_panel.grid, 'numeric', 'thickness d (m)', 0
 actions = create_control_panel(ui.control_grid, 'section', 'actions', 1);
 state = struct('files', {{}}, 'params', struct());
 bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_callback, 'GenerateText', 'Run');
+action_dd.ValueChangedFcn = @(~,~) refresh_controls();
+refresh_controls();
 
     function params = read_params()
         params = struct();
@@ -32,12 +35,12 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         params.grid_n = 240;
         params.samples = 260;
         params.vmax = 12;
-        params.freq_ghz = 4.0;
+        params.freq_ghz = parse_waveguide_params('positive', freq_edit, 'f');
         params.z_length = 0.10;
         params.layout_rows = image_output('preview_layout', ui, 'auto');
         switch params.action
             case 'mode field'
-                params.order_list = parse_waveguide_params('int_vector', order_edit.Value, '(0)', 0, 100);
+                params.order_list = parse_waveguide_params('int_vector', order_edit.Value, '(0:3)', 0, 100);
                 params.n1 = parse_waveguide_params('positive', n1_edit, 'nco');
                 params.n2 = parse_waveguide_params('positive', n2_edit, 'ncl');
                 params.d = parse_waveguide_params('positive', d_edit, 'thickness d');
@@ -79,7 +82,8 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         action_dd.Value = 'mode field';
         mode_dd.Value = 'TE';
         legend_dd.Value = 'best';
-        order_edit.Value = '(0)';
+        order_edit.Value = '(0:3)';
+        freq_edit.Value = 4.0;
         max_order.Value = 5;
         n1_edit.Value = 1.50;
         n2_edit.Value = 1.45;
@@ -95,6 +99,28 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         layout = image_output('preview_layout', ui, 'auto');
         image_output('export_bundle', project_root, 'waveguide_planar', paths, ...
             'Params', state.params, 'Composite', true, 'Layout', layout);
+    end
+
+    function refresh_controls()
+        is_mode_field = strcmp(action_dd.Value, 'mode field');
+        is_dispersion = strcmp(action_dd.Value, 'dispersion curve');
+        is_existence = strcmp(action_dd.Value, 'mode existence');
+        % Row order: order(1), freq(2), max_order(3), n1(4), n2(5), d(6)
+        vis = {'off','on'};
+        order_edit.Parent.Visible = vis{is_mode_field + 1};
+        freq_edit.Parent.Visible = vis{~is_existence + 1};
+        max_order.Parent.Visible = vis{~is_mode_field + 1};
+        n1_edit.Parent.Visible = vis{~is_existence + 1};
+        n2_edit.Parent.Visible = vis{~is_existence + 1};
+        d_edit.Parent.Visible = vis{~(is_dispersion || is_existence) + 1};
+        % Collapse hidden rows
+        rh = repmat({'fit'}, 1, 6);
+        if ~is_mode_field, rh{1} = 0; end
+        if is_existence, rh{2} = 0; end
+        if is_mode_field, rh{3} = 0; end
+        if is_existence, rh{4} = 0; rh{5} = 0; end
+        if is_dispersion || is_existence, rh{6} = 0; end
+        params_panel.grid.RowHeight = rh;
     end
 
 tab = ui.tab;

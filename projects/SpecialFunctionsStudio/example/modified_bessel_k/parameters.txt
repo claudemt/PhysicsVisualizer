@@ -1,0 +1,14 @@
+Generated: 2026-06-16 18:05:52
+
+export.layout = auto
+export.selected_files = {01_modified_bessel_function_k_n_x.png}
+run_01.family = bessel
+run_01.variant = k
+run_01.param_text = (0:5)
+run_01.arg_matrix = [0;1;2;3;4;5]
+run_01.xmin = 0
+run_01.xmax = 5
+run_01.crop.mode = yrange
+run_01.crop.y_range = [0 1]
+run_01.layout_text = auto
+run_01.render_options.legend_location = northeast

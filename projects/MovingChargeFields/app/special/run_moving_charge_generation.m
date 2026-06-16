@@ -73,36 +73,47 @@ result = struct('preview_png', '', 'case_dir', cache_dir, 'output_dir', cache_di
 end
 
 function result = export_current_case(params, project_root)
-%EXPORT_CURRENT_CASE Export image or video outputs using the original drawing pipeline.
+%EXPORT_CURRENT_CASE Export sequentially-numbered image/video files via shared utils.
 visibility_guard = image_output('hidden_figures'); %#ok<NASGU>
 params.cmapMode = 'log';
-case_dir = image_output('clear_cache', project_root, 'moving_charge_export');
+cache_dir = image_output('clear_cache', project_root, 'moving_charge_export');
 
 field_list = export_field_list(params);
 [uvx, uvy] = build_plot_axes(params.a_over_lambda, params.slicePos_over_lambda, params.outputMode, params.beta_max, field_list);
-paths = cell(1, numel(field_list));
+nFields = numel(field_list);
 
-if strcmp(params.outputMode, 'image')
-    for k = 1:numel(field_list)
+% Generate PNG images, pass to export_bundle for numbered output
+image_paths = {};
+if any(strcmp(params.outputMode, {'image','image+video'}))
+    for k = 1:nFields
         payload = compute_frame_payload(uvx, uvy, params.motionType, params.a_over_lambda, params.beta_max, ...
             params.sliceType, params.slicePos_over_lambda, params.phase_over_T, params.partType, field_list{k});
         fig = create_plot_figure(payload, uvx, uvy, payload.rq_now_plot, params, field_list{k});
-        paths{k} = image_output('save_figure', fig, case_dir, [make_output_basename(params, field_list{k}), '.png'], 300);
+        image_paths{end+1} = image_output('save_figure', fig, cache_dir, [field_list{k}, '.png'], 300);
         close(fig);
-    end
-else
-    cfg = default_video_config(params.beta_max);
-    for k = 1:numel(field_list)
-        paths{k} = save_video_for_field(field_list{k}, uvx, uvy, params, case_dir, cfg);
     end
 end
 
 reproduce_code = local_reproduce_code(params);
-info = image_output('export_bundle', project_root, 'moving_charge', paths, ...
+info = image_output('export_bundle', project_root, 'moving_charge', image_paths, ...
     'Params', params, 'ReproduceCode', reproduce_code, 'Composite', false);
-case_dir = info.output_dir;
-result = struct('preview_png', '', 'case_dir', case_dir, 'output_dir', case_dir, ...
-    'paths', {info.files}, 'files', {info.files}, 'storage_folder', case_dir);
+out_dir = info.output_dir;
+
+% Copy videos to the same output dir (continue numbering after images)
+out_files = info.files;
+if any(strcmp(params.outputMode, {'video','image+video'}))
+    cfg = default_video_config(params.beta_max);
+    for k = 1:nFields
+        video_path = save_video_for_field(field_list{k}, uvx, uvy, params, cache_dir, cfg);
+        idx = nFields + k;
+        dst = fullfile(out_dir, sprintf('%02d_%s.mp4', idx, field_list{k}));
+        copyfile(video_path, dst, 'f');
+        out_files{end+1} = dst;
+    end
+end
+
+result = struct('preview_png', '', 'case_dir', out_dir, 'output_dir', out_dir, ...
+    'paths', {out_files}, 'files', {out_files}, 'storage_folder', out_dir);
 end
 
 function code = local_reproduce_code(params)
@@ -381,15 +392,14 @@ else
     end
 end
 
-[xLabel, yLabel, normalLabel] = axis_labels(params.sliceType);
+[xLabel, yLabel, ~] = axis_labels(params.sliceType);
 apply_tex_style(ax, ...
-    'Title', compose_title(payload.titleCore, params.motionType, params.partType, normalLabel, ...
-        params.slicePos_over_lambda, params.a_over_lambda, params.beta_max, params.phase_over_T), ...
+    'Title', compose_title(payload.titleCore, params.motionType, params.partType), ...
     'XLabel', xLabel, 'YLabel', yLabel, ...
-    'FontSize', 12, 'TitleFontSize', 14, 'Box', 'on');
+    'Box', 'on');
 end
 
-function titleStr = compose_title(titleCore, motionType, partType, normalLabel, slicePos_in, a_in, beta_in, phase_in)
+function titleStr = compose_title(titleCore, motionType, partType)
 switch motionType
     case 'circular'
         motionToken = '\mathrm{circ}';
@@ -410,11 +420,7 @@ switch partType
         partToken = '';
 end
 
-titleStr = ['$' motionToken ' - ' partToken ', ' titleCore ', ' ...
-            normalLabel '/\lambda=' fmt_num_title(slicePos_in) ', ' ...
-            'a/\lambda=' fmt_num_title(a_in) ', ' ...
-            '\beta_{\mathrm{max}}=' fmt_num_title(beta_in) ', ' ...
-            't/T=' fmt_num_title(phase_in) '$'];
+titleStr = ['$' motionToken ' - ' partToken ' \; ' titleCore '$'];
 end
 
 function draw_colored_streamlines(ax, xv, yv, U, V, C, rq_now_plot, sliceType, a0, fieldType)
@@ -604,15 +610,6 @@ switch char(string(fieldType))
 end
 end
 
-function s = fmt_num_title(v)
-s = sprintf('%.3f', v);
-s = regexprep(s, '0+$', '');
-s = regexprep(s, '\.$', '');
-if strcmp(s, '-0')
-    s = '0';
-end
-end
-
 function s = fmt_num_name(v)
 s = sprintf('%.6f', v);
 s = regexprep(s, '0+$', '');
@@ -667,7 +664,7 @@ params.outputMode = 'image';
 params.cmapMode = 'log';
 params.exportAllFields = false;
 params.viewMode = 'custom';
-params.customFields = {'E_in','E_n','E_mag','B_in','B_n','B_mag'};
+params.customFields = {'E_mag','B_mag','E_stream','S_stream'};
 params.selectedFields = params.customFields;
 end
 
@@ -724,8 +721,8 @@ end
 if ~isscalar(params.phase_over_T) || ~isfinite(params.phase_over_T)
     error('phase_over_T must be a finite scalar.');
 end
-if ~any(strcmp(params.outputMode, {'image','video'}))
-    error('outputMode must be ''image'' or ''video''.');
+if ~any(strcmp(params.outputMode, {'image','video','image+video'}))
+    error('outputMode must be ''image'', ''video'', or ''image+video''.');
 end
 if ~any(strcmp(params.cmapMode, {'log','linear'}))
     error('cmapMode must be ''log'' or ''linear''.');

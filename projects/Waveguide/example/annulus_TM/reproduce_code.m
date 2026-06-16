@@ -1,0 +1,17 @@
+params = struct();
+params.guide = 'annulus';
+params.action = 'mode field';
+params.mode_type = 'TM';
+params.legend_location = 'best';
+params.map_name = 'project';
+params.grid_n = 240;
+params.samples = 260;
+params.layout_rows = 'auto';
+params.xi0 = 0.5;
+params.radius = 0.03;
+params.a = NaN;
+params.b = NaN;
+params.mode_matrix = [1 1;1 2;1 3;1 4;2 1;2 2;2 3;2 4;3 1;3 2;3 3;3 4];
+params.max_order = NaN;
+params.fmax_ghz = NaN;
+run_from_params(params);

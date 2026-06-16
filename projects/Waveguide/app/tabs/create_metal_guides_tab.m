@@ -8,17 +8,17 @@ ui = create_tab_layout(tab_group, 'metal guides', project_root, ...
 ui.control_grid.RowHeight = {'fit','fit','fit'};
 
 study = create_control_panel(ui.control_grid, 'section', 'waveguide and study', 4);
-guide_dd = create_control_panel(study.grid, 'dropdown', 'guide', {'rectangular','circular'}, 'rectangular', 'PEC cross section.');
+guide_dd = create_control_panel(study.grid, 'dropdown', 'guide', {'rectangular','annulus'}, 'rectangular', 'PEC cross-section.');
 action_dd = create_control_panel(study.grid, 'dropdown', 'action', {'mode field','dispersion curves','cutoff map'}, 'mode field', 'Study type.');
 mode_dd = create_control_panel(study.grid, 'dropdown', 'polarization', {'TE','TM'}, 'TE', 'TE or TM modes.');
 legend_dd = create_control_panel(study.grid, 'legend', 'legend', 'best');
 
 params_panel = create_control_panel(ui.control_grid, 'section', 'parameters', 6);
-tuple_edit = create_control_panel(params_panel.grid, 'text', 'm,n tuples', '(1,0)', 'Examples: (1,0), (1:3,1:3).');
+tuple_edit = create_control_panel(params_panel.grid, 'text', 'm,n tuples', '(1:3,0:3)', 'Examples: (1,0), (1:3,1:3).');
+a_edit = create_control_panel(params_panel.grid, 'numeric', 'a width (m)', 0.03, 'Rectangular guide width.');
+xi0_edit = create_control_panel(params_panel.grid, 'numeric', 'xi_0 = b/a', 0.5, 'Rectangular aspect ratio, 0 < xi_0 <= 1.');
+r_edit = create_control_panel(params_panel.grid, 'numeric', 'radius (m)', 0.03, 'Outer radius for annular guide.');
 max_order = create_control_panel(params_panel.grid, 'numeric', 'max order', 5, 'Largest order for dispersion/cutoff plots.');
-a_edit = create_control_panel(params_panel.grid, 'numeric', 'a width (m)', 0.08, 'Rectangular width.');
-b_edit = create_control_panel(params_panel.grid, 'numeric', 'b height (m)', 0.04, 'Rectangular height.');
-r_edit = create_control_panel(params_panel.grid, 'numeric', 'radius (m)', 0.03, 'Circular radius.');
 fmax_edit = create_control_panel(params_panel.grid, 'numeric', 'f max (GHz)', 10.0, 'Upper frequency for dispersion curves.');
 
 actions = create_control_panel(ui.control_grid, 'section', 'actions', 1);
@@ -41,13 +41,15 @@ refresh_controls();
         params.layout_rows = image_output('preview_layout', ui, 'auto');
         if strcmp(params.guide, 'rectangular')
             params.a = parse_waveguide_params('positive', a_edit, 'a width');
-            params.b = parse_waveguide_params('positive', b_edit, 'b height');
+            params.xi0 = parse_waveguide_params('positive', xi0_edit, 'xi_0');
+            params.b = params.a * params.xi0;
             params.radius = NaN;
-            default_tuple = '(1,0)';
+            default_tuple = '(1:3,0:3)';
         else
+            params.xi0 = parse_waveguide_params('positive', xi0_edit, 'xi_0');
             params.radius = parse_waveguide_params('positive', r_edit, 'radius');
             params.a = NaN; params.b = NaN;
-            default_tuple = '(1,1)';
+            default_tuple = '(0:3,1:3)';
         end
         switch params.action
             case 'mode field'
@@ -59,7 +61,7 @@ refresh_controls();
                 params.mode_matrix = zeros(0, 2);
                 params.fmax_ghz = parse_waveguide_params('positive', fmax_edit, 'f max');
             case 'cutoff map'
-                if strcmp(params.guide, 'circular')
+                if strcmp(params.guide, 'annulus')
                     error('Cutoff map is only available for rectangular PEC guides.');
                 end
                 params.max_order = parse_waveguide_params('integer', max_order, 'max order', 1, 30);
@@ -83,11 +85,11 @@ refresh_controls();
         action_dd.Value = 'mode field';
         mode_dd.Value = 'TE';
         legend_dd.Value = 'best';
-        tuple_edit.Value = '(1,0)';
-        max_order.Value = 5;
-        a_edit.Value = 0.08;
-        b_edit.Value = 0.04;
+        tuple_edit.Value = '(1:3,0:3)';
+        a_edit.Value = 0.03;
+        xi0_edit.Value = 0.5;
         r_edit.Value = 0.03;
+        max_order.Value = 5;
         fmax_edit.Value = 10.0;
         ui.preview_layout_edit.Value = 'auto';
         state.files = {};
@@ -104,11 +106,43 @@ refresh_controls();
     end
 
     function refresh_controls()
-        if strcmp(guide_dd.Value, 'rectangular')
-            tuple_edit.Value = '(1,0)';
+        is_rect = strcmp(guide_dd.Value, 'rectangular');
+        is_mode_field = strcmp(action_dd.Value, 'mode field');
+        is_dispersion = strcmp(action_dd.Value, 'dispersion curves');
+        % Set default tuples per geometry
+        if is_rect
+            def_tuple = '(1:3,0:3)';
         else
-            tuple_edit.Value = '(1,1)';
+            def_tuple = '(0:3,1:3)';
         end
+        % Update visibility and tooltips
+        if is_rect
+            a_edit.Parent.Visible = 'on';
+            r_edit.Parent.Visible = 'off';
+        else
+            a_edit.Parent.Visible = 'off';
+            r_edit.Parent.Visible = 'on';
+        end
+        xi0_edit.Parent.Visible = 'on';
+        if is_rect
+            try, xi0_edit.Tooltip = 'Rectangular aspect ratio b/a, 0 < xi_0 <= 1.'; catch, end
+        else
+            try, xi0_edit.Tooltip = 'Annulus inner/outer radius ratio, 0 <= xi_0 < 1.'; catch, end
+        end
+        vis = {'off','on'};
+        tuple_edit.Parent.Visible = vis{is_mode_field + 1};
+        max_order.Parent.Visible = vis{~is_mode_field + 1};
+        fmax_edit.Parent.Visible = vis{is_dispersion + 1};
+        if is_mode_field
+            tuple_edit.Value = def_tuple;
+        end
+        % Collapse hidden rows (row order: tuple, a, xi0, r, max_order, fmax)
+        rh = repmat({'fit'}, 1, 6);
+        if ~is_mode_field, rh{1} = 0; end
+        if ~is_rect, rh{2} = 0; end
+        if is_rect, rh{4} = 0; end
+        if ~is_dispersion, rh{6} = 0; end
+        params_panel.grid.RowHeight = rh;
     end
 
 tab = ui.tab;
@@ -116,9 +150,9 @@ end
 
 function lines = local_notes()
 lines = { ...
-    'Metal waveguides: rectangular/circular conducting guides with TE/TM cutoff behavior.', ...
-    'guide geometry sets cross-section dimensions. mode indices choose TE_mn or TM_mn families.', ...
-    'frequency controls propagation constant beta and whether the mode is above cutoff.', ...
-    'action chooses field pattern, cutoff/dispersion curve, or mode comparison.', ...
-    'samples/grid controls field-map resolution. Notes lists cutoff and field formulas.'};
+    'Metal waveguides: rectangular PEC guide or annular PEC guide with TE/TM cutoff behavior.', ...
+    'For rectangular guides, a is the width (m), xi_0 = b/a is the aspect ratio.', ...
+    'For annular guides, xi_0 = R_in/R_out is the inner/outer radius ratio.', ...
+    'mode indices choose TE_mn or TM_mn families; f controls cutoff/dispersion.', ...
+    'Controls are hidden when not applicable to the selected action.'};
 end

@@ -1,0 +1,16 @@
+Generated: 2026-06-16 17:54:52
+
+motionType = harmonic
+sliceType = xz
+partType = tot
+fieldType = E_mag
+a_over_lambda = 1.1
+beta_max = 0.7
+slicePos_over_lambda = 0
+phase_over_T = 0.2
+cmapMode = log
+outputMode = image+video
+exportAllFields = 0
+viewMode = custom
+customFields = {E_mag, B_mag, E_stream, S_stream}
+selectedFields = {E_mag, B_mag, E_stream, S_stream}

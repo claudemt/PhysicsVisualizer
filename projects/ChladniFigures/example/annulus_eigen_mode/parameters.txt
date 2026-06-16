@@ -1,0 +1,13 @@
+Generated: 2026-06-16 13:09:54
+
+export.layout = auto
+export.selected_files = {01_chladni_annulus_fc_m1_s1.png, 02_chladni_annulus_fc_m0_s1.png, 03_chladni_annulus_fc_m2_s1.png, 04_chladni_annulus_fc_m3_s1.png, 05_chladni_annulus_fc_m4_s1.png, 06_chladni_annulus_fc_m0_s2.png, 07_chladni_annulus_fc_m1_s2.png, 08_chladni_annulus_fc_m5_s1.png, 09_chladni_annulus_fc_m2_s2.png, 10_chladni_annulus_fc_m6_s1.png, 11_chladni_annulus_fc_m3_s2.png, 12_chladni_annulus_fc_m7_s1.png, 13_chladni_annulus_fc_m4_s2.png, 14_chladni_annulus_fc_m8_s1.png, 15_chladni_annulus_fc_m0_s3.png, 16_chladni_annulus_fc_m1_s3.png, 17_chladni_annulus_fc_m5_s2.png, 18_chladni_annulus_fc_m9_s1.png, 19_chladni_annulus_fc_m2_s3.png, 20_chladni_annulus_fc_m3_s3.png}
+run_01.type = annulus
+run_01.boundary = FC
+run_01.nu = 0.225
+run_01.k = 20
+run_01.n = 240
+run_01.normalize = 1
+run_01.xi0 = 0.2
+run_01.a = 1
+run_01.b = 1

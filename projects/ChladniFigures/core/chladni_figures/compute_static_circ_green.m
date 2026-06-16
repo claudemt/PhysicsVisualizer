@@ -188,14 +188,20 @@ function g = radial_green_static_values(xiVec, eta, m, nu, outerType, innerType,
 fullTerms = static_basis_terms(m, false);
 if isAnnulus
     innerRows = boundary_rows_static(innerType, xi0, m, nu, fullTerms);
-    A = null(innerRows);
+    % Equilibrate before nullspace to handle the extreme magnitude range
+    % of the polynomial basis {r^m, r^{-m}, ...} for larger m.
+    [innerBal, ~, innerCS] = equilibrate_matrix(innerRows);
+    A_bal = null(innerBal);
+    A = A_bal ./ innerCS(:);
     innerTerms = fullTerms;
 else
     innerTerms = static_basis_terms(m, true);
     A = eye(numel(innerTerms.p));
 end
 outerRows = boundary_rows_static(outerType, 1.0, m, nu, fullTerms);
-B = null(outerRows);
+[outerBal, ~, outerCS] = equilibrate_matrix(outerRows);
+B_bal = null(outerBal);
+B = B_bal ./ outerCS(:);
 if size(A,2) ~= 2 || size(B,2) ~= 2
     error('Boundary-adapted Green basis has unexpected dimension for m=%d.', m);
 end
@@ -322,4 +328,16 @@ function tag = local_num_tag(x)
 % numeric tags, e.g. 0.225 instead of 0p225.  The file extension is
 % appended separately by the caller, so internal decimal points are safe.
 tag = sprintf('%.6g', x);
+end
+
+function [Mbal, rowScale, colScale] = equilibrate_matrix(M)
+% Equilibrate rows and columns to improve nullspace conditioning
+% when the polynomial basis spans extreme magnitude ranges.
+rowScale = max(abs(M), [], 2);
+rowScale(rowScale < 1) = 1;
+Mrow = M ./ rowScale;
+
+colScale = max(abs(Mrow), [], 1);
+colScale(colScale < 1) = 1;
+Mbal = Mrow ./ colScale;
 end

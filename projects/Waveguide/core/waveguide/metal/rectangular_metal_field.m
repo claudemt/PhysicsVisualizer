@@ -1,21 +1,28 @@
-function R = rectangular_metal_field(modeType, m, n, a, b, gridN)
+function R = rectangular_metal_field(modeType, m, n, a, xi0, gridN)
 %RECTANGULAR_METAL_FIELD Scalar longitudinal field for a rectangular PEC guide.
+% a is the half-width (full width = 2a), b = a * xi0 is the half-height.
+% Domain is centered at origin: x in [-a, a], y in [-b, b].
 C = physical_constants();
-x = linspace(0, a, gridN);
-y = linspace(0, b, gridN);
+b = a * xi0;
+x = linspace(-a, a, gridN);
+y = linspace(-b, b, gridN);
 [X, Y] = meshgrid(x, y);
+% Shift to [0, 2a] x [0, 2b] for standard mode formulas
+Xp = X + a;
+Yp = Y + b;
 if strcmp(modeType, 'TE')
-    F = cos(m*pi*X/a) .* cos(n*pi*Y/b);
+    F = cos(m*pi*Xp/(2*a)) .* cos(n*pi*Yp/(2*b));
     cbLabel = '$H_z$';
 else
-    F = sin(m*pi*X/a) .* sin(n*pi*Y/b);
+    F = sin(m*pi*Xp/(2*a)) .* sin(n*pi*Yp/(2*b));
     cbLabel = '$E_z$';
 end
 F = F ./ (max(abs(F(:))) + eps);
-fcGHz = C.c0/2 * sqrt((m/a)^2 + (n/b)^2) / 1e9;
-modeLabel = sprintf('%s_{%d,%d}', modeType, m, n);
-titleText = sprintf('Rectangular PEC $\\mathrm{%s}_{%d,%d}$ mode: $f_{\\mathrm{c}}=%s\\;\\mathrm{GHz}$', ...
-    modeType, m, n, format_sig3(fcGHz));
-R = struct('x', X, 'y', Y, 'F', F, 'fcGHz', fcGHz, ...
-    'modeLabel', modeLabel, 'cbLabel', cbLabel, 'titleText', titleText);
+% Full width = 2a, full height = 2b
+fcGHz = C.c0/4 * sqrt((m/a)^2 + (n/b)^2) / 1e9;
+titleText = sprintf('$\\mathrm{%s}_{%d,%d},\\ f_{\\mathrm{c}}=%.4g\\ \\mathrm{GHz},\\ \\xi_0=%.4g$', ...
+    modeType, m, n, fcGHz, xi0);
+R = struct('x', X/a, 'y', Y/a, 'F', F, 'xi0', xi0, ...
+    'modeLabel', sprintf('%s_{%d,%d}', modeType, m, n), ...
+    'cbLabel', cbLabel, 'titleText', titleText);
 end

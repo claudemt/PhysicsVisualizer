@@ -12,28 +12,43 @@ solver_cfg.maskInside = logical(cfg.maskInside);
 solver_cfg.nu = cfg.nu;
 solver_cfg.psi = cfg.psi;
 
+% Build 2-D slice grid, then embed into 3-D coordinates
+L = solver_cfg.gridHalfWidth;
+N = solver_cfg.N;
+xv = linspace(-L, L, N);
+yv = linspace(-L, L, N);
+[U, V] = meshgrid(xv, yv);
+[X3d, Y3d, Z3d] = make_slice_grid(U, V, cfg.sliceType, cfg.slicePos_over_lambda);
+
 if strcmpi(cfg.geometry, 'sphere')
-    [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = ...
-        scattering_formula_sph(cfg.eps1, cfg.mu1, solver_cfg);
+    [Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = ...
+        scattering_formula_sph(cfg.eps1, cfg.mu1, solver_cfg, X3d, Y3d, Z3d);
 else
-    [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = ...
-        scattering_formula_cyl(cfg.eps1, cfg.mu1, solver_cfg);
+    [Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = ...
+        scattering_formula_cyl(cfg.eps1, cfg.mu1, solver_cfg, X3d, Y3d, Z3d);
 end
+
+[boundaryRadii, boundaryLines] = local_boundary(cfg);
 
 specs = local_resolve_specs(cfg);
 items = cell(1, numel(specs));
 for i = 1:numel(specs)
     spec = specs{i};
     [F, fieldLabel] = local_evaluate_spec(spec, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z);
-    titleText = local_title(spec.family_short, cfg);
-    item = render_result('heatmap', X(1,:), Z(:,1), F, ...
+    titleText = local_title(cfg, fieldLabel);
+    item = render_result('heatmap', U(1,:), V(:,1), F, ...
         'Title', titleText, ...
-        'XLabel', '$x/\lambda$', ...
-        'YLabel', local_y_label(cfg.geometry), ...
+        'XLabel', local_x_label(cfg.sliceType), ...
+        'YLabel', local_y_label(cfg.sliceType), ...
         'ColorbarLabel', fieldLabel, ...
         'Normalize', 'none', ...
         'AutoSymmetric', spec.use_sym);
-    item.circleRadii = cfg.R_over_lambda;
+    if ~isempty(boundaryRadii)
+        item.circleRadii = boundaryRadii;
+    end
+    if ~isempty(boundaryLines)
+        item.overlayLines = boundaryLines;
+    end
     item.filename = local_mie_filename(cfg, spec);
     items{i} = item;
 end
@@ -41,11 +56,99 @@ end
 result = struct();
 result.kind = 'bundle';
 result.items = items;
-result.fields = struct('X', X, 'Z', Z, ...
+result.fields = struct('X', X3d, 'Y', Y3d, 'Z', Z3d, ...
     'Esca_x', Esca_x, 'Esca_y', Esca_y, 'Esca_z', Esca_z, ...
     'Etot_x', Etot_x, 'Etot_y', Etot_y, 'Etot_z', Etot_z);
 result.cfg = cfg;
 end
+
+% ---------------------------------------------------------------------------
+% Slice grid: map 2-D meshgrid (U,V) into 3-D coordinates
+% ---------------------------------------------------------------------------
+
+function [X3d, Y3d, Z3d] = make_slice_grid(U, V, sliceType, slicePos)
+switch sliceType
+    case 'xy'
+        X3d = U; Y3d = V; Z3d = slicePos * ones(size(U));
+    case 'xz'
+        X3d = U; Y3d = slicePos * ones(size(U)); Z3d = V;
+    case 'yz'
+        X3d = slicePos * ones(size(U)); Y3d = U; Z3d = V;
+    otherwise
+        error('Unknown sliceType: %s', sliceType);
+end
+end
+
+% ---------------------------------------------------------------------------
+% Boundary overlay: circle radius for spherical or circular sections,
+% line segments for non-circular cylinder cross-sections.
+% ---------------------------------------------------------------------------
+
+function [radii, lines] = local_boundary(cfg)
+radii = [];
+lines = {};
+R = cfg.R_over_lambda;
+pos = cfg.slicePos_over_lambda;
+Lg = cfg.gridHalfWidth;
+
+if strcmpi(cfg.geometry, 'sphere')
+    r_eff = sqrt(max(0, R^2 - pos^2));
+    if r_eff > 1e-12
+        radii = r_eff;
+    end
+    return;
+end
+
+% Cylinder
+switch cfg.sliceType
+    case 'xy'
+        radii = R;
+    case 'xz'
+        dx = sqrt(max(0, R^2 - pos^2));
+        if dx > 1e-12
+            lines = {[dx, -Lg; dx, Lg], [-dx, -Lg; -dx, Lg]};
+        end
+    case 'yz'
+        dy = sqrt(max(0, R^2 - pos^2));
+        if dy > 1e-12
+            lines = {[dy, -Lg; dy, Lg], [-dy, -Lg; -dy, Lg]};
+        end
+end
+end
+
+% ---------------------------------------------------------------------------
+% Axis labels per slice type
+% ---------------------------------------------------------------------------
+
+function xl = local_x_label(sliceType)
+switch sliceType
+    case 'xy'
+        xl = '$x/\lambda$';
+    case 'xz'
+        xl = '$x/\lambda$';
+    case 'yz'
+        xl = '$y/\lambda$';
+    otherwise
+        xl = '$x/\lambda$';
+end
+end
+
+function yl = local_y_label(sliceType)
+switch sliceType
+    case 'xy'
+        yl = '$y/\lambda$';
+    case 'xz'
+        yl = '$z/\lambda$';
+    case 'yz'
+        yl = '$z/\lambda$';
+    otherwise
+        yl = '$y/\lambda$';
+end
+end
+
+% ---------------------------------------------------------------------------
+% Defaults
+% ---------------------------------------------------------------------------
 
 function cfg = local_defaults(cfg)
 if nargin < 1 || isempty(cfg), cfg = struct(); end
@@ -63,7 +166,21 @@ if ~isfield(cfg, 'gridHalfWidth') || isempty(cfg.gridHalfWidth), cfg.gridHalfWid
 if ~isfield(cfg, 'N') || isempty(cfg.N), cfg.N = 500; end
 if ~isfield(cfg, 'nmaxExtra') || isempty(cfg.nmaxExtra), cfg.nmaxExtra = 15; end
 if ~isfield(cfg, 'maskInside') || isempty(cfg.maskInside), cfg.maskInside = true; end
+if ~isfield(cfg, 'sliceType') || isempty(cfg.sliceType)
+    if strcmpi(cfg.geometry, 'sphere')
+        cfg.sliceType = 'xz';
+    else
+        cfg.sliceType = 'xy';
+    end
 end
+if ~isfield(cfg, 'slicePos_over_lambda') || isempty(cfg.slicePos_over_lambda)
+    cfg.slicePos_over_lambda = 0;
+end
+end
+
+% ---------------------------------------------------------------------------
+% Spec resolution (unchanged from original)
+% ---------------------------------------------------------------------------
 
 function specs = local_resolve_specs(cfg)
 selected = cfg.customSelection;
@@ -122,33 +239,31 @@ switch spec.kind
     case 'real'
         switch spec.component
             case 'x'
-                F = real(Ex); fieldLabel = sprintf('%s $\\Re E_x$', spec.family_short);
+                F = real(Ex); fieldLabel = sprintf('%s $\\Re E_x$', spec.family_long);
             case 'y'
-                F = real(Ey); fieldLabel = sprintf('%s $\\Re E_y$', spec.family_short);
+                F = real(Ey); fieldLabel = sprintf('%s $\\Re E_y$', spec.family_long);
             case 'z'
-                F = real(Ez); fieldLabel = sprintf('%s $\\Re E_z$', spec.family_short);
+                F = real(Ez); fieldLabel = sprintf('%s $\\Re E_z$', spec.family_long);
         end
     case 'abs'
         switch spec.component
             case 'x'
-                F = abs(Ex); fieldLabel = sprintf('%s $|E_x|$', spec.family_short);
+                F = abs(Ex); fieldLabel = sprintf('%s $|E_x|$', spec.family_long);
             case 'y'
-                F = abs(Ey); fieldLabel = sprintf('%s $|E_y|$', spec.family_short);
+                F = abs(Ey); fieldLabel = sprintf('%s $|E_y|$', spec.family_long);
             case 'z'
-                F = abs(Ez); fieldLabel = sprintf('%s $|E_z|$', spec.family_short);
+                F = abs(Ez); fieldLabel = sprintf('%s $|E_z|$', spec.family_long);
         end
     case 'emag'
         F = sqrt(abs(Ex).^2 + abs(Ey).^2 + abs(Ez).^2);
-        fieldLabel = sprintf('%s $E_{mag}$', spec.family_short);
+        fieldLabel = sprintf('%s $E_{mag}$', spec.family_long);
     otherwise
         error('Unsupported spec kind: %s', spec.kind);
 end
 end
 
-function titleStr = local_title(family_short, cfg)
-titleStr = sprintf('%s-%s: $\\varepsilon_r=%s,\\ \\mu_r=%s,\\ R/\\lambda=%.6g,\\ \\nu=%.6g,\\ \\phi=%.6g$', ...
-    local_geometry_short(cfg.geometry), family_short, local_cplx2tex(cfg.eps1), local_cplx2tex(cfg.mu1), ...
-    cfg.R_over_lambda, cfg.nu, cfg.psi);
+function titleStr = local_title(cfg, fieldLabel)
+titleStr = sprintf('%s %s', lower(cfg.geometry), fieldLabel);
 end
 
 function short = local_geometry_short(geometry)
@@ -172,29 +287,8 @@ switch char(string(spec.kind))
     otherwise
         token = char(string(spec.file_suffix));
 end
-fname = sprintf('%s_%s_%s.png', geom, fam, token);
+slice_token = lower(cfg.sliceType);
+fname = sprintf('%s_%s_%s_slice_%s_pos_%g.png', geom, fam, token, slice_token, cfg.slicePos_over_lambda);
 end
 
 
-function ylab = local_y_label(geometry)
-if strcmpi(geometry,'cyl') || strcmpi(geometry,'cylinder')
-    ylab = '$y/\lambda$';
-else
-    ylab = '$z/\lambda$';
-end
-end
-
-function t = local_cplx2tex(z)
-if ischar(z) || isstring(z)
-    z = str2num(char(z)); %#ok<ST2NM>
-end
-if abs(imag(z)) < 1e-12
-    t = sprintf('%.6g', real(z));
-else
-    if imag(z) >= 0
-        t = sprintf('%.6g+%.6gi', real(z), imag(z));
-    else
-        t = sprintf('%.6g%.6gi', real(z), imag(z));
-    end
-end
-end

@@ -69,6 +69,8 @@ switch action
         varargout{1} = local_common_3d_limits(varargin{:});
     case 'clean_label'
         varargout{1} = local_clean_label(varargin{:});
+    case 'auto_crop'
+        local_auto_crop(varargin{:});
     otherwise
         error('Unknown image_output action: %s', action);
 end
@@ -109,7 +111,7 @@ text(ax, 0.5, 0.5, char(string(message)), ...
     'HorizontalAlignment', 'center', ...
     'VerticalAlignment', 'middle', ...
     'Interpreter', 'none', ...
-    'FontSize', 12, ...
+    'FontSize', 20, ...
     'Color', [0.35 0.35 0.35]);
 out = ax;
 end
@@ -569,7 +571,7 @@ if nargin < 2 || isempty(resolution), resolution = 160; end
 if nargin < 3, target_size = []; end
 tmp_png = [tempname, '.png'];
 try
-    exportgraphics(fig, tmp_png, 'Resolution', resolution, 'BackgroundColor', 'white');
+    exportgraphics(fig, tmp_png, 'Resolution', resolution, 'BackgroundColor', 'white', 'Padding', [5 5 5 5]);
 catch
     print(fig, tmp_png, '-dpng', sprintf('-r%d', resolution));
 end
@@ -648,29 +650,35 @@ end
 % created hidden by image_output('hidden_figure'), so exportgraphics can write
 % them without changing the GUI figure state.
 try
-    exportgraphics(target, path, 'Resolution', dpi, 'BackgroundColor', 'white');
-catch ME
-    % Hidden ordinary figures can be printed even when exportgraphics refuses
-    % them.  UIAxes should normally succeed above; if neither backend can
-    % write the file, keep the original diagnostic.
+    exportgraphics(target, path, 'Resolution', dpi, 'BackgroundColor', 'white', 'Padding', [5 5 5 5]);
+catch
+    % exportgraphics with Padding may not be supported in older releases.
     try
-        if isgraphics(fig_or_ax, 'axes')
-            fig = ancestor(fig_or_ax, 'figure');
-        else
-            fig = fig_or_ax;
+        exportgraphics(target, path, 'Resolution', dpi, 'BackgroundColor', 'white');
+    catch ME
+        % Hidden ordinary figures can be printed even when exportgraphics refuses
+        % them.  UIAxes should normally succeed above; if neither backend can
+        % write the file, keep the original diagnostic.
+        try
+            if isgraphics(fig_or_ax, 'axes')
+                fig = ancestor(fig_or_ax, 'figure');
+            else
+                fig = fig_or_ax;
+            end
+            print(fig, path, '-dpng', sprintf('-r%d', dpi));
+        catch
+            rethrow(ME);
         end
-        print(fig, path, '-dpng', sprintf('-r%d', dpi));
-    catch
-        rethrow(ME);
     end
 end
+local_auto_crop(path);
 end
 
 function out_path = local_compose_grid(png_paths, out_path, varargin)
 p = inputParser;
 p.addParameter('Layout', 'auto');
 p.addParameter('Background', uint8(255));
-p.addParameter('Padding', 16);
+p.addParameter('Padding', 40);
 p.parse(varargin{:});
 opt = p.Results;
 
@@ -1045,4 +1053,35 @@ end
 function name = local_display_name(path)
 [~, n, e] = fileparts(path);
 name = [n e];
+end
+
+function local_auto_crop(path)
+%LOCAL_AUTO_CROP Trim whitespace from a PNG image, keeping 5 px margin.
+% Detects the bounding box of non-white content and crops tightly.
+if nargin < 1 || isempty(path) || exist(path, 'file') ~= 2
+    return;
+end
+try
+    img = imread(path);
+    if size(img, 3) < 3, return; end
+    siz = size(img);
+    % Use double arithmetic to avoid uint8 wraparound
+    diff = max(abs(double(img) - 255), [], 3);
+    mask = diff > 10;
+    rows = any(mask, 2);
+    cols = any(mask, 1);
+    if ~any(rows) || ~any(cols), return; end
+    r0 = find(rows, 1, 'first');
+    r1 = find(rows, 1, 'last');
+    c0 = find(cols, 1, 'first');
+    c1 = find(cols, 1, 'last');
+    margin = 5;
+    r0 = max(1, r0 - margin);
+    r1 = min(siz(1), r1 + margin);
+    c0 = max(1, c0 - margin);
+    c1 = min(siz(2), c1 + margin);
+    imwrite(img(r0:r1, c0:c1, :), path);
+catch
+    % Silently skip on failure
+end
 end

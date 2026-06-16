@@ -16,7 +16,7 @@ field_items = {'E_in','E_n','E_mag','B_in','B_n','B_mag','S_stream','tau','E_str
 field_labels = {'E in-plane','E normal','E magnitude','B in-plane','B normal','B magnitude','Poynting stream','retarded time','E stream','B stream'};
 default_custom = defaults.customFields;
 if isempty(default_custom)
-    default_custom = {'E_in','E_n','E_mag','B_in','B_n','B_mag'};
+    default_custom = {'E_mag','B_mag','E_stream','S_stream'};
 end
 default_labels = local_field_labels(default_custom, field_items, field_labels);
 
@@ -30,7 +30,7 @@ pos_edit = create_control_panel(physical.grid, 'numeric', 'slice position/lambda
 phase_edit = create_control_panel(physical.grid, 'numeric', 'phase t/T', defaults.phase_over_T, 'Observation phase.');
 
 display = create_control_panel(ui.control_grid, 'section', 'custom output', {24, 118});
-mode_dd = create_control_panel(display.grid, 'dropdown', 'output mode', {'image','video'}, defaults.outputMode, 'Export selected still images or videos.');
+mode_dd = create_control_panel(display.grid, 'dropdown', 'output mode', {'image','image+video'}, defaults.outputMode, 'still images only, or images + video together.');
 custom_list = create_control_panel(display.grid, 'listbox', 'fields', field_labels, default_labels, ...
     'Select the field views to generate. Still-image Export uses the preview-list selection and layout, like Mie scattering.');
 custom_list.ItemsData = field_items;
@@ -101,7 +101,7 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
 
     function export_callback()
         params = read_params();
-        if strcmp(params.outputMode, 'video')
+        if ~strcmp(params.outputMode, 'image')
             run_moving_charge_generation('export', params, project_root);
             return;
         end

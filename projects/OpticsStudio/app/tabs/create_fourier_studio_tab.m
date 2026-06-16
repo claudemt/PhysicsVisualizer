@@ -85,7 +85,7 @@ ax_filter = ui.preview_axes(5);
 ax_output = ui.preview_axes(6);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'FontSize', 12, 'TitleFontSize', 14, 'Box', 'on');
+    apply_tex_style(ax, 'Box', 'on');
 end
 
 
@@ -152,7 +152,7 @@ clear_preview();
         current_result = [];
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'FontSize', 12, 'TitleFontSize', 14, 'Box', 'on');
+            apply_tex_style(ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

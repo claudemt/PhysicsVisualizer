@@ -65,6 +65,7 @@ p.addParameter('SourcePoints', []);
 p.addParameter('CircleRadii', []);
 p.addParameter('OverlayCircleRadius', []);
 p.addParameter('BoundaryZeroEdges', []);
+p.addParameter('OverlayLines', []);
 p.addParameter('Trajectory', []);
 p.addParameter('AxisMode', 'image');
 p.addParameter('Filename', '');
@@ -95,6 +96,7 @@ item.colormap = opt.Colormap;
 item.sourcePoints = opt.SourcePoints;
 item.circleRadii = radii;
 item.boundaryZeroEdges = opt.BoundaryZeroEdges;
+item.overlayLines = opt.OverlayLines;
 item.trajectory = opt.Trajectory;
 item.axisMode = opt.AxisMode;
 item.filename = opt.Filename;
@@ -299,10 +301,11 @@ try
     end
     drawnow;
     try
-        exportgraphics(fig, output_path, 'Resolution', opt.DPI, 'BackgroundColor', 'white');
+        exportgraphics(fig, output_path, 'Resolution', opt.DPI, 'BackgroundColor', 'white', 'Padding', [5 5 5 5]);
     catch
         print(fig, output_path, '-dpng', sprintf('-r%d', opt.DPI));
     end
+    image_output('auto_crop', output_path);
 catch ME
     clear cleanup
     local_safe_close(fig);
@@ -389,12 +392,12 @@ colorbar_location = local_get(item, 'ColorbarLocation', local_get(item, 'colorba
 if ~strcmpi(char(string(colorbar_location)), 'none')
     cb = colorbar(ax, char(string(colorbar_location)));
     cb.TickLabelInterpreter = 'latex';
-    cb.FontSize = 12;
+    cb.FontSize = 26;
     label = local_get(item, 'ColorbarLabel', local_get(item, 'colorbarLabel', local_get(item, 'colorbar_label', '')));
     if ~isempty(label)
         cb.Label.String = local_latex_label(label);
         cb.Label.Interpreter = 'latex';
-        cb.Label.FontSize = 12;
+        cb.Label.FontSize = 30;
     end
 else
     cb = [];
@@ -415,6 +418,16 @@ if ~isempty(radii)
     th = linspace(0, 2*pi, 800);
     for r = radii(:).'
         plot(ax, r*cos(th), r*sin(th), 'k-', 'LineWidth', 1.0);
+    end
+end
+
+overlay = local_get(item, 'overlayLines', []);
+if ~isempty(overlay) && iscell(overlay)
+    for kk = 1:numel(overlay)
+        pts = overlay{kk};
+        if size(pts,2) >= 2
+            plot(ax, pts(:,1), pts(:,2), 'k-', 'LineWidth', 1.0);
+        end
     end
 end
 
@@ -837,7 +850,7 @@ if strcmpi(char(string(scaling_mode)), 'fixed') && ~isempty(fixed_clim)
 else
     local_clim(ax, 'auto');
 end
-apply_tex_style(ax, 'FontSize', 12, 'TitleFontSize', 14, 'Box', 'on');
+apply_tex_style(ax, 'Box', 'on');
 info = struct('ax', ax, 'CLim', local_get_clim(ax));
 end
 
@@ -915,8 +928,8 @@ p.addParameter('Label', '', @(s) ischar(s) || isstring(s));
 p.addParameter('LabelInterpreter', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Ticks', [], @(v) isempty(v) || isnumeric(v));
 p.addParameter('TickLabels', [], @(v) isempty(v) || isstring(v) || iscellstr(v));
-p.addParameter('FontSize', 12, @(v) isnumeric(v) && isscalar(v) && v > 0);
-p.addParameter('LabelFontSize', 12, @(v) isnumeric(v) && isscalar(v) && v > 0);
+p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v) && v > 0);
+p.addParameter('LabelFontSize', 30, @(v) isnumeric(v) && isscalar(v) && v > 0);
 p.parse(varargin{:});
 opt = p.Results;
 
@@ -972,7 +985,7 @@ function lgd = local_style_legend(lgd, varargin)
 p = inputParser;
 p.addParameter('Location', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Interpreter', 'latex', @(s) ischar(s) || isstring(s));
-p.addParameter('FontSize', 12, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v));
 p.addParameter('NumColumns', [], @(v) isempty(v) || (isnumeric(v) && isscalar(v)));
 p.parse(varargin{:});
 opt = p.Results;

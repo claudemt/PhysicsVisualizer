@@ -1,0 +1,64 @@
+export_dir = fileparts(mfilename('fullpath'));
+project_root = fileparts(fileparts(export_dir));
+addpath(genpath(project_root));
+
+% Reproduce run 01
+params = struct();
+params.type = 'rect';
+params.boundary = 'FFFF';
+params.nu = 0.225;
+params.k = 20;
+params.n = 240;
+params.normalize = true;
+params.xi0 = 1;
+params.a = 2;
+params.b = 2;
+result_01 = compute_chladni_modes(params);
+run_dir_01 = fullfile(export_dir, 'reproduce_run_01');
+if exist(run_dir_01, 'dir') == 7, rmdir(run_dir_01, 's'); end
+mkdir(run_dir_01);
+run_files_01 = render_result('render', result_01, run_dir_01, 'Prefix', 'chladni_rect_FFFF');
+
+copyfile(run_files_01{1}, fullfile(export_dir, '01_chladni_rect_ffff_mode_1.png'), 'f');
+copyfile(run_files_01{2}, fullfile(export_dir, '02_chladni_rect_ffff_mode_2.png'), 'f');
+copyfile(run_files_01{3}, fullfile(export_dir, '03_chladni_rect_ffff_mode_3.png'), 'f');
+copyfile(run_files_01{4}, fullfile(export_dir, '04_chladni_rect_ffff_mode_4.png'), 'f');
+copyfile(run_files_01{5}, fullfile(export_dir, '05_chladni_rect_ffff_mode_5.png'), 'f');
+copyfile(run_files_01{6}, fullfile(export_dir, '06_chladni_rect_ffff_mode_6.png'), 'f');
+copyfile(run_files_01{7}, fullfile(export_dir, '07_chladni_rect_ffff_mode_7.png'), 'f');
+copyfile(run_files_01{8}, fullfile(export_dir, '08_chladni_rect_ffff_mode_8.png'), 'f');
+copyfile(run_files_01{9}, fullfile(export_dir, '09_chladni_rect_ffff_mode_9.png'), 'f');
+copyfile(run_files_01{10}, fullfile(export_dir, '10_chladni_rect_ffff_mode_10.png'), 'f');
+copyfile(run_files_01{11}, fullfile(export_dir, '11_chladni_rect_ffff_mode_11.png'), 'f');
+copyfile(run_files_01{12}, fullfile(export_dir, '12_chladni_rect_ffff_mode_12.png'), 'f');
+copyfile(run_files_01{13}, fullfile(export_dir, '13_chladni_rect_ffff_mode_13.png'), 'f');
+copyfile(run_files_01{14}, fullfile(export_dir, '14_chladni_rect_ffff_mode_14.png'), 'f');
+copyfile(run_files_01{15}, fullfile(export_dir, '15_chladni_rect_ffff_mode_15.png'), 'f');
+copyfile(run_files_01{16}, fullfile(export_dir, '16_chladni_rect_ffff_mode_16.png'), 'f');
+copyfile(run_files_01{17}, fullfile(export_dir, '17_chladni_rect_ffff_mode_17.png'), 'f');
+copyfile(run_files_01{18}, fullfile(export_dir, '18_chladni_rect_ffff_mode_18.png'), 'f');
+copyfile(run_files_01{19}, fullfile(export_dir, '19_chladni_rect_ffff_mode_19.png'), 'f');
+copyfile(run_files_01{20}, fullfile(export_dir, '20_chladni_rect_ffff_mode_20.png'), 'f');
+selected_files = {
+    fullfile(export_dir, '01_chladni_rect_ffff_mode_1.png');
+    fullfile(export_dir, '02_chladni_rect_ffff_mode_2.png');
+    fullfile(export_dir, '03_chladni_rect_ffff_mode_3.png');
+    fullfile(export_dir, '04_chladni_rect_ffff_mode_4.png');
+    fullfile(export_dir, '05_chladni_rect_ffff_mode_5.png');
+    fullfile(export_dir, '06_chladni_rect_ffff_mode_6.png');
+    fullfile(export_dir, '07_chladni_rect_ffff_mode_7.png');
+    fullfile(export_dir, '08_chladni_rect_ffff_mode_8.png');
+    fullfile(export_dir, '09_chladni_rect_ffff_mode_9.png');
+    fullfile(export_dir, '10_chladni_rect_ffff_mode_10.png');
+    fullfile(export_dir, '11_chladni_rect_ffff_mode_11.png');
+    fullfile(export_dir, '12_chladni_rect_ffff_mode_12.png');
+    fullfile(export_dir, '13_chladni_rect_ffff_mode_13.png');
+    fullfile(export_dir, '14_chladni_rect_ffff_mode_14.png');
+    fullfile(export_dir, '15_chladni_rect_ffff_mode_15.png');
+    fullfile(export_dir, '16_chladni_rect_ffff_mode_16.png');
+    fullfile(export_dir, '17_chladni_rect_ffff_mode_17.png');
+    fullfile(export_dir, '18_chladni_rect_ffff_mode_18.png');
+    fullfile(export_dir, '19_chladni_rect_ffff_mode_19.png');
+    fullfile(export_dir, '20_chladni_rect_ffff_mode_20.png');
+};
+image_output('compose_grid', selected_files, fullfile(export_dir, 'composite.png'), 'Layout', 'auto');

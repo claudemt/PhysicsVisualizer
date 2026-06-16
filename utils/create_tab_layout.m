@@ -4,8 +4,8 @@ p.addParameter('ControlWidth', 420);
 p.addParameter('Preview', 'list');
 p.addParameter('PreviewGridSize', [1 1]);
 p.addParameter('PreviewAxesNames', {});
-p.addParameter('PreviewPadding', [6 6 6 6]);
-p.addParameter('PreviewSpacing', 6);
+p.addParameter('PreviewPadding', [8 8 8 18]);
+p.addParameter('PreviewSpacing', 10);
 p.addParameter('PreviewListWidth', 300);
 p.addParameter('NotesTitle', 'notes');
 p.addParameter('NotesText', '');
@@ -193,7 +193,7 @@ switch preview_mode
             preview_axes(k) = uiaxes(preview_axes_grid);
             preview_axes(k).Layout.Row = r;
             preview_axes(k).Layout.Column = c;
-            apply_tex_style(preview_axes(k), 'FontSize', 12, 'TitleFontSize', 14, 'Box', 'on');
+            apply_tex_style(preview_axes(k), 'Box', 'on');
         end
 
         preview_empty_label = uilabel(preview_grid, ...

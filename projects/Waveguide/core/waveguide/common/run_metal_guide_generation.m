@@ -16,22 +16,24 @@ switch params.guide
         switch params.action
             case 'mode field'
                 M = params.mode_matrix;
+                items = cell(1, size(M, 1));
                 for k = 1:size(M, 1)
                     m = M(k,1);
                     n = M(k,2);
-                    R = rectangular_metal_field(params.mode_type, m, n, params.a, params.b, params.grid_n);
+                    R = rectangular_metal_field(params.mode_type, m, n, params.a, params.xi0, params.grid_n);
                     item = render_result('heatmap', R.x, R.y, R.F, ...
                         'CLim', [-1 1], ...
                         'Mask', isfinite(R.F), ...
                         'Title', R.titleText, ...
-                        'XLabel', '$x\;(\mathrm{m})$', ...
-                        'YLabel', '$y\;(\mathrm{m})$', ...
+                        'XLabel', '$x/a$', ...
+                        'YLabel', '$y/a$', ...
                         'ColorbarLabel', R.cbLabel, ...
-                        'AxisMode', 'equal');
-                    bundle = struct('kind', 'bundle', 'items', {{item}});
-                    prefix = sprintf('rectangular_%s_m%d_n%d_field', params.mode_type, m, n);
-                    files = [files, render_result('render', bundle, folder, 'Prefix', prefix, 'DPI', 260)]; %#ok<AGROW>
+                        'AxisMode', 'tight');
+                    item.filename = sprintf('%02d_%s_rectangular_m%d_n%d.png', k, params.mode_type, m, n);
+                    items{k} = item;
                 end
+                bundle = struct('kind', 'bundle', 'items', {items});
+                files = render_result('render', bundle, folder, 'DPI', 260);
             case 'dispersion curves'
                 R = rectangular_metal_dispersion(params.mode_type, params.a, params.b, params.max_order, 0, params.fmax_ghz, params.samples);
                 fname = sprintf('rectangular_%s_dispersion.png', params.mode_type);
@@ -54,29 +56,34 @@ switch params.guide
                 prefix = sprintf('rectangular_%s_cutoff_map', params.mode_type);
                 files = [files, render_result('render', bundle, folder, 'Prefix', prefix, 'DPI', 260)]; %#ok<AGROW>
         end
-    case 'circular'
+    case 'annulus'
         switch params.action
             case 'mode field'
                 M = params.mode_matrix;
+                items = cell(1, size(M, 1));
                 for k = 1:size(M, 1)
                     m = M(k,1);
                     n = M(k,2);
-                    R = circular_metal_field(params.mode_type, m, n, params.radius, params.grid_n);
+                    R = circular_metal_field(params.mode_type, m, n, params.radius, params.grid_n, params.xi0);
                     item = render_result('heatmap', R.x, R.y, R.F, ...
                         'CLim', [-1 1], ...
                         'Mask', isfinite(R.F), ...
                         'Title', R.titleText, ...
-                        'XLabel', '$x\;(\mathrm{m})$', ...
-                        'YLabel', '$y\;(\mathrm{m})$', ...
+                        'XLabel', '$x/a$', ...
+                        'YLabel', '$y/a$', ...
                         'ColorbarLabel', R.cbLabel, ...
-                        'AxisMode', 'equal');
-                    bundle = struct('kind', 'bundle', 'items', {{item}});
-                    prefix = sprintf('circular_%s_m%d_n%d_field', params.mode_type, m, n);
-                    files = [files, render_result('render', bundle, folder, 'Prefix', prefix, 'DPI', 260)];
+                        'AxisMode', 'tight');
+                    if isfield(R, 'boundaryRadii') && ~isempty(R.boundaryRadii)
+                        item.circleRadii = R.boundaryRadii;
+                    end
+                    item.filename = sprintf('%02d_%s_annular_m%d_n%d.png', k, params.mode_type, m, n);
+                    items{k} = item;
                 end
+                bundle = struct('kind', 'bundle', 'items', {items});
+                files = render_result('render', bundle, folder, 'DPI', 260);
             case 'dispersion curves'
                 R = circular_metal_dispersion(params.mode_type, params.radius, params.max_order, 0, params.fmax_ghz, params.samples);
-                fname = sprintf('circular_%s_dispersion.png', params.mode_type);
+                fname = sprintf('annular_%s_dispersion.png', params.mode_type);
                 fig = image_output('hidden_figure', 'Position', [100 100 1160 820]);
                 ax = axes('Parent', fig, 'Units', 'normalized', 'Position', [0.09 0.11 0.76 0.80]);
                 plot_metal_dispersion(ax, R, legend_choice);

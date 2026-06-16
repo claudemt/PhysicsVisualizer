@@ -1,0 +1,18 @@
+Generated: 2026-06-16 13:07:50
+
+type = rect
+boundary = FSCS
+nu = 0.3
+n = 220
+normalize = 1
+D = 0.6
+xi0 = 0.9
+a = 2
+b = 1.8
+load_type = points
+q0 = 0
+kmodes = 60
+mmax = 60
+distribution_samples = 15
+draw_zero_contour = 0
+sources = [-0.2 -0.6 -0.6 0;0.45 0.25 0.1 0.04]

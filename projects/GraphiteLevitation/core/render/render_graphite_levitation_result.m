@@ -390,7 +390,7 @@ if exist('apply_tex_style','file') == 2
     try
         apply_tex_style(ax, 'Title', ttl, 'XLabel', xl, 'YLabel', yl, ...
             'AxisMode', axisMode, 'Interpreter', 'latex', 'TickInterpreter', 'latex', ...
-            'Grid', 'off', 'Box', 'on', 'FontSize', 10, 'TitleFontSize', 11);
+            'Grid', 'off', 'Box', 'on');
         return;
     catch
     end
@@ -406,9 +406,9 @@ end
 
 function local_layout_title(tl, txt)
 try
-    title(tl, txt, 'Interpreter', 'latex', 'FontWeight', 'normal');
+    title(tl, txt, 'Interpreter', 'latex', 'FontWeight', 'normal', 'FontSize', 30);
 catch
-    try, title(tl, local_plain_from_tex(txt), 'Interpreter', 'none'); catch, end
+    try, title(tl, local_plain_from_tex(txt), 'FontSize', 30); catch, end
 end
 end
 
@@ -433,7 +433,8 @@ if exist('render_result','file') == 2
 end
 cb = colorbar(ax, 'eastoutside');
 try, cb.TickLabelInterpreter = 'latex'; catch, end
-try, cb.Label.String = '$ $'; cb.Label.Interpreter = 'latex'; catch, end
+try, cb.FontSize = 26; catch, end
+try, cb.Label.String = '$ $'; cb.Label.Interpreter = 'latex'; cb.Label.FontSize = 30; catch, end
 out = cb;
 end
 

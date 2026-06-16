@@ -703,7 +703,7 @@ end
 function local_style_axes(ax)
     hold(ax, 'off');
     grid(ax, 'on');
-    apply_tex_style(ax, 'FontSize', 12, 'TitleFontSize', 14, 'Box', 'on');
+    apply_tex_style(ax, 'Box', 'on');
     ax.LineWidth = 1.0;
     if isprop(ax, 'PositionConstraint')
         ax.PositionConstraint = 'innerposition';

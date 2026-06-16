@@ -1,0 +1,64 @@
+export_dir = fileparts(mfilename('fullpath'));
+project_root = fileparts(fileparts(export_dir));
+addpath(genpath(project_root));
+
+% Reproduce run 01
+params = struct();
+params.type = 'annulus';
+params.boundary = 'FC';
+params.nu = 0.225;
+params.k = 20;
+params.n = 240;
+params.normalize = true;
+params.xi0 = 0.2;
+params.a = 1;
+params.b = 1;
+result_01 = compute_chladni_modes(params);
+run_dir_01 = fullfile(export_dir, 'reproduce_run_01');
+if exist(run_dir_01, 'dir') == 7, rmdir(run_dir_01, 's'); end
+mkdir(run_dir_01);
+run_files_01 = render_result('render', result_01, run_dir_01, 'Prefix', 'chladni_annulus_FC');
+
+copyfile(run_files_01{1}, fullfile(export_dir, '01_chladni_annulus_fc_m1_s1.png'), 'f');
+copyfile(run_files_01{2}, fullfile(export_dir, '02_chladni_annulus_fc_m0_s1.png'), 'f');
+copyfile(run_files_01{3}, fullfile(export_dir, '03_chladni_annulus_fc_m2_s1.png'), 'f');
+copyfile(run_files_01{4}, fullfile(export_dir, '04_chladni_annulus_fc_m3_s1.png'), 'f');
+copyfile(run_files_01{5}, fullfile(export_dir, '05_chladni_annulus_fc_m4_s1.png'), 'f');
+copyfile(run_files_01{6}, fullfile(export_dir, '06_chladni_annulus_fc_m0_s2.png'), 'f');
+copyfile(run_files_01{7}, fullfile(export_dir, '07_chladni_annulus_fc_m1_s2.png'), 'f');
+copyfile(run_files_01{8}, fullfile(export_dir, '08_chladni_annulus_fc_m5_s1.png'), 'f');
+copyfile(run_files_01{9}, fullfile(export_dir, '09_chladni_annulus_fc_m2_s2.png'), 'f');
+copyfile(run_files_01{10}, fullfile(export_dir, '10_chladni_annulus_fc_m6_s1.png'), 'f');
+copyfile(run_files_01{11}, fullfile(export_dir, '11_chladni_annulus_fc_m3_s2.png'), 'f');
+copyfile(run_files_01{12}, fullfile(export_dir, '12_chladni_annulus_fc_m7_s1.png'), 'f');
+copyfile(run_files_01{13}, fullfile(export_dir, '13_chladni_annulus_fc_m4_s2.png'), 'f');
+copyfile(run_files_01{14}, fullfile(export_dir, '14_chladni_annulus_fc_m8_s1.png'), 'f');
+copyfile(run_files_01{15}, fullfile(export_dir, '15_chladni_annulus_fc_m0_s3.png'), 'f');
+copyfile(run_files_01{16}, fullfile(export_dir, '16_chladni_annulus_fc_m1_s3.png'), 'f');
+copyfile(run_files_01{17}, fullfile(export_dir, '17_chladni_annulus_fc_m5_s2.png'), 'f');
+copyfile(run_files_01{18}, fullfile(export_dir, '18_chladni_annulus_fc_m9_s1.png'), 'f');
+copyfile(run_files_01{19}, fullfile(export_dir, '19_chladni_annulus_fc_m2_s3.png'), 'f');
+copyfile(run_files_01{20}, fullfile(export_dir, '20_chladni_annulus_fc_m3_s3.png'), 'f');
+selected_files = {
+    fullfile(export_dir, '01_chladni_annulus_fc_m1_s1.png');
+    fullfile(export_dir, '02_chladni_annulus_fc_m0_s1.png');
+    fullfile(export_dir, '03_chladni_annulus_fc_m2_s1.png');
+    fullfile(export_dir, '04_chladni_annulus_fc_m3_s1.png');
+    fullfile(export_dir, '05_chladni_annulus_fc_m4_s1.png');
+    fullfile(export_dir, '06_chladni_annulus_fc_m0_s2.png');
+    fullfile(export_dir, '07_chladni_annulus_fc_m1_s2.png');
+    fullfile(export_dir, '08_chladni_annulus_fc_m5_s1.png');
+    fullfile(export_dir, '09_chladni_annulus_fc_m2_s2.png');
+    fullfile(export_dir, '10_chladni_annulus_fc_m6_s1.png');
+    fullfile(export_dir, '11_chladni_annulus_fc_m3_s2.png');
+    fullfile(export_dir, '12_chladni_annulus_fc_m7_s1.png');
+    fullfile(export_dir, '13_chladni_annulus_fc_m4_s2.png');
+    fullfile(export_dir, '14_chladni_annulus_fc_m8_s1.png');
+    fullfile(export_dir, '15_chladni_annulus_fc_m0_s3.png');
+    fullfile(export_dir, '16_chladni_annulus_fc_m1_s3.png');
+    fullfile(export_dir, '17_chladni_annulus_fc_m5_s2.png');
+    fullfile(export_dir, '18_chladni_annulus_fc_m9_s1.png');
+    fullfile(export_dir, '19_chladni_annulus_fc_m2_s3.png');
+    fullfile(export_dir, '20_chladni_annulus_fc_m3_s3.png');
+};
+image_output('compose_grid', selected_files, fullfile(export_dir, 'composite.png'), 'Layout', 'auto');

@@ -1,0 +1,17 @@
+Generated: 2026-06-16 16:35:14
+
+guide = rectangular
+action = mode field
+mode_type = TE
+legend_location = best
+map_name = project
+grid_n = 240
+samples = 260
+layout_rows = auto
+a = 0.03
+xi0 = 0.5
+b = 0.015
+radius = NaN
+mode_matrix = [1 0;1 1;1 2;1 3;2 0;2 1;2 2;2 3;3 0;3 1;3 2;3 3]
+max_order = NaN
+fmax_ghz = NaN

@@ -1,0 +1,52 @@
+export_dir = fileparts(mfilename('fullpath'));
+project_root = fileparts(fileparts(export_dir));
+addpath(genpath(project_root));
+
+% Reproduce run 01
+params = struct();
+params.family = 'vector_spherical_harmonics';
+params.variant = 'xlm';
+params.param_text = '(0:3,-3:3)';
+params.arg_matrix = [0 -3;0 -2;0 -1;0 0;0 1;0 2;0 3;1 -3;1 -2;1 -1;1 0;1 1;1 2;1 3;2 -3;2 -2;2 -1;2 0;2 1;2 2;2 3;3 -3;3 -2;3 -1;3 0;3 1;3 2;3 3];
+params.xmin = 0;
+params.xmax = 1;
+params.crop.mode = 'auto';
+params.crop.y_range = [];
+params.layout_text = '7+5+3';
+params.render_options.legend_location = 'northwest';
+out_01 = parse_special_functions_params('render_from_params', params);
+run_files_01 = out_01.files;
+
+copyfile(run_files_01{1}, fullfile(export_dir, '01_l_3_m_3.png'), 'f');
+copyfile(run_files_01{3}, fullfile(export_dir, '02_l_3_m_2.png'), 'f');
+copyfile(run_files_01{6}, fullfile(export_dir, '03_l_3_m_1.png'), 'f');
+copyfile(run_files_01{9}, fullfile(export_dir, '04_l_3_m_0.png'), 'f');
+copyfile(run_files_01{12}, fullfile(export_dir, '05_l_3_m_1.png'), 'f');
+copyfile(run_files_01{14}, fullfile(export_dir, '06_l_3_m_2.png'), 'f');
+copyfile(run_files_01{15}, fullfile(export_dir, '07_l_3_m_3.png'), 'f');
+copyfile(run_files_01{13}, fullfile(export_dir, '08_l_2_m_2.png'), 'f');
+copyfile(run_files_01{5}, fullfile(export_dir, '09_l_2_m_1.png'), 'f');
+copyfile(run_files_01{8}, fullfile(export_dir, '10_l_2_m_0.png'), 'f');
+copyfile(run_files_01{11}, fullfile(export_dir, '11_l_2_m_1.png'), 'f');
+copyfile(run_files_01{2}, fullfile(export_dir, '12_l_2_m_2.png'), 'f');
+copyfile(run_files_01{4}, fullfile(export_dir, '13_l_1_m_1.png'), 'f');
+copyfile(run_files_01{7}, fullfile(export_dir, '14_l_1_m_0.png'), 'f');
+copyfile(run_files_01{10}, fullfile(export_dir, '15_l_1_m_1.png'), 'f');
+selected_files = {
+    fullfile(export_dir, '01_l_3_m_3.png');
+    fullfile(export_dir, '02_l_3_m_2.png');
+    fullfile(export_dir, '03_l_3_m_1.png');
+    fullfile(export_dir, '04_l_3_m_0.png');
+    fullfile(export_dir, '05_l_3_m_1.png');
+    fullfile(export_dir, '06_l_3_m_2.png');
+    fullfile(export_dir, '07_l_3_m_3.png');
+    fullfile(export_dir, '08_l_2_m_2.png');
+    fullfile(export_dir, '09_l_2_m_1.png');
+    fullfile(export_dir, '10_l_2_m_0.png');
+    fullfile(export_dir, '11_l_2_m_1.png');
+    fullfile(export_dir, '12_l_2_m_2.png');
+    fullfile(export_dir, '13_l_1_m_1.png');
+    fullfile(export_dir, '14_l_1_m_0.png');
+    fullfile(export_dir, '15_l_1_m_1.png');
+};
+image_output('compose_grid', selected_files, fullfile(export_dir, 'composite.png'), 'Layout', '7+5+3');

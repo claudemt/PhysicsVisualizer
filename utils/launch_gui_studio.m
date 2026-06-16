@@ -7,6 +7,13 @@ function fig = launch_gui_studio(project_root, tab_builders, varargin)
 % minimal: set project_root, add app/core/docs, define tab_builders, then call
 % this function.
 
+% Force English UI language so MATLAB runtime messages (validation, warnings)
+% appear in English regardless of system locale.
+try
+    matlab.internal.language.LanguageManager.setLanguage('en');
+catch
+end
+
 if nargin < 1 || isempty(project_root)
     project_root = pwd;
 end

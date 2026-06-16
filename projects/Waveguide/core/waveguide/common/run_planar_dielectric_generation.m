@@ -12,6 +12,7 @@ legend_choice = params.legend_location;
 switch params.action
     case 'mode field'
         orders = params.order_list(:).';
+        items = cell(1, numel(orders));
         for k = 1:numel(orders)
             order = orders(k);
             R = planar_field(params.mode_type, order, params.freq_ghz, params.n1, params.n2, params.d, params.z_length, params.grid_n);
@@ -19,14 +20,15 @@ switch params.action
                 'CLim', [-1 1], ...
                 'Mask', isfinite(R.F), ...
                 'Title', R.titleText, ...
-                'XLabel', '$x\;(\mathrm{m})$', ...
-                'YLabel', '$z\;(\mathrm{m})$', ...
+                'XLabel', '$x/d$', ...
+                'YLabel', '$z/d$', ...
                 'ColorbarLabel', R.cbLabel, ...
-                'AxisMode', 'equal');
-            bundle = struct('kind', 'bundle', 'items', {{item}});
-            prefix = sprintf('planar_%s_order%d_field', params.mode_type, order);
-            files = [files, render_result('render', bundle, folder, 'Prefix', prefix, 'DPI', 260)]; %#ok<AGROW>
+                'AxisMode', 'tight');
+            item.filename = sprintf('%02d_%s_planar_order%d.png', k, params.mode_type, order);
+            items{k} = item;
         end
+        bundle = struct('kind', 'bundle', 'items', {items});
+        files = render_result('render', bundle, folder, 'DPI', 260);
     case 'dispersion curve'
         R = planar_dispersion(params.mode_type, params.n1, params.n2, params.vmax, params.max_order, params.samples);
         curves = cell(1, numel(R.curves));

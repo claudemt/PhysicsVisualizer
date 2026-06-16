@@ -10,8 +10,8 @@ p.addParameter('Title', '', @(v) true);
 p.addParameter('XLabel', '', @(v) true);
 p.addParameter('YLabel', '', @(v) true);
 p.addParameter('ZLabel', '', @(v) true);
-p.addParameter('FontSize', 12, @(v) isnumeric(v) && isscalar(v));
-p.addParameter('TitleFontSize', 14, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('TitleFontSize', 30, @(v) isnumeric(v) && isscalar(v));
 p.addParameter('Legend', '', @(s) ischar(s) || isstring(s));
 p.addParameter('LegendLocation', 'best', @(s) ischar(s) || isstring(s));
 p.addParameter('LegendNumColumns', 1, @(v) isnumeric(v) && isscalar(v));
@@ -60,6 +60,7 @@ for i = 1:numel(axs)
     try, ax.FontSize = opt.FontSize; catch, end
     try, ax.LineWidth = 1.0; catch, end
     try, ax.Toolbar.Visible = 'off'; catch, end
+    try, ax.Clipping = 'on'; catch, end
 
     try
         if strcmpi(char(string(opt.Grid)), 'on')
@@ -82,10 +83,26 @@ for i = 1:numel(axs)
                 'Interpreter', char(string(opt.Interpreter)), ...
                 'FontSize', opt.TitleFontSize, ...
                 'FontWeight', 'normal');
+            ax.Title.Units = 'normalized';
+            ax.Title.Position(2) = ax.Title.Position(2) + 0.040;
+            % Shrink data area height ~8% to create room at top for the
+            % raised title, keeping it inside OuterPosition / UIAxes bounds.
+            % Skipped when axes is inside a TiledChartLayout (not supported).
+            if isempty(ancestor(ax, 'tiledlayout'))
+                try
+                    ax.Units = 'normalized';
+                    p = ax.Position;
+                    ax.Position = [p(1), p(2), p(3), p(4) * 0.92];
+                catch, end
+            end
         catch
             title(ax, regexprep(char(string(opt.Title)), '[$\\{}]', ''), ...
                 'FontSize', opt.TitleFontSize, ...
                 'FontWeight', 'normal');
+            try
+                ax.Title.Units = 'normalized';
+                ax.Title.Position(2) = ax.Title.Position(2) + 0.040;
+            catch, end
         end
     end
 
@@ -136,7 +153,7 @@ function lgd = local_apply_legend_style(lgd, varargin)
 p = inputParser;
 p.addParameter('Location', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Interpreter', 'latex', @(s) ischar(s) || isstring(s));
-p.addParameter('FontSize', 12, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v));
 p.addParameter('NumColumns', [], @(v) isempty(v) || (isnumeric(v) && isscalar(v)));
 p.parse(varargin{:});
 opt = p.Results;

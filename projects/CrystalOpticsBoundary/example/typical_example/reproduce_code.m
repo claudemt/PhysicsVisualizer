@@ -1,0 +1,14 @@
+export_dir = fileparts(mfilename('fullpath'));
+project_root = fileparts(fileparts(export_dir));
+addpath(genpath(project_root));
+params = struct();
+params.n_inc = 1;
+params.k_inc = [0.560968194005;0.785355471607;-0.261785157202];
+params.pol.type = 2;
+params.pol.angle_deg = 0;
+params.orientation.mode = 'matrix';
+params.orientation.R = [1 0 0.3;0 1 0;-0.2 0 1];
+params.eps_diag = [2.5 2.5 3.2];
+params.eps_lab = [];
+result = crystal_boundary_formula(params);
+report_text = render_crystal_report(result);

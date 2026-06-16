@@ -1,0 +1,55 @@
+Optical multilayer result
+========================
+
+N = 3
+omega = 1
+theta_a (rad, from normal in medium a) = 0.68
+k_x = 0.628793024018
+
+Medium a (incident)
+eps_a = 1
+mu_a = 1
+zeta_a = 1
+cos_theta_a = 0.777572718751
+
+Medium g (substrate)
+eps_g = 2.25
+mu_g = 1
+zeta_g = 1.5
+cos_theta_g = 0.90789606183
+
+Layer 1
+eps_1 = 2.25
+mu_1 = 1
+h_1 = 1.111
+phase_1 = 1.51300878704
+cos_theta_1 = 0.90789606183
+
+Layer 2
+eps_2 = 1.12
+mu_2 = 1.3
+h_2 = 2
+phase_2 = 2.05972748969
+cos_theta_2 = 0.853491267709
+
+Layer 3
+eps_3 = 1.5
+mu_3 = 1
+h_3 = 3.1
+phase_3 = 3.25812703706
+cos_theta_3 = 0.858145027737
+
+s polarization
+r_s = -0.617057982661-0.116794474608i
+R_s = 0.394401503265
+t_s = 0.530566919841+0.253530240371i
+T_s = 0.605598496735
+Energy sum s = 1
+
+p polarization
+r_p = 0.432288780769+0.115832931436i
+R_p = 0.200290857984
+t_p = 0.594893287975+0.320487527652i
+T_p = 0.799709142016
+Energy sum p = 1
+

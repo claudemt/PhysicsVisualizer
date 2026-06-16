@@ -10,12 +10,14 @@ ui = create_tab_layout(tab_group, 'mie scattering', project_root, ...
     'NotesFile', fullfile(project_root, 'docs', 'physical_formulas.md'));
 ui.control_grid.RowHeight = {'fit','fit','fit'};
 
-phys = create_control_panel(ui.control_grid, 'section', 'physical parameters', 5);
+phys = create_control_panel(ui.control_grid, 'section', 'physical parameters', 7);
 eps_edit = create_control_panel(phys.grid, 'text', 'epsilon_r', defaults.eps1, 'Relative permittivity.');
 mu_edit = create_control_panel(phys.grid, 'text', 'mu_r', defaults.mu1, 'Relative permeability.');
 R_edit = create_control_panel(phys.grid, 'numeric', 'R/lambda', defaults.R_over_lambda, 'Radius in wavelengths.');
 nu_edit = create_control_panel(phys.grid, 'numeric', 'nu', defaults.nu, 'Elliptical-polarization parameter.');
 psi_edit = create_control_panel(phys.grid, 'numeric', 'psi', defaults.psi, 'Polarization phase.');
+slice_dd = create_control_panel(phys.grid, 'dropdown', 'slice', {'xy','xz','yz'}, defaults.sliceType, 'Slice plane: xy, xz, or yz.');
+pos_edit = create_control_panel(phys.grid, 'numeric', 'slice position/lambda', defaults.slicePos_over_lambda, 'Offset along slice normal direction.');
 
 setup = create_control_panel(ui.control_grid, 'section', 'scattering setup', {24,90});
 geometry_dd = create_control_panel(setup.grid, 'dropdown', 'geometry', {'sphere','cylinder'}, defaults.geometry, 'Geometry.');
@@ -25,9 +27,18 @@ custom_list.Value = defaults.customSelection;
 
 actions = create_control_panel(ui.control_grid, 'section', 'actions', 1);
 state = struct('png_paths', {{}}, 'params', struct(), 'runs', {{}});
-geometry_dd.ValueChangedFcn = @(~,~) refresh_notes();
+geometry_dd.ValueChangedFcn = @(~,~) on_geometry_changed();
 custom_list.ValueChangedFcn = @(~,~) refresh_notes();
 refresh_notes();
+
+    function on_geometry_changed()
+        if strcmpi(geometry_dd.Value, 'sphere')
+            slice_dd.Value = 'xz';
+        else
+            slice_dd.Value = 'xy';
+        end
+        refresh_notes();
+    end
 bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_callback, ...
     'GenerateText', 'Run');
 
@@ -52,6 +63,8 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         cfg.N = defaults.N;
         cfg.nmaxExtra = defaults.nmaxExtra;
         cfg.maskInside = defaults.maskInside;
+        cfg.sliceType = slice_dd.Value;
+        cfg.slicePos_over_lambda = pos_edit.Value;
     end
 
     function run_callback()
@@ -72,6 +85,12 @@ bind_workflow(actions.grid, app_figure, @run_callback, @reset_callback, @export_
         nu_edit.Value = defaults.nu;
         psi_edit.Value = defaults.psi;
         geometry_dd.Value = defaults.geometry;
+        if strcmpi(defaults.geometry, 'sphere')
+            slice_dd.Value = 'xz';
+        else
+            slice_dd.Value = 'xy';
+        end
+        pos_edit.Value = defaults.slicePos_over_lambda;
         custom_list.Value = defaults.customSelection;
         refresh_notes();
         state.png_paths = {};
@@ -108,7 +127,9 @@ lines = { ...
     'nu controls polarization ellipticity/amplitude mixing; psi is the polarization phase angle between components.', ...
     sprintf('geometry = %s. Use the field list below to choose exactly which scattered/total components to generate.', char(string(geometry))), ...
     'fields selects the scattered/total field components to generate. The preview list controls final export selection and order.', ...
-    'Images show field components or magnitudes on a 2D cut; full coefficient definitions are in Notes.'};
+    'slice selects the 2D cut plane: xy (z=const), xz (y=const), or yz (x=const).', ...
+    'slice position/lambda offsets the cut plane along its normal direction; 0 is the scatterer center.', ...
+    'Images show field components or magnitudes on the chosen 2D cut; full coefficient definitions are in Notes.'};
 end
 
 

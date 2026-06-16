@@ -1,0 +1,13 @@
+Generated: 2026-06-16 12:02:11
+
+export.layout = auto
+export.selected_files = {01_chladni_rect_ffff_mode_1.png, 02_chladni_rect_ffff_mode_2.png, 03_chladni_rect_ffff_mode_3.png, 04_chladni_rect_ffff_mode_4.png, 05_chladni_rect_ffff_mode_5.png, 06_chladni_rect_ffff_mode_6.png, 07_chladni_rect_ffff_mode_7.png, 08_chladni_rect_ffff_mode_8.png, 09_chladni_rect_ffff_mode_9.png, 10_chladni_rect_ffff_mode_10.png, 11_chladni_rect_ffff_mode_11.png, 12_chladni_rect_ffff_mode_12.png, 13_chladni_rect_ffff_mode_13.png, 14_chladni_rect_ffff_mode_14.png, 15_chladni_rect_ffff_mode_15.png, 16_chladni_rect_ffff_mode_16.png, 17_chladni_rect_ffff_mode_17.png, 18_chladni_rect_ffff_mode_18.png, 19_chladni_rect_ffff_mode_19.png, 20_chladni_rect_ffff_mode_20.png}
+run_01.type = rect
+run_01.boundary = FFFF
+run_01.nu = 0.225
+run_01.k = 20
+run_01.n = 240
+run_01.normalize = 1
+run_01.xi0 = 1
+run_01.a = 2
+run_01.b = 2

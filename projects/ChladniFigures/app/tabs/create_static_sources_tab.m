@@ -55,6 +55,7 @@ image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
 
     function on_domain_changed()
         install_boundary_items();
+        install_source_defaults(char(string(type_dd.Value)));
         refresh_notes();
     end
 
@@ -87,6 +88,18 @@ image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
             if ~any(strcmp(circ_boundary.Items, circ_boundary.Value)), circ_boundary.Value = 'CC'; end
             xi0_edit.Enable = 'on';
             geom.grid.RowHeight = {'fit',0,'fit','fit','fit','fit','fit','fit'};
+        end
+    end
+
+    function install_source_defaults(domain)
+        switch domain
+            case 'rect'
+                sources_area.Value = {'[0 0 1 0]'};
+            case 'circ'
+                sources_area.Value = {'[0.35 0 1 0]'};
+            case 'annulus'
+                r_mid = 0.5 * (1 + xi0_edit.Value);
+                sources_area.Value = {sprintf('[%.6g 0 1 0]', r_mid)};
         end
     end
 
@@ -200,7 +213,7 @@ image_output('bind_preview_list', ui.preview_list, ui.preview_axes, {});
         D_edit.Value = 1.0;
         load_type_dd.Value = 'points';
         q0_edit.Value = 1.0;
-        sources_area.Value = {'[0 0 1 0;'; ' 0.45 0.25 -0.6 0.04]'};
+        sources_area.Value = {'[0 0 1 0]'};
         custom_area.Value = {'@(X,Y) exp(-18*((X-0.25).^2 + (Y+0.1).^2))'};
         install_boundary_items();
         update_load_controls();

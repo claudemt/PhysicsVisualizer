@@ -1,0 +1,32 @@
+Generated: 2026-06-16 13:58:31
+
+export.layout = auto
+export.selected_files = {01_cyl_sca_re_ex_slice_xy_pos_0_1.png, 02_cyl_sca_re_ey_slice_xy_pos_0_1.png, 03_cyl_sca_re_ez_slice_xy_pos_0_1.png, 04_cyl_sca_ex_mag_slice_xy_pos_0_1.png, 05_cyl_sca_ey_mag_slice_xy_pos_0_1.png, 06_cyl_sca_ez_mag_slice_xy_pos_0_1.png, 07_sph_sca_re_ex_slice_xz_pos_0_1.png, 08_sph_sca_re_ey_slice_xz_pos_0_1.png, 09_sph_sca_re_ez_slice_xz_pos_0_1.png, 10_sph_sca_ex_mag_slice_xz_pos_0_1.png, 11_sph_sca_ey_mag_slice_xz_pos_0_1.png, 12_sph_sca_ez_mag_slice_xz_pos_0_1.png}
+run_01.eps1 = 2+0.2i
+run_01.mu1 = 0.8+0.2i
+run_01.R_over_lambda = 0.5
+run_01.nu = 1.1
+run_01.psi = 0.2
+run_01.geometry = cylinder
+run_01.mode = custom
+run_01.customSelection = {sca_rex, sca_rey, sca_rez, sca_aex, sca_aey, sca_aez, sca_emag}
+run_01.gridHalfWidth = 2.5
+run_01.N = 500
+run_01.nmaxExtra = 15
+run_01.maskInside = 1
+run_01.sliceType = xy
+run_01.slicePos_over_lambda = 0.1
+run_02.eps1 = 2+0.2i
+run_02.mu1 = 0.8+0.2i
+run_02.R_over_lambda = 0.5
+run_02.nu = 1.1
+run_02.psi = 0.2
+run_02.geometry = sphere
+run_02.mode = custom
+run_02.customSelection = {sca_rex, sca_rey, sca_rez, sca_aex, sca_aey, sca_aez, sca_emag}
+run_02.gridHalfWidth = 2.5
+run_02.N = 500
+run_02.nmaxExtra = 15
+run_02.maskInside = 1
+run_02.sliceType = xz
+run_02.slicePos_over_lambda = 0.1

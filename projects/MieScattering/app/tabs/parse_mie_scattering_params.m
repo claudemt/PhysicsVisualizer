@@ -29,6 +29,8 @@ cfg.gridHalfWidth = 2.5;
 cfg.N = 500;
 cfg.nmaxExtra = 15;
 cfg.maskInside = true;
+cfg.sliceType = 'xz';
+cfg.slicePos_over_lambda = 0.0;
 end
 
 function z = local_str2complex(s)

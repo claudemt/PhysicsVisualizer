@@ -66,43 +66,71 @@ end
 
 function M = local_parse_tuples(txt, expected_cols)
 % Shared tuple parser: extracts numbers from '(...);(...)' format.
+% Supports colon ranges: (1:3,0:2) expands to (1,0),(1,1),(1,2),(2,0),...
 txt = strtrim(txt);
 if contains(txt, '(')
     pieces = regexp(txt, '\)\s*;?\s*\(', 'split');
     pieces = strtrim(pieces);
-    % Count valid pieces first for pre-allocation
-    nValid = 0;
-    for i = 1:numel(pieces)
-        p = pieces{i};
-        if startsWith(p, '('), p = p(2:end); end
-        if endsWith(p, ')'), p = p(1:end-1); end
-        if ~isempty(strtrim(p)), nValid = nValid + 1; end
-    end
-    M = zeros(nValid, expected_cols);
-    idx = 0;
+    M = zeros(0, expected_cols);
     for i = 1:numel(pieces)
         p = pieces{i};
         if startsWith(p, '('), p = p(2:end); end
         if endsWith(p, ')'), p = p(1:end-1); end
         p = strtrim(p);
         if isempty(p), continue; end
-        nums = sscanf(p, '%d,');
-        if numel(nums) ~= expected_cols
+        cols = local_parse_range(p);
+        if size(cols,2) ~= expected_cols
             error('Each tuple must have exactly %d integers.', expected_cols);
         end
-        idx = idx + 1;
-        M(idx, :) = nums(:).';
+        M = [M; cols]; %#ok<AGROW>
     end
 else
     % Bare comma-separated list (fallback)
-    nums = sscanf(txt, '%d,');
-    if numel(nums) >= expected_cols
-        M = reshape(nums(1:floor(numel(nums)/expected_cols)*expected_cols), expected_cols, []).';
-    else
+    cols = local_parse_range(txt);
+    if size(cols,2) < expected_cols
         M = zeros(0, expected_cols);
+    else
+        M = cols;
     end
 end
 if isempty(M)
     error('Could not parse any valid tuples from: %s', txt);
+end
+end
+
+function M = local_parse_range(txt)
+% Parse a comma-separated list where each element may be a colon range.
+% Example: '1:3,0:2' -> all combos of [1 2 3] x [0 1 2]
+parts = strtrim(strsplit(txt, ','));
+parts(cellfun(@isempty, parts)) = [];
+ranges = cell(1, numel(parts));
+for i = 1:numel(parts)
+    c = strtrim(parts{i});
+    if contains(c, ':')
+        lim = sscanf(c, '%d:%d');
+        if numel(lim) ~= 2
+            error('Invalid range: %s', c);
+        end
+        ranges{i} = (lim(1):lim(2)).';
+    else
+        ranges{i} = sscanf(c, '%d');
+    end
+end
+% Cartesian product of all dimensions
+M = local_cartesian_product(ranges);
+end
+
+function M = local_cartesian_product(ranges)
+% Build all combinations from a cell array of column vectors.
+n = numel(ranges);
+counts = cellfun(@numel, ranges);
+total = prod(counts);
+M = zeros(total, n);
+if total == 0, return; end
+repeats = 1;
+for i = n:-1:1
+    col = repmat(kron(ranges{i}, ones(repeats, 1)), total / (repeats * counts(i)), 1);
+    M(:, i) = col;
+    repeats = repeats * counts(i);
 end
 end

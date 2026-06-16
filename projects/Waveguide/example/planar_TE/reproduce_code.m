@@ -1,0 +1,17 @@
+params = struct();
+params.action = 'mode field';
+params.mode_type = 'TE';
+params.legend_location = 'best';
+params.map_name = 'project';
+params.grid_n = 240;
+params.samples = 260;
+params.vmax = 12;
+params.freq_ghz = 12;
+params.z_length = 0.1;
+params.layout_rows = 'auto';
+params.order_list = [0 1 2 3];
+params.n1 = 1.5;
+params.n2 = 1.45;
+params.d = 0.1;
+params.max_order = NaN;
+run_from_params(params);

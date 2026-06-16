@@ -1,0 +1,17 @@
+Generated: 2026-06-16 17:05:59
+
+action = mode field
+mode_type = TE
+legend_location = best
+map_name = project
+grid_n = 240
+samples = 260
+vmax = 12
+freq_ghz = 12
+z_length = 0.1
+layout_rows = auto
+order_list = [0 1 2 3]
+n1 = 1.5
+n2 = 1.45
+d = 0.1
+max_order = NaN

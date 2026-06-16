@@ -1,0 +1,14 @@
+Generated: 2026-06-16 18:08:00
+
+export.layout = 7+5+3
+export.selected_files = {01_l_3_m_3.png, 02_l_3_m_2.png, 03_l_3_m_1.png, 04_l_3_m_0.png, 05_l_3_m_1.png, 06_l_3_m_2.png, 07_l_3_m_3.png, 08_l_2_m_2.png, 09_l_2_m_1.png, 10_l_2_m_0.png, 11_l_2_m_1.png, 12_l_2_m_2.png, 13_l_1_m_1.png, 14_l_1_m_0.png, 15_l_1_m_1.png}
+run_01.family = vector_spherical_harmonics
+run_01.variant = xlm
+run_01.param_text = (0:3,-3:3)
+run_01.arg_matrix = [0 -3;0 -2;0 -1;0 0;0 1;0 2;0 3;1 -3;1 -2;1 -1;1 0;1 1;1 2;1 3;2 -3;2 -2;2 -1;2 0;2 1;2 2;2 3;3 -3;3 -2;3 -1;3 0;3 1;3 2;3 3]
+run_01.xmin = 0
+run_01.xmax = 1
+run_01.crop.mode = auto
+run_01.crop.y_range = []
+run_01.layout_text = 7+5+3
+run_01.render_options.legend_location = northwest

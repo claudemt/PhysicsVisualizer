@@ -1,13 +1,13 @@
-function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_formula_cyl(eps1, mu1, cfg)
-%SCATTERING_FORMULA_CYL  Exact near-field of an infinite cylinder (kz=0) using cylindrical wave expansion.
+function [Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_formula_cyl(eps1, mu1, cfg, X3d, Y3d, Z3d)
+%SCATTERING_FORMULA_CYL  Exact near-field of an infinite cylinder using cylindrical wave expansion.
 %
 % Geometry:
 %   Cylinder axis: z
 %   Incidence: +x direction (in x-y plane)
-%   Plot plane: x-y (here we reuse X,Z mesh but interpret Z as y)
+%   Field depends only on (x,y) — uniform along z.
 %
 % Polarization:
-%   Use same (nu, psi) parameterization as your sphere code,
+%   Use same (nu, psi) parameterization as sphere code,
 %   but circular basis is in (y,z):
 %       e± = (y ± i z)/sqrt2
 %   So:
@@ -21,8 +21,8 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
 % Inside (rho<R):
 %   Eint from bE_m, bM_m with Bessel J_m(n k rho)
 
-    if nargin ~= 3 || ~isstruct(cfg)
-        error('Usage: scattering_formula_cyl(eps1, mu1, cfg)');
+    if nargin ~= 6 || ~isstruct(cfg)
+        error('Usage: scattering_formula_cyl(eps1, mu1, cfg, X3d, Y3d, Z3d)');
     end
     req = {'k','R','x','gridHalfWidth','N','nu','psi'};
     for i = 1:numel(req)
@@ -47,15 +47,9 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
     mmax = ceil(x + 4*x^(1/3) + 2 + cfg.nmaxExtra);
     mmax = max(mmax, 1);
 
-    % Grid (reuse X,Z naming; interpret Z as y)
-    L = cfg.gridHalfWidth;
-    Np = cfg.N;
-    xv = linspace(-L, L, Np);
-    yv = linspace(-L, L, Np);
-    [X, Z] = meshgrid(xv, yv);  % Z is y
-
-    rho = hypot(X, Z);
-    phi = atan2(Z, X);          % [-pi, pi]
+    % Cylinder field depends only on transverse (x,y) coords
+    rho = sqrt(X3d.^2 + Y3d.^2);
+    phi = atan2(Y3d, X3d);          % [-pi, pi]
     inside  = (rho < R);
     outside = ~inside;
 
@@ -70,18 +64,18 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
     ATM = Ez0;
 
     % Incident plane wave propagating +x
-    phase = exp(1i*k*X);
-    Einc_x = zeros(size(X));
+    phase = exp(1i*k*X3d);
+    Einc_x = zeros(size(X3d));
     Einc_y = ATE .* phase;
     Einc_z = ATM .* phase;
 
     % Outputs
-    Esca_x = complex(zeros(size(X)));
-    Esca_y = complex(zeros(size(X)));
-    Esca_z = complex(zeros(size(X)));
-    Etot_x = complex(zeros(size(X)));
-    Etot_y = complex(zeros(size(X)));
-    Etot_z = complex(zeros(size(X)));
+    Esca_x = complex(zeros(size(X3d)));
+    Esca_y = complex(zeros(size(X3d)));
+    Esca_z = complex(zeros(size(X3d)));
+    Etot_x = complex(zeros(size(X3d)));
+    Etot_y = complex(zeros(size(X3d)));
+    Etot_z = complex(zeros(size(X3d)));
 
     % Precompute coefficients aE_m, aM_m, bE_m, bM_m (m=0..mmax)
     [aE, aM, bE, bM] = cyl_coeffs_dielectric(eps1, mu1, n, zr, x, mmax);

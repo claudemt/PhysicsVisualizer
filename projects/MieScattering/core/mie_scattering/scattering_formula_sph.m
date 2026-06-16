@@ -1,4 +1,4 @@
-function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_formula_sph(eps1, mu1, cfg)
+function [Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_formula_sph(eps1, mu1, cfg, X3d, Y3d, Z3d)
 %SCATTERING_FORMULA  Exact near-field of a sphere using full Mie VSWF expansion.
 %
 % Outside (r>=R):
@@ -8,9 +8,10 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
 % Inside (r<R):
 %   E_tot = E_int computed by series with c_n, d_n and VSWFs (type 1): j_n(mkr)
 %
-% Geometry:
-%   x-z plane with phi = 0
-%   Incident plane wave: propagating +z, general elliptical polarization:
+% Coordinates:
+%   (X3d, Y3d, Z3d) are full 2-D meshgrid matrices of arbitrary 3-D positions.
+%   Incident plane wave propagates along +z direction.
+%   General elliptical polarization via (nu, psi):
 %     A+ = 1/sqrt(1+nu^2),  A- = nu/sqrt(1+nu^2)*exp(i psi)
 %     e± = (x ± i y)/sqrt2
 %     E0x = (A+ + A-)/sqrt2
@@ -20,8 +21,8 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
 %   Esca_x, Esca_y, Esca_z : scattered field components (NaN inside if cfg.maskInside=true)
 %   Etot_x, Etot_y, Etot_z : total field components (inside uses internal field)
 
-    if nargin ~= 3 || ~isstruct(cfg)
-        error('Usage: scattering_formula(eps1, mu1, cfg)');
+    if nargin ~= 6 || ~isstruct(cfg)
+        error('Usage: scattering_formula(eps1, mu1, cfg, X3d, Y3d, Z3d)');
     end
     req = {'k','R','x','gridHalfWidth','N','nu','psi'};
     for i = 1:numel(req)
@@ -51,22 +52,15 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
     [an, bn] = mie2_ab_local(m, z1, x, nmax);
     [cn, dn] = mie2_cd_local(m, mu1, x, nmax);
 
-    % Grid
-    L = cfg.gridHalfWidth;
-    N = cfg.N;
-    xv = linspace(-L, L, N);
-    zv = linspace(-L, L, N);
-    [X, Z] = meshgrid(xv, zv);
-
-    r = hypot(X, Z);
-    theta = acos_safe(Z ./ max(r, eps));
+    % Spherical coords from 3-D positions
+    r = sqrt(X3d.^2 + Y3d.^2 + Z3d.^2);
+    theta = acos_safe(Z3d ./ max(r, eps));
+    phi = atan2(Y3d, X3d);
     u = cos(theta);
     sinth = sin(theta);
     costh = cos(theta);
-
-    % x-z plane => phi = 0
-    cosphi = ones(size(theta));
-    sinphi = zeros(size(theta));
+    cosphi = cos(phi);
+    sinphi = sin(phi);
 
     inside  = (r < R);
     outside = ~inside;
@@ -81,18 +75,18 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
     E0y = 1i * (Aplus - Aminus) ./ sqrt(2);
 
     % Incident plane wave
-    phase = exp(1i*k*Z);
+    phase = exp(1i*k*Z3d);
     Einc_x = E0x .* phase;
     Einc_y = E0y .* phase;
-    Einc_z = zeros(size(Z));
+    Einc_z = zeros(size(Z3d));
 
     % Outputs
-    Esca_x = complex(zeros(size(X)));
-    Esca_y = complex(zeros(size(X)));
-    Esca_z = complex(zeros(size(X)));
-    Etot_x = complex(zeros(size(X)));
-    Etot_y = complex(zeros(size(X)));
-    Etot_z = complex(zeros(size(X)));
+    Esca_x = complex(zeros(size(X3d)));
+    Esca_y = complex(zeros(size(X3d)));
+    Esca_z = complex(zeros(size(X3d)));
+    Etot_x = complex(zeros(size(X3d)));
+    Etot_y = complex(zeros(size(X3d)));
+    Etot_z = complex(zeros(size(X3d)));
 
     % ============================================================
     % OUTSIDE: scattered field (type-3 VSWF: hankel)
@@ -161,14 +155,16 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
             pi_nm1 = pi_n;
         end
 
-        % spherical -> Cartesian at phi=0:
-        % Ex = Er sinθ + Eθ cosθ ; Ey = Eφ ; Ez = Er cosθ - Eθ sinθ
-        Ex_s_x = Er_x .* sinth + Eth_x .* costh;
-        Ey_s_x = Eph_x;
+        % spherical -> Cartesian (arbitrary phi):
+        % Ex = Er sinθ cosφ + Eθ cosθ cosφ - Eφ sinφ
+        % Ey = Er sinθ sinφ + Eθ cosθ sinφ + Eφ cosφ
+        % Ez = Er cosθ - Eθ sinθ
+        Ex_s_x = Er_x .* sinth .* cosphi + Eth_x .* costh .* cosphi - Eph_x .* sinphi;
+        Ey_s_x = Er_x .* sinth .* sinphi + Eth_x .* costh .* sinphi + Eph_x .* cosphi;
         Ez_s_x = Er_x .* costh - Eth_x .* sinth;
 
-        Ex_s_y = Er_y .* sinth + Eth_y .* costh;
-        Ey_s_y = Eph_y;
+        Ex_s_y = Er_y .* sinth .* cosphi + Eth_y .* costh .* cosphi - Eph_y .* sinphi;
+        Ey_s_y = Er_y .* sinth .* sinphi + Eth_y .* costh .* sinphi + Eph_y .* cosphi;
         Ez_s_y = Er_y .* costh - Eth_y .* sinth;
 
         % superpose
@@ -249,12 +245,12 @@ function [X, Z, Esca_x, Esca_y, Esca_z, Etot_x, Etot_y, Etot_z] = scattering_for
             pi_nm1 = pi_n;
         end
 
-        Ex_i_x = Er_x .* sinth + Eth_x .* costh;
-        Ey_i_x = Eph_x;
+        Ex_i_x = Er_x .* sinth .* cosphi + Eth_x .* costh .* cosphi - Eph_x .* sinphi;
+        Ey_i_x = Er_x .* sinth .* sinphi + Eth_x .* costh .* sinphi + Eph_x .* cosphi;
         Ez_i_x = Er_x .* costh - Eth_x .* sinth;
 
-        Ex_i_y = Er_y .* sinth + Eth_y .* costh;
-        Ey_i_y = Eph_y;
+        Ex_i_y = Er_y .* sinth .* cosphi + Eth_y .* costh .* cosphi - Eph_y .* sinphi;
+        Ey_i_y = Er_y .* sinth .* sinphi + Eth_y .* costh .* sinphi + Eph_y .* cosphi;
         Ez_i_y = Er_y .* costh - Eth_y .* sinth;
 
         Ex_i = E0x.*Ex_i_x + E0y.*Ex_i_y;
