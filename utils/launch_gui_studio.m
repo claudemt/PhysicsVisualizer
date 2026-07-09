@@ -29,7 +29,7 @@ p.addParameter('StudioName', 'MATLAB Physics Studio', @(s) ischar(s) || isstring
 p.addParameter('Name', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Position', [80 60 1280 820], @(v) isnumeric(v) && numel(v) == 4);
 p.addParameter('Maximized', true, @(v) islogical(v) || isnumeric(v));
-p.addParameter('BackgroundColor', [0.96 0.96 0.96], @(v) isnumeric(v) && numel(v) == 3);
+p.addParameter('BackgroundColor', [], @(v) isempty(v) || (isnumeric(v) && numel(v) == 3));
 p.parse(varargin{:});
 opt = p.Results;
 if strlength(string(opt.Name)) > 0
@@ -45,6 +45,11 @@ set(groot, 'defaultAxesTickLabelInterpreter', 'latex');
 set(groot, 'defaultLegendInterpreter', 'latex');
 set(groot, 'defaultColorbarTickLabelInterpreter', 'latex');
 
+style = studio_style('tokens');
+if isempty(opt.BackgroundColor)
+    opt.BackgroundColor = style.background;
+end
+
 fig = uifigure('Name', char(string(opt.StudioName)), ...
     'Position', opt.Position, ...
     'Color', opt.BackgroundColor);
@@ -53,7 +58,7 @@ fig.CloseRequestFcn = @(src, evt) local_close_request(src, project_root);
 root = uigridlayout(fig, [1 1]);
 root.RowHeight = {'1x'};
 root.ColumnWidth = {'1x'};
-root.Padding = [6 6 6 6];
+root.Padding = style.tightPadding;
 root.RowSpacing = 0;
 root.ColumnSpacing = 0;
 

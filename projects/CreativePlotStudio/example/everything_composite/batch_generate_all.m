@@ -2,8 +2,8 @@ function batch_generate_all()
 %BATCH_GENERATE_ALL Generate all CreativePlotStudio images and one preview composite.
 
 example_root = fileparts(mfilename('fullpath'));
-project_root = fileparts(example_root);
-repo_root = fileparts(fileparts(fileparts(example_root)));
+project_root = fileparts(fileparts(example_root));
+repo_root = fileparts(fileparts(project_root));
 addpath(example_root);
 addpath(fullfile(repo_root, 'utils'));
 addpath(genpath(fullfile(project_root, 'app')));
@@ -64,11 +64,12 @@ for i = 1:n_total
     end
 
     indexed_name = sprintf('%02d_%s.png', i, image_output('slug', name));
-    out_path = fullfile(indiv_dir, indexed_name);
     try
-        exportgraphics(fig, out_path, 'Resolution', 200, 'BackgroundColor', 'white');
-    catch
-        print(fig, out_path, '-dpng', '-r200');
+        out_path = image_output('save_figure', fig, indiv_dir, indexed_name, 200);
+    catch ME
+        warning('EXPORT FAILED [%s] %s: %s', domain, name, ME.message);
+        close(fig);
+        continue;
     end
 
     png_paths{i} = out_path;

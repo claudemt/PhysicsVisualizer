@@ -16,12 +16,12 @@ left_grid.RowHeight = {'fit', 76, 0};
 notes_box = ui.notes_area;
 
 physical_panel = uipanel(left_grid, 'Title', 'physical parameters');
+studio_style('apply_panel', physical_panel);
 physical_panel.Layout.Row = 1;
 physical_panel.Layout.Column = 1;
 physical_grid = uigridlayout(physical_panel, [7 1]);
 physical_grid.RowHeight = {'fit','fit','fit','fit','fit','fit','fit'};
-physical_grid.Padding = [8 8 8 8];
-physical_grid.RowSpacing = 5;
+studio_style('apply_grid', physical_grid, 'panel');
 mode_dd = create_control_panel(physical_grid, 'dropdown', 'mode', {'free_space', '4f_filtering'}, 'free_space', 'Choose propagation or Fourier filtering.');
 object_dd = create_control_panel(physical_grid, 'dropdown', 'object', {'bars', 'mesh', 'double_slit', 'aperture', 'gaussian_lattice'}, 'bars', 'Synthetic object field.');
 filter_dd = create_control_panel(physical_grid, 'dropdown', 'filter', {'none', 'pinhole', 'ring', 'horizontal_single', 'horizontal_double', 'vertical_single', 'vertical_double'}, 'pinhole', 'Fourier-plane mask.');
@@ -31,13 +31,13 @@ wavelength_nm = create_control_panel(physical_grid, 'numeric', 'wavelength (nm)'
 prop_distance = create_control_panel(physical_grid, 'numeric', 'distance (mm)', 20, 'Propagation distance for free-space mode.');
 
 numerical_panel = uipanel(left_grid, 'Title', 'numerical / display parameters');
+studio_style('apply_panel', numerical_panel);
 numerical_panel.Layout.Row = 3;
 numerical_panel.Layout.Column = 1;
 numerical_panel.Visible = 'off';
 numerical_grid = uigridlayout(numerical_panel, [3 1]);
 numerical_grid.RowHeight = {'fit','fit','fit'};
-numerical_grid.Padding = [8 8 8 8];
-numerical_grid.RowSpacing = 5;
+studio_style('apply_grid', numerical_grid, 'panel');
 grid_n = create_control_panel(numerical_grid, 'numeric', 'grid size', 256, 'Simulation grid size in pixels.');
 use_bandlimit = create_control_panel(numerical_grid, 'dropdown', 'band-limit', {'on', 'off'}, 'on', 'Apply band-limited angular-spectrum support.');
 display_scale_dd = create_control_panel(numerical_grid, 'dropdown', 'image scaling', {'fixed', 'auto'}, 'fixed', 'Fixed uses consistent color limits; auto stretches each image.');
@@ -51,8 +51,8 @@ button_block.generate.Tooltip = 'Run current wave-optics simulation.';
 status_box = uitextarea(tab, ...
     'Editable', 'off', ...
     'Value', {'status: ready'}, ...
-    'FontName', 'Courier New', ...
     'Visible', 'off');
+studio_style('apply_component', status_box, 'mono');
 has_result = false;
 
 preview_grid = ui.preview_grid;
@@ -62,7 +62,7 @@ ax_aux2 = ui.preview_axes(3);
 ax_output = ui.preview_axes(4);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on');
 end
 
 
@@ -177,7 +177,7 @@ end
         has_result = false;
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'Box', 'on');
+            studio_style('apply_axes', ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

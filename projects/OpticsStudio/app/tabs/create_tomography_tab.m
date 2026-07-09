@@ -16,23 +16,23 @@ left_grid.RowHeight = {'fit', 76, 0};
 notes_box = ui.notes_area;
 
 physical_panel = uipanel(left_grid, 'Title', 'physical parameters');
+studio_style('apply_panel', physical_panel);
 physical_panel.Layout.Row = 1;
 physical_panel.Layout.Column = 1;
 physical_grid = uigridlayout(physical_panel, [2 1]);
 physical_grid.RowHeight = {'fit','fit'};
-physical_grid.Padding = [8 8 8 8];
-physical_grid.RowSpacing = 5;
+studio_style('apply_grid', physical_grid, 'panel');
 phantom_dd = create_control_panel(physical_grid, 'dropdown', 'phantom', {'shepp_logan', 'three_disks'}, 'shepp_logan', 'Analytic 2D phantom.');
 filter_dd = create_control_panel(physical_grid, 'dropdown', 'filter', {'none', 'ram_lak', 'shepp_logan'}, 'ram_lak', 'FBP reconstruction filter.');
 
 numerical_panel = uipanel(left_grid, 'Title', 'numerical / display parameters');
+studio_style('apply_panel', numerical_panel);
 numerical_panel.Layout.Row = 3;
 numerical_panel.Layout.Column = 1;
 numerical_panel.Visible = 'off';
 numerical_grid = uigridlayout(numerical_panel, [4 1]);
 numerical_grid.RowHeight = {'fit','fit','fit','fit'};
-numerical_grid.Padding = [8 8 8 8];
-numerical_grid.RowSpacing = 5;
+studio_style('apply_grid', numerical_grid, 'panel');
 grid_n = create_control_panel(numerical_grid, 'numeric', 'image size', 128, 'Phantom grid size.');
 angle_count = create_control_panel(numerical_grid, 'numeric', 'number of angles', 90, 'Uniform projection angles over [0,180).');
 detector_count = create_control_panel(numerical_grid, 'numeric', 'detector bins', 128, 'Parallel-beam detector samples.');
@@ -44,6 +44,7 @@ actions.panel.Layout.Column = 1;
 bind_workflow(actions.grid, app_figure, @run_simulation, @reset_defaults, @export_result, 'GenerateText', 'Run');
 
 status_box = uitextarea(tab, 'Editable', 'off', 'Visible', 'off');
+studio_style('apply_component', status_box, 'mono');
 has_result = false;
 
 preview_grid = ui.preview_grid;
@@ -53,7 +54,7 @@ ax_recon = ui.preview_axes(3);
 ax_error = ui.preview_axes(4);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on');
 end
 
 
@@ -105,7 +106,7 @@ end
 
             render_result('image_display', ax_recon, reconstruction, 'gray', scaling_mode, [0 1], 'image');
             safe_filter_label = strrep(internal_filter, '_', '\_');
-            apply_tex_style(ax_recon, 'Title', ['$\mathrm{reconstruction}\;(\mathrm{' safe_filter_label '})$']);
+            studio_style('apply_axes', ax_recon, 'Title', ['$\mathrm{reconstruction}\;(\mathrm{' safe_filter_label '})$']);
             ax_recon.XTick = [];
             ax_recon.YTick = [];
 
@@ -152,7 +153,7 @@ end
         has_result = false;
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'Box', 'on');
+            studio_style('apply_axes', ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

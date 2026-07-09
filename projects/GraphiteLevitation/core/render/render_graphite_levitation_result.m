@@ -386,9 +386,9 @@ end
 
 function local_apply_axes_style(ax, ttl, xl, yl, axisMode)
 if nargin < 5, axisMode = ''; end
-if exist('apply_tex_style','file') == 2
+if exist('studio_style','file') == 2
     try
-        apply_tex_style(ax, 'Title', ttl, 'XLabel', xl, 'YLabel', yl, ...
+        studio_style('apply_axes', ax, 'Title', ttl, 'XLabel', xl, 'YLabel', yl, ...
             'AxisMode', axisMode, 'Interpreter', 'latex', 'TickInterpreter', 'latex', ...
             'Grid', 'off', 'Box', 'on');
         return;
@@ -405,10 +405,12 @@ if ~isempty(axisMode), try, axis(ax, axisMode); catch, end, end
 end
 
 function local_layout_title(tl, txt)
+style = studio_style('tokens');
 try
-    title(tl, txt, 'Interpreter', 'latex', 'FontWeight', 'normal', 'FontSize', 30);
+    title(tl, txt, 'Interpreter', 'latex', 'FontWeight', 'normal', ...
+        'FontName', style.axesFontName, 'FontSize', style.axesTitleFontSize);
 catch
-    try, title(tl, local_plain_from_tex(txt), 'FontSize', 30); catch, end
+    try, title(tl, local_plain_from_tex(txt), 'FontName', style.axesFontName, 'FontSize', style.axesTitleFontSize); catch, end
 end
 end
 
@@ -432,9 +434,11 @@ if exist('render_result','file') == 2
     end
 end
 cb = colorbar(ax, 'eastoutside');
+style = studio_style('tokens');
 try, cb.TickLabelInterpreter = 'latex'; catch, end
-try, cb.FontSize = 26; catch, end
-try, cb.Label.String = '$ $'; cb.Label.Interpreter = 'latex'; cb.Label.FontSize = 30; catch, end
+try, cb.FontName = style.axesFontName; catch, end
+try, cb.FontSize = style.axesFontSize; catch, end
+try, cb.Label.String = '$ $'; cb.Label.Interpreter = 'latex'; cb.Label.FontName = style.axesFontName; cb.Label.FontSize = style.axesTitleFontSize; catch, end
 out = cb;
 end
 

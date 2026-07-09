@@ -5,13 +5,15 @@ function out = apply_tex_style(target, varargin)
 % white figure background, left-to-right axes handling, LaTeX text,
 % explicit grid on/off, optional axis mode, and compact legend formatting.
 
+style = studio_style('tokens');
 p = inputParser;
 p.addParameter('Title', '', @(v) true);
 p.addParameter('XLabel', '', @(v) true);
 p.addParameter('YLabel', '', @(v) true);
 p.addParameter('ZLabel', '', @(v) true);
-p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v));
-p.addParameter('TitleFontSize', 30, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('FontName', style.axesFontName, @(s) ischar(s) || isstring(s));
+p.addParameter('FontSize', style.axesFontSize, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('TitleFontSize', style.axesTitleFontSize, @(v) isnumeric(v) && isscalar(v));
 p.addParameter('Legend', '', @(s) ischar(s) || isstring(s));
 p.addParameter('LegendLocation', 'best', @(s) ischar(s) || isstring(s));
 p.addParameter('LegendNumColumns', 1, @(v) isnumeric(v) && isscalar(v));
@@ -57,6 +59,7 @@ for i = 1:numel(axs)
 
     try, ax.Box = opt.Box; catch, end
     try, ax.TickLabelInterpreter = char(string(opt.TickInterpreter)); catch, end
+    try, ax.FontName = char(string(opt.FontName)); catch, end
     try, ax.FontSize = opt.FontSize; catch, end
     try, ax.LineWidth = 1.0; catch, end
     try, ax.Toolbar.Visible = 'off'; catch, end
@@ -81,6 +84,7 @@ for i = 1:numel(axs)
         try
             title(ax, opt.Title, ...
                 'Interpreter', char(string(opt.Interpreter)), ...
+                'FontName', char(string(opt.FontName)), ...
                 'FontSize', opt.TitleFontSize, ...
                 'FontWeight', 'normal');
             ax.Title.Units = 'normalized';
@@ -97,6 +101,7 @@ for i = 1:numel(axs)
             end
         catch
             title(ax, regexprep(char(string(opt.Title)), '[$\\{}]', ''), ...
+                'FontName', char(string(opt.FontName)), ...
                 'FontSize', opt.TitleFontSize, ...
                 'FontWeight', 'normal');
             try
@@ -113,6 +118,7 @@ for i = 1:numel(axs)
             xlabel(ax, char(string(opt.XLabel)));
         end
     end
+    try, ax.XLabel.FontName = char(string(opt.FontName)); catch, end
     try, ax.XLabel.FontSize = opt.FontSize; catch, end
 
     if ~isempty(opt.YLabel)
@@ -122,6 +128,7 @@ for i = 1:numel(axs)
             ylabel(ax, char(string(opt.YLabel)));
         end
     end
+    try, ax.YLabel.FontName = char(string(opt.FontName)); catch, end
     try, ax.YLabel.FontSize = opt.FontSize; catch, end
 
     if ~isempty(opt.ZLabel)
@@ -131,6 +138,7 @@ for i = 1:numel(axs)
             zlabel(ax, char(string(opt.ZLabel)));
         end
     end
+    try, ax.ZLabel.FontName = char(string(opt.FontName)); catch, end
     try, ax.ZLabel.FontSize = opt.FontSize; catch, end
 
     if strlength(string(opt.Legend)) > 0 && ~strcmpi(char(string(opt.Legend)), 'none')
@@ -150,10 +158,12 @@ out = struct('figure', fig, 'axes', axs);
 end
 
 function lgd = local_apply_legend_style(lgd, varargin)
+style = studio_style('tokens');
 p = inputParser;
 p.addParameter('Location', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Interpreter', 'latex', @(s) ischar(s) || isstring(s));
-p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('FontName', style.axesFontName, @(s) ischar(s) || isstring(s));
+p.addParameter('FontSize', style.axesFontSize, @(v) isnumeric(v) && isscalar(v));
 p.addParameter('NumColumns', [], @(v) isempty(v) || (isnumeric(v) && isscalar(v)));
 p.parse(varargin{:});
 opt = p.Results;
@@ -165,6 +175,7 @@ elseif isgraphics(lgd, 'axes')
 end
 if isempty(lgd) || ~isgraphics(lgd), return; end
 try, lgd.Interpreter = char(string(opt.Interpreter)); catch, end
+try, lgd.FontName = char(string(opt.FontName)); catch, end
 try, lgd.FontSize = opt.FontSize; catch, end
 if strlength(string(opt.Location)) > 0
     try, lgd.Location = char(string(opt.Location)); catch, end

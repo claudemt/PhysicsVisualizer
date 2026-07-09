@@ -42,7 +42,8 @@ function set_title(ax,txt)
 if exist('safe_title','file')
     safe_title(ax,txt);
 else
-    title(ax,txt,'Interpreter','none','FontName','Times New Roman','FontWeight','bold');
+    style = studio_style('tokens');
+    title(ax, txt, 'Interpreter', 'none', 'FontName', style.axesFontName, 'FontWeight', 'bold');
 end
 end
 

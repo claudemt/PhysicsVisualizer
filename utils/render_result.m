@@ -300,12 +300,9 @@ try
             apply_tex_style(ax);
     end
     drawnow;
-    try
-        exportgraphics(fig, output_path, 'Resolution', opt.DPI, 'BackgroundColor', 'white', 'Padding', [5 5 5 5]);
-    catch
-        print(fig, output_path, '-dpng', sprintf('-r%d', opt.DPI));
-    end
-    image_output('auto_crop', output_path);
+    [folder_path, file_name, ext] = fileparts(output_path);
+    if isempty(folder_path), folder_path = pwd; end
+    image_output('save_figure', fig, folder_path, [file_name ext], opt.DPI);
 catch ME
     clear cleanup
     local_safe_close(fig);
@@ -390,14 +387,15 @@ end
 
 colorbar_location = local_get(item, 'ColorbarLocation', local_get(item, 'colorbarLocation', 'eastoutside'));
 if ~strcmpi(char(string(colorbar_location)), 'none')
+    style = studio_style('tokens');
     cb = colorbar(ax, char(string(colorbar_location)));
     cb.TickLabelInterpreter = 'latex';
-    cb.FontSize = 26;
+    cb.FontSize = style.axesFontSize;
     label = local_get(item, 'ColorbarLabel', local_get(item, 'colorbarLabel', local_get(item, 'colorbar_label', '')));
     if ~isempty(label)
         cb.Label.String = local_latex_label(label);
         cb.Label.Interpreter = 'latex';
-        cb.Label.FontSize = 30;
+        cb.Label.FontSize = style.axesTitleFontSize;
     end
 else
     cb = [];
@@ -913,6 +911,7 @@ end
 
 function out = local_style_colorbar(ax, varargin)
 %LOCAL_STYLE_COLORBAR Shared colorbar style and limits helper.
+style = studio_style('tokens');
 p = inputParser;
 p.addParameter('N', 256, @(v) isnumeric(v) && isscalar(v) && v >= 2);
 p.addParameter('UseVisibleSpectrum', true, @(v) islogical(v) || isnumeric(v));
@@ -928,8 +927,8 @@ p.addParameter('Label', '', @(s) ischar(s) || isstring(s));
 p.addParameter('LabelInterpreter', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Ticks', [], @(v) isempty(v) || isnumeric(v));
 p.addParameter('TickLabels', [], @(v) isempty(v) || isstring(v) || iscellstr(v));
-p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v) && v > 0);
-p.addParameter('LabelFontSize', 30, @(v) isnumeric(v) && isscalar(v) && v > 0);
+p.addParameter('FontSize', style.axesFontSize, @(v) isnumeric(v) && isscalar(v) && v > 0);
+p.addParameter('LabelFontSize', style.axesTitleFontSize, @(v) isnumeric(v) && isscalar(v) && v > 0);
 p.parse(varargin{:});
 opt = p.Results;
 
@@ -982,10 +981,12 @@ out = struct('cb', cb, 'cmap', colormap(ax), 'clim', clim_applied);
 end
 
 function lgd = local_style_legend(lgd, varargin)
+style = studio_style('tokens');
 p = inputParser;
 p.addParameter('Location', '', @(s) ischar(s) || isstring(s));
 p.addParameter('Interpreter', 'latex', @(s) ischar(s) || isstring(s));
-p.addParameter('FontSize', 26, @(v) isnumeric(v) && isscalar(v));
+p.addParameter('FontName', style.axesFontName, @(s) ischar(s) || isstring(s));
+p.addParameter('FontSize', style.axesFontSize, @(v) isnumeric(v) && isscalar(v));
 p.addParameter('NumColumns', [], @(v) isempty(v) || (isnumeric(v) && isscalar(v)));
 p.parse(varargin{:});
 opt = p.Results;
@@ -996,6 +997,7 @@ elseif isgraphics(lgd, 'axes')
 end
 if isempty(lgd) || ~isgraphics(lgd), return; end
 try, lgd.Interpreter = char(string(opt.Interpreter)); catch, end
+try, lgd.FontName = char(string(opt.FontName)); catch, end
 try, lgd.FontSize = opt.FontSize; catch, end
 if strlength(string(opt.Location)) > 0
     try, lgd.Location = char(string(opt.Location)); catch, end

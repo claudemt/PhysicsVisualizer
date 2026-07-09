@@ -10,13 +10,13 @@ mapName = lower(strtrim(mapName));
 try
     switch mapName
         case {'project', 'visible', 'spectrum', 'vis'}
-            cmap = viscolormap_local(256);
+            cmap = studio_style('visible_colormap', 256);
         case {'parula', 'turbo', 'gray', 'hot', 'jet', 'hsv', 'cool', 'spring', 'summer', 'autumn', 'winter'}
             cmap = feval(mapName, 256);
         otherwise
             warning('set_project_colormap:UnknownMap', ...
                 'Unknown colormap "%s"; using project colormap.', mapName);
-            cmap = viscolormap_local(256);
+            cmap = studio_style('visible_colormap', 256);
     end
 catch
     try

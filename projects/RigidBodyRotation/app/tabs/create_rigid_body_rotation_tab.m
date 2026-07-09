@@ -39,7 +39,7 @@ tab = ui.tab;
 
     function build_controls()
         ui.control_grid.RowHeight = {'1x', 'fit', 'fit'};
-        ui.control_grid.RowSpacing = 8;
+        studio_style('apply_grid', ui.control_grid, 'panel');
 
         motion = create_control_panel(ui.control_grid, 'section', 'parameters', {'1x'});
         app.modeTabs = uitabgroup(motion.grid, 'SelectionChangedFcn', @on_mode_changed);
@@ -67,8 +67,7 @@ tab = ui.tab;
         g = uigridlayout(app.freeTab, [9, 1]);
         g.RowHeight = {'fit','fit','fit','fit','fit','fit','fit','fit','1x'};
         g.ColumnWidth = {'1x'};
-        g.Padding = [8 8 8 8];
-        g.RowSpacing = 6;
+        studio_style('apply_grid', g, 'panel');
 
         app.freePreset = create_control_panel(g, 'dropdown', 'preset', {app.presets.free.name}, app.presets.free(1).name, 'Preset for free Euler rotation.');
         app.freeI = create_control_panel(g, 'text', 'I = [I1 I2 I3]', '', [], 'Principal moments of inertia.');
@@ -82,10 +81,12 @@ tab = ui.tab;
         app.freeHelp = uilabel(g, ...
             'Text', 'Compare rows use [w1 w2 w3 phi0]. One row per initial condition; single-case w0 and phi0 are ignored while comparison is on.', ...
             'WordWrap', 'on');
+        studio_style('apply_label', app.freeHelp, 'hint');
         app.freeHelp.Layout.Row = 8;
         app.freeHelp.Layout.Column = 1;
 
         app.freeCompareRows = uitextarea(g, 'Value', {'[0.18 2.2 0.05 0]'; '[0.28 1.55 0.32 0.35]'; '[0.10 2.95 -0.22 -0.32]'});
+        studio_style('apply_component', app.freeCompareRows, 'mono');
         app.freeCompareRows.Layout.Row = 9;
         app.freeCompareRows.Layout.Column = 1;
         app.freePreset.ValueChangedFcn = @on_preset_changed;
@@ -96,8 +97,7 @@ tab = ui.tab;
         g = uigridlayout(app.fixedTab, [12, 1]);
         g.RowHeight = {'fit','fit','fit','fit','fit','fit','fit','fit','fit','fit','fit','1x'};
         g.ColumnWidth = {'1x'};
-        g.Padding = [8 8 8 8];
-        g.RowSpacing = 6;
+        studio_style('apply_grid', g, 'panel');
 
         app.fixedPreset = create_control_panel(g, 'dropdown', 'preset', {app.presets.fixed.name}, app.presets.fixed(1).name, 'Preset for a fixed-point rigid body in gravity.');
         app.fixedI = create_control_panel(g, 'text', 'I = [I1 I2 I3]', '', [], 'Principal moments of inertia.');
@@ -114,10 +114,12 @@ tab = ui.tab;
         app.fixedHelp = uilabel(g, ...
             'Text', 'Compare rows use [phi theta psi w1 w2 w3]. One row per initial condition; single-case Euler0 and w0 are ignored while comparison is on.', ...
             'WordWrap', 'on');
+        studio_style('apply_label', app.fixedHelp, 'hint');
         app.fixedHelp.Layout.Row = 11;
         app.fixedHelp.Layout.Column = 1;
 
         app.fixedCompareRows = uitextarea(g, 'Value', {'[0.2 0.95 0.1 0.8 0.1 10]'; '[0.42 1.14 -0.18 1.45 -0.35 9.1]'; '[-0.18 0.78 0.32 0.25 0.46 10.9]'});
+        studio_style('apply_component', app.fixedCompareRows, 'mono');
         app.fixedCompareRows.Layout.Row = 12;
         app.fixedCompareRows.Layout.Column = 1;
         app.fixedPreset.ValueChangedFcn = @on_preset_changed;
@@ -138,12 +140,13 @@ tab = ui.tab;
     end
 
     function set_compare_box_state(boxHandle, isOn)
+        style = studio_style('tokens');
         if isOn
             boxHandle.Editable = 'on';
-            boxHandle.BackgroundColor = [1 1 1];
+            boxHandle.BackgroundColor = style.fieldBackground;
         else
             boxHandle.Editable = 'off';
-            boxHandle.BackgroundColor = [0.94 0.94 0.94];
+            boxHandle.BackgroundColor = style.secondary;
         end
     end
 

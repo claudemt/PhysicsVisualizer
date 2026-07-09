@@ -16,12 +16,12 @@ left_grid.RowHeight = {'fit', 76, 0};
 notes_box = ui.notes_area;
 
 physical_panel = uipanel(left_grid, 'Title', 'physical parameters');
+studio_style('apply_panel', physical_panel);
 physical_panel.Layout.Row = 1;
 physical_panel.Layout.Column = 1;
 physical_grid = uigridlayout(physical_panel, [8 1]);
 physical_grid.RowHeight = {'fit','fit','fit','fit','fit','fit','fit','fit'};
-physical_grid.Padding = [8 8 8 8];
-physical_grid.RowSpacing = 5;
+studio_style('apply_grid', physical_grid, 'panel');
 mode_dd = create_control_panel(physical_grid, 'dropdown', 'mode', {'thin_lens', 'spherical_interface'}, 'thin_lens', 'Select paraxial lens or exact single-interface refraction.');
 object_distance = create_control_panel(physical_grid, 'numeric', 'object distance (mm)', 120, 'Distance from object to lens.');
 focal_length = create_control_panel(physical_grid, 'numeric', 'focal length (mm)', 60, 'Thin-lens focal length.');
@@ -32,13 +32,13 @@ radius_edit = create_control_panel(physical_grid, 'numeric', 'radius (mm)', 40, 
 screen_z_edit = create_control_panel(physical_grid, 'numeric', 'screen z (mm)', 100, 'Observation plane after refraction.');
 
 numerical_panel = uipanel(left_grid, 'Title', 'numerical / display parameters');
+studio_style('apply_panel', numerical_panel);
 numerical_panel.Layout.Row = 3;
 numerical_panel.Layout.Column = 1;
 numerical_panel.Visible = 'off';
 numerical_grid = uigridlayout(numerical_panel, [2 1]);
 numerical_grid.RowHeight = {'fit','fit'};
-numerical_grid.Padding = [8 8 8 8];
-numerical_grid.RowSpacing = 5;
+studio_style('apply_grid', numerical_grid, 'panel');
 aperture_edit = create_control_panel(numerical_grid, 'numeric', 'aperture radius (mm)', 12, 'Ray-bundle half aperture.');
 ray_count_edit = create_control_panel(numerical_grid, 'numeric', 'ray count', 13, 'Number of rays in the meridional bundle.');
 
@@ -48,6 +48,7 @@ actions.panel.Layout.Column = 1;
 bind_workflow(actions.grid, app_figure, @run_simulation, @reset_defaults, @export_result, 'GenerateText', 'Run');
 
 status_box = uitextarea(tab, 'Editable', 'off', 'Visible', 'off');
+studio_style('apply_component', status_box, 'mono');
 has_result = false;
 
 preview_grid = ui.preview_grid;
@@ -55,7 +56,7 @@ ax_rays = ui.preview_axes(1);
 ax_coeff = ui.preview_axes(2);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on');
 end
 
 
@@ -101,7 +102,8 @@ end
                 hold(ax_coeff, 'on');
                 plot(ax_coeff, object_distance.Value, result.magnification, 'ro', 'MarkerFaceColor', 'r', 'DisplayName', '$m_{\mathrm{current}}$');
                 hold(ax_coeff, 'off');
-                legend(ax_coeff, 'show', 'Location', 'best', 'Interpreter', 'latex');
+                lgd = legend(ax_coeff, 'show', 'Location', 'best', 'Interpreter', 'latex');
+                studio_style('apply_legend', lgd);
                 title(ax_coeff, '$\mathrm{magnification\ vs.\ object\ distance}$', 'Interpreter', 'latex');
                 xlabel(ax_coeff, '$s\ \mathrm{(mm)}$', 'Interpreter', 'latex');
                 ylabel(ax_coeff, '$m$', 'Interpreter', 'latex');
@@ -145,7 +147,8 @@ end
                 plot(ax_coeff, rad2deg(theta), coeff.rs, 'LineWidth', 1.4, 'DisplayName', '$R_s$'); hold(ax_coeff, 'on');
                 plot(ax_coeff, rad2deg(theta), coeff.rp, 'LineWidth', 1.4, 'DisplayName', '$R_p$');
                 hold(ax_coeff, 'off');
-                legend(ax_coeff, 'show', 'Location', 'northwest', 'Interpreter', 'latex');
+                lgd = legend(ax_coeff, 'show', 'Location', 'northwest', 'Interpreter', 'latex');
+                studio_style('apply_legend', lgd);
                 title(ax_coeff, '$\mathrm{Fresnel\ reflectance}$', 'Interpreter', 'latex');
                 xlabel(ax_coeff, '$\theta_i\ \mathrm{(deg)}$', 'Interpreter', 'latex');
                 ylabel(ax_coeff, '$R$', 'Interpreter', 'latex');
@@ -191,7 +194,7 @@ end
         has_result = false;
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'Box', 'on');
+            studio_style('apply_axes', ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

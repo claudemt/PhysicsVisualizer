@@ -16,12 +16,12 @@ left_grid.RowHeight = {'fit', 76, 0};
 notes_box = ui.notes_area;
 
 physical_panel = uipanel(left_grid, 'Title', 'physical parameters');
+studio_style('apply_panel', physical_panel);
 physical_panel.Layout.Row = 1;
 physical_panel.Layout.Column = 1;
 physical_grid = uigridlayout(physical_panel, [5 1]);
 physical_grid.RowHeight = {'fit','fit','fit','fit','fit'};
-physical_grid.Padding = [8 8 8 8];
-physical_grid.RowSpacing = 5;
+studio_style('apply_grid', physical_grid, 'panel');
 mode_dd = create_control_panel(physical_grid, 'dropdown', 'mode', {'widefield', 'confocal', 'sted'}, 'widefield', 'Choose the effective imaging model.');
 aberration_dd = create_control_panel(physical_grid, 'dropdown', 'aberration', {'none', 'tilt_x', 'defocus', 'astigmatism', 'coma', 'spherical'}, 'defocus', 'Pupil phase basis.');
 coeff_edit = create_control_panel(physical_grid, 'numeric', 'coefficient (waves)', 0.35, 'Phase coefficient in waves.');
@@ -29,13 +29,13 @@ pinhole_edit = create_control_panel(physical_grid, 'numeric', 'pinhole factor', 
 sted_edit = create_control_panel(physical_grid, 'numeric', 'sted strength', 4.0, 'Depletion strength in exp(-s h_sted).');
 
 numerical_panel = uipanel(left_grid, 'Title', 'numerical / display parameters');
+studio_style('apply_panel', numerical_panel);
 numerical_panel.Layout.Row = 3;
 numerical_panel.Layout.Column = 1;
 numerical_panel.Visible = 'off';
 numerical_grid = uigridlayout(numerical_panel, [2 1]);
 numerical_grid.RowHeight = {'fit','fit'};
-numerical_grid.Padding = [8 8 8 8];
-numerical_grid.RowSpacing = 5;
+studio_style('apply_grid', numerical_grid, 'panel');
 grid_n = create_control_panel(numerical_grid, 'numeric', 'grid size', 256, 'Pupil and image grid size.');
 display_scale_dd = create_control_panel(numerical_grid, 'dropdown', 'image scaling', {'fixed', 'auto'}, 'fixed', 'Fixed uses consistent color limits; auto stretches each image.');
 
@@ -45,6 +45,7 @@ actions.panel.Layout.Column = 1;
 bind_workflow(actions.grid, app_figure, @run_simulation, @reset_defaults, @export_result, 'GenerateText', 'Run');
 
 status_box = uitextarea(tab, 'Editable', 'off', 'Value', {'status: ready'}, 'Visible', 'off');
+studio_style('apply_component', status_box, 'mono');
 has_result = false;
 
 preview_grid = ui.preview_grid;
@@ -54,7 +55,7 @@ ax_otf = ui.preview_axes(3);
 ax_profile = ui.preview_axes(4);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on');
 end
 
 
@@ -102,7 +103,7 @@ end
 
             render_result('image_display', ax_psf, effective_psf, 'hot', scaling_mode, [0 1], 'image');
             safe_mode_label = strrep(mode_key, '_', '\_');
-            apply_tex_style(ax_psf, 'Title', ['$\mathrm{' safe_mode_label '\ PSF}$']);
+            studio_style('apply_axes', ax_psf, 'Title', ['$\mathrm{' safe_mode_label '\ PSF}$']);
 
             render_result('image_display', ax_otf, effective_otf, 'parula', scaling_mode, [0 1], 'image');
             title(ax_otf, '$|\mathrm{OTF}|$', 'Interpreter', 'latex');
@@ -111,7 +112,8 @@ end
             plot(ax_profile, profile_x, wide_profile, 'LineWidth', 1.4, 'DisplayName', profile_label_1); hold(ax_profile, 'on');
             plot(ax_profile, profile_x, eff_profile, 'LineWidth', 1.4, 'DisplayName', profile_label_2);
             hold(ax_profile, 'off');
-            legend(ax_profile, 'show', 'Location', 'northeast', 'Interpreter', 'latex');
+            lgd = legend(ax_profile, 'show', 'Location', 'northeast', 'Interpreter', 'latex');
+            studio_style('apply_legend', lgd);
             title(ax_profile, '$\mathrm{central\ profile}$', 'Interpreter', 'latex');
             xlabel(ax_profile, '$x\ \mathrm{(pixel)}$', 'Interpreter', 'latex');
             ylabel(ax_profile, '$I/I_{\max}$', 'Interpreter', 'latex');
@@ -156,7 +158,7 @@ end
         has_result = false;
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'Box', 'on');
+            studio_style('apply_axes', ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

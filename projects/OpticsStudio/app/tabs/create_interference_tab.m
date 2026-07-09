@@ -16,12 +16,12 @@ left_grid.RowHeight = {'fit', 76, 0};
 notes_box = ui.notes_area;
 
 physical_panel = uipanel(left_grid, 'Title', 'physical parameters');
+studio_style('apply_panel', physical_panel);
 physical_panel.Layout.Row = 1;
 physical_panel.Layout.Column = 1;
 physical_grid = uigridlayout(physical_panel, [8 1]);
 physical_grid.RowHeight = {'fit','fit','fit','fit','fit','fit','fit','fit'};
-physical_grid.Padding = [8 8 8 8];
-physical_grid.RowSpacing = 5;
+studio_style('apply_grid', physical_grid, 'panel');
 mode_dd = create_control_panel(physical_grid, 'dropdown', 'mode', {'moire', 'shearing', 'gs_phase'}, 'moire', 'Choose the active interference or phase-retrieval demo.');
 freq_1 = create_control_panel(physical_grid, 'numeric', 'grating 1 frequency', 18, 'Normalized grating frequency.');
 freq_2 = create_control_panel(physical_grid, 'numeric', 'grating 2 frequency', 19.2, 'Normalized grating frequency.');
@@ -32,13 +32,13 @@ shear_edit = create_control_panel(physical_grid, 'numeric', 'shear (px)', 10, 'P
 carrier_edit = create_control_panel(physical_grid, 'numeric', 'carrier frequency', 8, 'Spatial carrier fringe frequency.');
 
 numerical_panel = uipanel(left_grid, 'Title', 'numerical / display parameters');
+studio_style('apply_panel', numerical_panel);
 numerical_panel.Layout.Row = 3;
 numerical_panel.Layout.Column = 1;
 numerical_panel.Visible = 'off';
 numerical_grid = uigridlayout(numerical_panel, [4 1]);
 numerical_grid.RowHeight = {'fit','fit','fit','fit'};
-numerical_grid.Padding = [8 8 8 8];
-numerical_grid.RowSpacing = 5;
+studio_style('apply_grid', numerical_grid, 'panel');
 grid_n = create_control_panel(numerical_grid, 'numeric', 'grid size', 256, 'Simulation grid size.');
 iter_edit = create_control_panel(numerical_grid, 'numeric', 'GS iterations', 80, 'Gerchberg-Saxton iteration count.');
 alpha_edit = create_control_panel(numerical_grid, 'numeric', 'GS damping', 0.85, 'Weighted pupil update.');
@@ -50,6 +50,7 @@ actions.panel.Layout.Column = 1;
 bind_workflow(actions.grid, app_figure, @run_simulation, @reset_defaults, @export_result, 'GenerateText', 'Run');
 
 status_box = uitextarea(tab, 'Editable', 'off', 'Visible', 'off');
+studio_style('apply_component', status_box, 'mono');
 has_result = false;
 
 preview_grid = ui.preview_grid;
@@ -59,7 +60,7 @@ ax_3 = ui.preview_axes(3);
 ax_4 = ui.preview_axes(4);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on');
 end
 
 
@@ -112,7 +113,8 @@ end
                     cla(ax_4);
                     plot(ax_4, result.efficiency, 'LineWidth', 1.5, 'DisplayName', '$\eta$'); hold(ax_4, 'on');
                     plot(ax_4, result.uniformity, 'LineWidth', 1.5, 'DisplayName', '$u$'); hold(ax_4, 'off');
-                    legend(ax_4, 'show', 'Location', 'southeast', 'Interpreter', 'latex');
+                    lgd = legend(ax_4, 'show', 'Location', 'southeast', 'Interpreter', 'latex');
+                    studio_style('apply_legend', lgd);
                     title(ax_4, '$\mathrm{GS\ convergence}$', 'Interpreter', 'latex');
                     xlabel(ax_4, '$k$', 'Interpreter', 'latex');
                     ylabel(ax_4, '$\mathrm{metric}$', 'Interpreter', 'latex');
@@ -190,7 +192,7 @@ end
         has_result = false;
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'Box', 'on');
+            studio_style('apply_axes', ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

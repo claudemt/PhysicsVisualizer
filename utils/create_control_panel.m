@@ -120,6 +120,7 @@ function section = local_section(parent, title_text, row_heights, varargin)
 if nargin < 3 || isempty(row_heights)
     row_heights = {'fit'};
 end
+style = studio_style('tokens');
 if isnumeric(row_heights)
     row_heights = repmat({'fit'}, 1, row_heights);
 elseif ischar(row_heights) || isstring(row_heights)
@@ -129,6 +130,7 @@ end
 section = struct();
 layout_row = local_next_row(parent);
 section.panel = uipanel(parent, 'Title', char(string(title_text)));
+studio_style('apply_panel', section.panel);
 try
     section.panel.Layout.Row = layout_row;
     section.panel.Layout.Column = 1;
@@ -137,8 +139,8 @@ end
 section.grid = uigridlayout(section.panel, [numel(row_heights) 1]);
 section.grid.RowHeight = row_heights;
 section.grid.ColumnWidth = {'1x'};
-section.grid.Padding = [8 8 8 8];
-section.grid.RowSpacing = 6;
+section.grid.Padding = style.sectionPadding;
+section.grid.RowSpacing = style.smallGap;
 section.grid.ColumnSpacing = 0;
 section.title = title_text;
 end
@@ -151,6 +153,7 @@ function c = local_control(parent, type, label_text, a, b, varargin)
 %   create_control_panel(parent,'numeric',label,value,[],tip).
 if nargin < 4, a = []; end
 if nargin < 5, b = []; end
+style = studio_style('tokens');
 % For dropdown/listbox, b is the default Value; for most other controls the
 % old compact signature used b as Tooltip.  Support both that old form and
 % the newer value, [], tooltip form.
@@ -168,10 +171,11 @@ try
 catch
 end
 row.Padding = [0 0 0 0];
-row.ColumnSpacing = 6;
+row.ColumnSpacing = style.smallGap;
 row.RowSpacing = 0;
 
 label = uilabel(row, 'Text', char(string(label_text)), 'HorizontalAlignment', 'left');
+studio_style('apply_label', label, 'label');
 label.Layout.Row = 1;
 label.Layout.Column = 1;
 if ~isempty(tip)
@@ -180,17 +184,19 @@ end
 
 switch lower(char(string(type)))
     case 'numeric'
-        row.RowHeight = {24};
+        row.RowHeight = {style.controlHeight};
         row.ColumnWidth = {'1x', 96};
         c = uieditfield(row, 'numeric', 'Value', a, 'HorizontalAlignment', 'center');
+        studio_style('apply_component', c, 'field');
 
     case 'text'
-        row.RowHeight = {24};
+        row.RowHeight = {style.controlHeight};
         row.ColumnWidth = {'1x', 160};
         c = uieditfield(row, 'text', 'Value', char(string(a)), 'HorizontalAlignment', 'center');
+        studio_style('apply_component', c, 'field');
 
     case 'dropdown'
-        row.RowHeight = {24};
+        row.RowHeight = {style.controlHeight};
         row.ColumnWidth = {'1x', 170};
         items = local_cellstr(a);
         default_value = local_dropdown_value(b, items);
@@ -203,6 +209,7 @@ switch lower(char(string(type)))
             items = [{default_value}, items(:).'];
         end
         c = uidropdown(row, 'Items', items);
+        studio_style('apply_component', c, 'dropdown');
         try
             c.Value = default_value;
         catch
@@ -210,14 +217,16 @@ switch lower(char(string(type)))
         end
 
     case 'checkbox'
-        row.RowHeight = {24};
+        row.RowHeight = {style.controlHeight};
         row.ColumnWidth = {'1x', 96};
         c = uicheckbox(row, 'Text', '', 'Value', logical(a));
+        studio_style('apply_component', c, 'field');
 
     case 'textarea'
         row.RowHeight = {80};
         row.ColumnWidth = {110, '1x'};
         c = uitextarea(row, 'Value', local_cell_lines(a));
+        studio_style('apply_component', c, 'textarea');
 
     case 'listbox'
         row.RowHeight = {90};
@@ -229,6 +238,7 @@ switch lower(char(string(type)))
             value = {};
         end
         c = uilistbox(row, 'Items', items, 'Multiselect', 'on');
+        studio_style('apply_component', c, 'listbox');
         try
             c.Value = value;
         catch

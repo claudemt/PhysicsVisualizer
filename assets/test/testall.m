@@ -279,7 +279,38 @@ composite = fullfile(out_dir, 'shared_composite.png');
 image_output('compose_grid', files, composite, 'Layout', 'auto');
 local_assert_file(composite);
 
-info = local_info([local_cellstr(files), {param_path, composite}]);
+smart_crop_files = local_test_smart_crop(out_dir);
+
+info = local_info([local_cellstr(files), smart_crop_files, {param_path, composite}]);
+end
+
+function files = local_test_smart_crop(out_dir)
+img = uint8(255 * ones(600, 800, 3));
+img(55:58, 260:540, :) = 245;     % pale title-like line
+img(160:420, 120:680, :) = 80;    % main plot/content block
+img(450:452, 250:550, :) = 242;   % pale label-like line
+img(130:430, 118:120, :) = 120;   % thin axis-like line
+
+src = fullfile(out_dir, 'smart_crop_source.png');
+imwrite(img, src);
+image_output('auto_crop', src);
+info = imfinfo(src);
+local_assert(info.Height > 380, 'smart crop removed pale top/bottom content');
+local_assert(info.Height < 560 && info.Width < 760, 'smart crop did not trim outer whitespace');
+
+img2 = uint8(255 * ones(500, 500, 3));
+img2(85:88, 150:350, :) = 240;
+img2(150:360, 120:380, 1) = 40;
+img2(150:360, 120:380, 2) = 115;
+img2(150:360, 120:380, 3) = 180;
+src2 = fullfile(out_dir, 'smart_crop_source_2.png');
+imwrite(img2, src2);
+image_output('auto_crop', src2);
+
+comp = fullfile(out_dir, 'smart_crop_composite.png');
+image_output('compose_grid', {src, src2}, comp, 'Layout', 'auto', 'Padding', 12);
+local_assert_file(comp);
+files = {src, src2, comp};
 end
 
 % =====================================================================

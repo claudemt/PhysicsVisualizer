@@ -702,8 +702,7 @@ end
 
 function local_style_axes(ax)
     hold(ax, 'off');
-    grid(ax, 'on');
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on', 'Grid', 'on');
     ax.LineWidth = 1.0;
     if isprop(ax, 'PositionConstraint')
         ax.PositionConstraint = 'innerposition';
@@ -836,7 +835,8 @@ function local_set_title_with_note(ax, mainText, noteText)
         return;
     end
     noteText = char(string(noteText));
-    fs = max(ax.FontSize - 1, 10);
+    style = studio_style('tokens');
+    fs = max(min(ax.FontSize, style.axesFontSize) - 1, 10);
     if local_axes_is_3d(ax)
         text(ax, 0.5, 1.008, 0, noteText, ...
             'Units', 'normalized', ...
@@ -1081,8 +1081,7 @@ function local_style_legend(lgd)
     if isempty(lgd) || ~isgraphics(lgd)
         return;
     end
-    try, lgd.Interpreter = 'latex'; catch, end
-    try, lgd.FontSize = 12; catch, end
+    studio_style('apply_legend', lgd, 'FontSize', 12);
     if isprop(lgd, 'NumColumns')
         lgd.NumColumns = 1;
     end

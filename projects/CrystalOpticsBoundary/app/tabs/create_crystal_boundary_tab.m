@@ -12,7 +12,7 @@ ui = create_tab_layout(tab_group, 'crystal boundary optics', project_root, ...
     'InitialMessage', 'run to generate a text report');
 
 ui.control_grid.RowHeight = {'fit','1x','fit'};
-ui.control_grid.RowSpacing = 8;
+studio_style('apply_grid', ui.control_grid, 'panel');
 
 incident = create_control_panel(ui.control_grid, 'section', 'incident wave', 3);
 n_inc_edit = create_control_panel(incident.grid, 'numeric', 'n_inc', defaults.n_inc, 'Incident-medium refractive index.');
@@ -26,90 +26,100 @@ material_mode_dd = create_control_panel(crystal.grid, 'dropdown', 'material inpu
     'Choose principal-values mode or enter the lab-frame dielectric tensor directly.');
 
 stack_panel = uipanel(crystal.grid, 'BorderType', 'none');
+studio_style('apply_panel', stack_panel, 'flat');
 stack_panel.Layout.Row = 2;
 stack_panel.Layout.Column = 1;
 stack_grid = uigridlayout(stack_panel, [1 1]);
 stack_grid.RowHeight = {'1x'};
 stack_grid.ColumnWidth = {'1x'};
-stack_grid.Padding = [0 0 0 0];
+studio_style('apply_grid', stack_grid, 'tight');
 
 % Direct tensor input: preserve the original clear 3-by-3 numeric grid.
 direct_panel = uipanel(stack_grid, 'Title', 'direct eps_lab');
+studio_style('apply_panel', direct_panel);
 direct_panel.Layout.Row = 1;
 direct_panel.Layout.Column = 1;
 direct_grid = uigridlayout(direct_panel, [3 1]);
 direct_grid.RowHeight = {'fit','fit','fit'};
 direct_grid.ColumnWidth = {'1x'};
-direct_grid.Padding = [8 8 8 8];
-direct_grid.RowSpacing = 8;
-uilabel(direct_grid, 'Text', 'Enter the dielectric tensor directly in the lab frame.');
+studio_style('apply_grid', direct_grid, 'panel');
+direct_label = uilabel(direct_grid, 'Text', 'Enter the dielectric tensor directly in the lab frame.');
+studio_style('apply_label', direct_label, 'hint');
 eps_lab_edits = local_matrix_editor(direct_grid, defaults.eps_lab, 'eps_lab');
-uilabel(direct_grid, 'Text', 'For lossless dielectrics, eps_lab is typically real-symmetric.', 'FontAngle', 'italic');
+direct_hint = uilabel(direct_grid, 'Text', 'For lossless dielectrics, eps_lab is typically real-symmetric.', 'FontAngle', 'italic');
+studio_style('apply_label', direct_hint, 'hint');
 
 % Principal values + orientation input: vector line plus mode-specific controls.
 principal_panel = uipanel(stack_grid, 'Title', 'principal values + orientation');
+studio_style('apply_panel', principal_panel);
 principal_panel.Layout.Row = 1;
 principal_panel.Layout.Column = 1;
 principal_grid = uigridlayout(principal_panel, [4 1]);
 principal_grid.RowHeight = {'fit','fit','fit','fit'};
 principal_grid.ColumnWidth = {'1x'};
-principal_grid.Padding = [8 8 8 8];
-principal_grid.RowSpacing = 6;
+studio_style('apply_grid', principal_grid, 'panel');
 
 eps_diag_edit = create_control_panel(principal_grid, 'text', 'eps_diag = [e1 e2 e3]', vec_text(defaults.eps_diag), 'Principal dielectric tensor entries.');
 orientation_mode_dd = create_control_panel(principal_grid, 'dropdown', 'orientation', {'none','axis','euler_zyx','matrix'}, defaults.orientation.mode, 'Crystal-to-lab orientation rule.');
 
 ori_stack = uipanel(principal_grid, 'Title', 'orientation input');
+studio_style('apply_panel', ori_stack);
 ori_stack.Layout.Row = 3;
 ori_stack.Layout.Column = 1;
 ori_stack_grid = uigridlayout(ori_stack, [1 1]);
 ori_stack_grid.RowHeight = {'fit'};
 ori_stack_grid.ColumnWidth = {'1x'};
-ori_stack_grid.Padding = [6 6 6 6];
+studio_style('apply_grid', ori_stack_grid, 'tight');
 
 none_panel = uipanel(ori_stack_grid, 'BorderType', 'none');
+studio_style('apply_panel', none_panel, 'flat');
 none_panel.Layout.Row = 1;
 none_panel.Layout.Column = 1;
 none_grid = uigridlayout(none_panel, [1 1]);
 none_grid.RowHeight = {'fit'};
 none_grid.ColumnWidth = {'1x'};
-none_grid.Padding = [0 0 0 0];
-uilabel(none_grid, 'Text', 'No extra orientation input is needed.');
+studio_style('apply_grid', none_grid, 'tight');
+none_label = uilabel(none_grid, 'Text', 'No extra orientation input is needed.');
+studio_style('apply_label', none_label, 'hint');
 
 axis_panel = uipanel(ori_stack_grid, 'BorderType', 'none');
+studio_style('apply_panel', axis_panel, 'flat');
 axis_panel.Layout.Row = 1;
 axis_panel.Layout.Column = 1;
 axis_grid = uigridlayout(axis_panel, [1 1]);
 axis_grid.RowHeight = {'fit'};
 axis_grid.ColumnWidth = {'1x'};
-axis_grid.Padding = [0 0 0 0];
+studio_style('apply_grid', axis_grid, 'tight');
 axis_edit = create_control_panel(axis_grid, 'text', 'optic axis [ax ay az]', vec_text(defaults.orientation.optic_axis), 'Only valid for uniaxial crystals.');
 
 euler_panel = uipanel(ori_stack_grid, 'BorderType', 'none');
+studio_style('apply_panel', euler_panel, 'flat');
 euler_panel.Layout.Row = 1;
 euler_panel.Layout.Column = 1;
 euler_grid = uigridlayout(euler_panel, [2 1]);
 euler_grid.RowHeight = {'fit','fit'};
 euler_grid.ColumnWidth = {'1x'};
-euler_grid.Padding = [0 0 0 0];
-euler_grid.RowSpacing = 6;
-uilabel(euler_grid, 'Text', 'Euler ZYX angles in degrees.');
+studio_style('apply_grid', euler_grid, 'tight');
+euler_label = uilabel(euler_grid, 'Text', 'Euler ZYX angles in degrees.');
+studio_style('apply_label', euler_label, 'hint');
 euler_edits = local_vector_editor(euler_grid, defaults.orientation.euler_deg, {'alpha','beta','gamma'});
 
 matrix_panel = uipanel(ori_stack_grid, 'BorderType', 'none');
+studio_style('apply_panel', matrix_panel, 'flat');
 matrix_panel.Layout.Row = 1;
 matrix_panel.Layout.Column = 1;
 matrix_grid = uigridlayout(matrix_panel, [2 1]);
 matrix_grid.RowHeight = {'fit','fit'};
 matrix_grid.ColumnWidth = {'1x'};
-matrix_grid.Padding = [0 0 0 0];
-matrix_grid.RowSpacing = 6;
-uilabel(matrix_grid, 'Text', 'Enter the 3x3 rotation matrix R (principal axes to lab frame).');
+studio_style('apply_grid', matrix_grid, 'tight');
+matrix_label = uilabel(matrix_grid, 'Text', 'Enter the 3x3 rotation matrix R (principal axes to lab frame).');
+studio_style('apply_label', matrix_label, 'hint');
 R_edits = local_matrix_editor(matrix_grid, defaults.orientation.R, 'R');
 
 orientation_hint = uilabel(principal_grid, ...
     'Text', 'Tip: axis mode is only available for uniaxial crystals.', ...
     'FontAngle', 'italic');
+studio_style('apply_label', orientation_hint, 'hint');
 orientation_hint.Layout.Row = 4;
 orientation_hint.Layout.Column = 1;
 
@@ -259,16 +269,16 @@ end
 function edits = local_matrix_editor(parent, values, label_text)
 row = local_next_row(parent);
 wrap = uipanel(parent, 'BorderType', 'none');
+studio_style('apply_panel', wrap, 'flat');
 wrap.Layout.Row = row;
 wrap.Layout.Column = 1;
 g = uigridlayout(wrap, [4 3]);
 g.RowHeight = {18, 34, 34, 34};
 g.ColumnWidth = {'1x','1x','1x'};
-g.Padding = [0 0 0 0];
-g.RowSpacing = 5;
-g.ColumnSpacing = 6;
+studio_style('apply_grid', g, 'tight');
 for jj = 1:3
     lab = uilabel(g, 'Text', sprintf('%s(:,%d)', char(string(label_text)), jj), 'HorizontalAlignment', 'center');
+    studio_style('apply_label', lab, 'hint');
     lab.Layout.Row = 1;
     lab.Layout.Column = jj;
 end
@@ -276,6 +286,7 @@ edits = gobjects(3,3);
 for ii = 1:3
     for jj = 1:3
         edits(ii,jj) = uieditfield(g, 'numeric', 'Value', values(ii,jj), 'HorizontalAlignment', 'center');
+        studio_style('apply_component', edits(ii,jj), 'field');
         edits(ii,jj).Layout.Row = ii + 1;
         edits(ii,jj).Layout.Column = jj;
     end
@@ -285,20 +296,21 @@ end
 function edits = local_vector_editor(parent, values, labels)
 row = local_next_row(parent);
 wrap = uipanel(parent, 'BorderType', 'none');
+studio_style('apply_panel', wrap, 'flat');
 wrap.Layout.Row = row;
 wrap.Layout.Column = 1;
 g = uigridlayout(wrap, [2 3]);
 g.RowHeight = {30, 18};
 g.ColumnWidth = {'1x','1x','1x'};
-g.Padding = [0 0 0 0];
-g.RowSpacing = 4;
-g.ColumnSpacing = 6;
+studio_style('apply_grid', g, 'tight');
 edits = gobjects(1,3);
 for kk = 1:3
     edits(kk) = uieditfield(g, 'numeric', 'Value', values(kk), 'HorizontalAlignment', 'center');
+    studio_style('apply_component', edits(kk), 'field');
     edits(kk).Layout.Row = 1;
     edits(kk).Layout.Column = kk;
     lab = uilabel(g, 'Text', labels{kk}, 'HorizontalAlignment', 'center');
+    studio_style('apply_label', lab, 'hint');
     lab.Layout.Row = 2;
     lab.Layout.Column = kk;
 end

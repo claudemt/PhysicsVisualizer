@@ -15,17 +15,19 @@ p.addParameter('NotesHeight', 180);
 p.addParameter('InitialMessage', 'run to generate result');
 p.parse(varargin{:});
 opt = p.Results;
+style = studio_style('tokens');
 
 tab = uitab(tab_group, 'Title', tab_title);
 root = uigridlayout(tab, [1 2]);
 root.ColumnWidth = {opt.ControlWidth, '1x'};
 root.RowHeight = {'1x'};
-root.Padding = [8 8 8 8];
-root.ColumnSpacing = 10;
+root.Padding = style.rootPadding;
+root.ColumnSpacing = style.gap;
 
 control_panel = uipanel(root, 'Title', 'controls');
 control_panel.Layout.Row = 1;
 control_panel.Layout.Column = 1;
+studio_style('apply_panel', control_panel);
 
 % Make the controls area scrollable when the project has many parameters.
 % This keeps the public create_tab_layout interface unchanged.
@@ -38,8 +40,8 @@ control_grid = uigridlayout(control_panel, [1 1]);
 
 control_grid.RowHeight = {'fit'};
 control_grid.ColumnWidth = {'1x'};
-control_grid.Padding = [8 8 8 8];
-control_grid.RowSpacing = 8;
+control_grid.Padding = style.panelPadding;
+control_grid.RowSpacing = style.gap;
 control_grid.ColumnSpacing = 0;
 
 try
@@ -54,11 +56,12 @@ right_grid.Layout.Column = 2;
 right_grid.RowHeight = {'1x', opt.NotesHeight};
 right_grid.ColumnWidth = {'1x'};
 right_grid.Padding = [0 0 0 0];
-right_grid.RowSpacing = 8;
+right_grid.RowSpacing = style.gap;
 
 preview_panel = uipanel(right_grid, 'Title', 'preview');
 preview_panel.Layout.Row = 1;
 preview_panel.Layout.Column = 1;
+studio_style('apply_panel', preview_panel);
 
 preview_mode = lower(char(string(opt.Preview)));
 preview_grid = [];
@@ -82,25 +85,27 @@ preview_composite_button = [];
 switch preview_mode
     case {'list','images','multi'}
         preview_grid = uigridlayout(preview_panel, [1 2]);
-        preview_grid.Padding = [6 6 6 6];
+        preview_grid.Padding = style.tightPadding;
         preview_grid.RowHeight = {'1x'};
         preview_grid.ColumnWidth = {opt.PreviewListWidth, '1x'};
         preview_grid.RowSpacing = 0;
-        preview_grid.ColumnSpacing = 8;
+        preview_grid.ColumnSpacing = style.gap;
 
         preview_list_panel = uipanel(preview_grid, 'Title', 'images');
         preview_list_panel.Layout.Row = 1;
         preview_list_panel.Layout.Column = 1;
+        studio_style('apply_panel', preview_list_panel);
 
         preview_list_grid = uigridlayout(preview_list_panel, [3 1]);
-        preview_list_grid.RowHeight = {'1x', 28, 28};
+        preview_list_grid.RowHeight = {'1x', style.toolbarHeight, style.toolbarHeight};
         preview_list_grid.ColumnWidth = {'1x'};
-        preview_list_grid.Padding = [6 6 6 6];
-        preview_list_grid.RowSpacing = 6;
+        preview_list_grid.Padding = style.tightPadding;
+        preview_list_grid.RowSpacing = style.smallGap;
         preview_list_grid.ColumnSpacing = 0;
         preview_toolbar = preview_list_grid;
 
         preview_list = uilistbox(preview_list_grid, 'Items', {}, 'Multiselect', 'on');
+        studio_style('apply_component', preview_list, 'listbox');
         preview_list.Layout.Row = 1;
         preview_list.Layout.Column = 1;
         preview_list.UserData = struct('paths', {{}}, 'run_ids', [], 'project_root', project_root, 'module_key', tab_title, 'run_counter', 0);
@@ -112,42 +117,49 @@ switch preview_mode
         order_grid = uigridlayout(preview_list_grid, [1 4]);
         order_grid.Layout.Row = 2;
         order_grid.Layout.Column = 1;
-        order_grid.RowHeight = {24};
+        order_grid.RowHeight = {style.controlHeight};
         order_grid.ColumnWidth = {'1x','1x','1x','1x'};
         order_grid.Padding = [0 0 0 0];
-        order_grid.ColumnSpacing = 4;
+        order_grid.ColumnSpacing = style.smallGap;
         order_grid.RowSpacing = 0;
 
         preview_up_button = uibutton(order_grid, 'push', 'Text', 'Up');
+        studio_style('apply_button', preview_up_button, 'secondary');
         preview_up_button.Layout.Row = 1;
         preview_up_button.Layout.Column = 1;
         preview_down_button = uibutton(order_grid, 'push', 'Text', 'Down');
+        studio_style('apply_button', preview_down_button, 'secondary');
         preview_down_button.Layout.Row = 1;
         preview_down_button.Layout.Column = 2;
         preview_all_button = uibutton(order_grid, 'push', 'Text', 'All');
+        studio_style('apply_button', preview_all_button, 'secondary');
         preview_all_button.Layout.Row = 1;
         preview_all_button.Layout.Column = 3;
         preview_none_button = uibutton(order_grid, 'push', 'Text', 'Del');
+        studio_style('apply_button', preview_none_button, 'danger');
         preview_none_button.Layout.Row = 1;
         preview_none_button.Layout.Column = 4;
 
         compose_grid = uigridlayout(preview_list_grid, [1 3]);
         compose_grid.Layout.Row = 3;
         compose_grid.Layout.Column = 1;
-        compose_grid.RowHeight = {24};
+        compose_grid.RowHeight = {style.controlHeight};
         compose_grid.ColumnWidth = {45, '1x', 86};
         compose_grid.Padding = [0 0 0 0];
-        compose_grid.ColumnSpacing = 4;
+        compose_grid.ColumnSpacing = style.smallGap;
         compose_grid.RowSpacing = 0;
 
         preview_layout_label = uilabel(compose_grid, 'Text', 'layout', 'HorizontalAlignment', 'left');
+        studio_style('apply_label', preview_layout_label, 'muted');
         preview_layout_label.Layout.Row = 1;
         preview_layout_label.Layout.Column = 1;
         preview_layout_edit = uieditfield(compose_grid, 'text', 'Value', 'auto', 'HorizontalAlignment', 'center');
+        studio_style('apply_component', preview_layout_edit, 'field');
         preview_layout_edit.Layout.Row = 1;
         preview_layout_edit.Layout.Column = 2;
         preview_layout_field = preview_layout_edit;
         preview_composite_button = uibutton(compose_grid, 'push', 'Text', 'Preview');
+        studio_style('apply_button', preview_composite_button, 'secondary');
         try, preview_composite_button.Tooltip = 'Compose the selected preview images into the right-hand canvas.'; catch, end
         preview_composite_button.Layout.Row = 1;
         preview_composite_button.Layout.Column = 3;
@@ -193,15 +205,16 @@ switch preview_mode
             preview_axes(k) = uiaxes(preview_axes_grid);
             preview_axes(k).Layout.Row = r;
             preview_axes(k).Layout.Column = c;
-            apply_tex_style(preview_axes(k), 'Box', 'on');
+            studio_style('apply_axes', preview_axes(k), 'Box', 'on');
         end
 
         preview_empty_label = uilabel(preview_grid, ...
             'Text', char(string(opt.InitialMessage)), ...
             'HorizontalAlignment', 'center', ...
             'VerticalAlignment', 'center', ...
-            'FontSize', 12, ...
-            'FontColor', [0.35 0.35 0.35]);
+            'FontSize', style.fontSize, ...
+            'FontColor', style.mutedText);
+        studio_style('apply_label', preview_empty_label, 'empty');
         preview_empty_label.Layout.Row = 1;
         preview_empty_label.Layout.Column = 1;
         preview_grid.UserData = struct('empty_label', preview_empty_label, 'axes_grid', preview_axes_grid);
@@ -219,16 +232,17 @@ switch preview_mode
         image_output('reset_preview', preview_axes, opt.InitialMessage);
     case {'text','report'}
         preview_grid = uigridlayout(preview_panel, [1 1]);
-        preview_grid.Padding = [6 6 6 6];
+        preview_grid.Padding = style.tightPadding;
         preview_grid.RowHeight = {'1x'};
         preview_grid.ColumnWidth = {'1x'};
         preview_text = uitextarea(preview_grid, 'Editable', 'off', 'FontName', 'Courier New');
+        studio_style('apply_component', preview_text, 'mono');
         preview_text.Layout.Row = 1;
         preview_text.Layout.Column = 1;
         preview_text.Value = splitlines(char(string(opt.InitialMessage)));
     otherwise
         preview_grid = uigridlayout(preview_panel, [1 1]);
-        preview_grid.Padding = [6 6 6 6];
+        preview_grid.Padding = style.tightPadding;
         preview_grid.RowHeight = {'1x'};
         preview_grid.ColumnWidth = {'1x'};
         preview_axes = uiaxes(preview_grid);
@@ -240,20 +254,23 @@ end
 notes_panel = uipanel(right_grid, 'Title', opt.NotesTitle);
 notes_panel.Layout.Row = 2;
 notes_panel.Layout.Column = 1;
+studio_style('apply_panel', notes_panel);
 notes_grid = uigridlayout(notes_panel, [1 2]);
 notes_grid.RowHeight = {'1x'};
 notes_grid.ColumnWidth = {'1x', 112};
-notes_grid.Padding = [6 6 6 6];
-notes_grid.ColumnSpacing = 8;
+notes_grid.Padding = style.tightPadding;
+notes_grid.ColumnSpacing = style.gap;
 notes_grid.RowSpacing = 0;
 
 notes_title = [];
 
 notes_area = uitextarea(notes_grid, 'Editable', 'off');
+studio_style('apply_component', notes_area, 'notes');
 notes_area.Layout.Row = 1;
 notes_area.Layout.Column = 1;
 
 notes_button = uibutton(notes_grid, 'push', 'Text', 'Notes');
+studio_style('apply_button', notes_button, 'secondary');
 notes_button.Layout.Row = 1;
 notes_button.Layout.Column = 2;
 try, notes_button.Tooltip = 'Open the full Markdown formula notes in a browser.'; catch, end
@@ -433,6 +450,7 @@ end
 function html = local_markdown_html(md, title_text)
 body = local_markdown_to_html(md);
 title_safe = local_html_escape(char(string(title_text)));
+css = studio_style('notes_css');
 html = ['<!doctype html><html><head><meta charset="utf-8">' newline ...
     '<title>' title_safe '</title>' newline ...
     '<script>' newline ...
@@ -440,11 +458,7 @@ html = ['<!doctype html><html><head><meta charset="utf-8">' newline ...
     '</script>' newline ...
     '<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>' newline ...
     '<style>' newline ...
-    'body{font-family:Times New Roman,Georgia,serif;max-width:980px;margin:38px auto;padding:0 28px;line-height:1.62;color:#1f2933;background:#fff;}' newline ...
-    'h1,h2,h3{line-height:1.25;margin-top:1.4em;border-bottom:1px solid #e5e7eb;padding-bottom:.25em;}' newline ...
-    'code,pre{font-family:Consolas,Menlo,monospace;background:#f6f8fa;border-radius:6px;}' newline ...
-    'pre{padding:12px;overflow:auto;} code{padding:2px 4px;}' newline ...
-    'table{border-collapse:collapse;margin:1em 0;min-width:55%;} th,td{border:1px solid #d0d7de;padding:6px 10px;vertical-align:top;} th{background:#f6f8fa;} blockquote{border-left:4px solid #d0d7de;margin-left:0;padding-left:1em;color:#57606a;}' newline ...
+    css newline ...
     '</style></head><body>' newline ...
     body newline ...
     '</body></html>'];

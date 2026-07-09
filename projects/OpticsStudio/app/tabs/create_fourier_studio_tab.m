@@ -29,8 +29,7 @@ advanced_tab = uitab(subtabs, 'Title', 'advanced');
 
 setup_grid = uigridlayout(setup_tab, [5 1]);
 setup_grid.RowHeight = {'fit','fit','fit','fit', 118};
-setup_grid.Padding = [8 8 8 8];
-setup_grid.RowSpacing = 5;
+studio_style('apply_grid', setup_grid, 'panel');
 object_items = local_items(modules.object);
 phase_items = local_items(modules.phase);
 filter_items = local_items(modules.filter);
@@ -40,8 +39,7 @@ phase_dd = create_control_panel(setup_grid, 'dropdown', 'phase plane', phase_ite
 filter_dd = create_control_panel(setup_grid, 'dropdown', 'filter plane', filter_items, filter_items{1}, 'Fourier-plane filtering module.');
 basic_grid = uigridlayout(basic_tab, [6 1]);
 basic_grid.RowHeight = {'fit','fit','fit',0,'fit','fit'};
-basic_grid.Padding = [8 8 8 8];
-basic_grid.RowSpacing = 5;
+studio_style('apply_grid', basic_grid, 'panel');
 wavelength_nm = create_control_panel(basic_grid, 'numeric', 'wavelength (nm)', 632.8, 'Optical wavelength.');
 focal_length_mm = create_control_panel(basic_grid, 'numeric', 'focal length (mm)', 250, '4f lens focal length.');
 window_mm = create_control_panel(basic_grid, 'numeric', 'window size (mm)', 4.0, 'Simulation field of view in the object plane.');
@@ -52,8 +50,7 @@ secondary_scale_mm = create_control_panel(basic_grid, 'numeric', 'secondary scal
 
 advanced_grid = uigridlayout(advanced_tab, [8 1]);
 advanced_grid.RowHeight = {'fit','fit','fit','fit','fit','fit','fit',0};
-advanced_grid.Padding = [8 8 8 8];
-advanced_grid.RowSpacing = 5;
+studio_style('apply_grid', advanced_grid, 'panel');
 phase_radius_mm = create_control_panel(advanced_grid, 'numeric', 'phase radius (mm)', 1.00, 'Finite support radius for pupil-like phase modules.');
 zernike_coeff_waves = create_control_panel(advanced_grid, 'numeric', 'zernike coeff (waves)', 0.30, 'Strength of selected aberration phase.');
 filter_scale_ratio = create_control_panel(advanced_grid, 'numeric', 'filter scale ratio', 0.18, 'Relative size of Fourier-plane masks.');
@@ -64,7 +61,8 @@ fourier_half_range_mm = create_control_panel(advanced_grid, 'numeric', 'fourier 
 display_scaling_dd = create_control_panel(advanced_grid, 'dropdown', 'image scaling', {'fixed', 'auto'}, 'fixed', 'Fixed uses consistent color limits.');
 try, display_scaling_dd.Parent.Visible = 'off'; catch, end
 
-info_area = uitextarea(setup_grid, 'Editable', 'off', 'FontName', 'Courier New');
+info_area = uitextarea(setup_grid, 'Editable', 'off');
+studio_style('apply_component', info_area, 'mono');
 info_area.Layout.Row = 5;
 info_area.Layout.Column = 1;
 
@@ -75,6 +73,7 @@ buttons = bind_workflow(actions.grid, app_figure, @run_simulation, @reset_defaul
 buttons.generate.Tooltip = 'Run the modular 4f Fourier optics simulation.';
 
 status_box = uitextarea(tab, 'Editable', 'off', 'Value', {'status: ready'}, 'Visible', 'off');
+studio_style('apply_component', status_box, 'mono');
 
 preview_grid = ui.preview_grid;
 ax_object = ui.preview_axes(1);
@@ -85,7 +84,7 @@ ax_filter = ui.preview_axes(5);
 ax_output = ui.preview_axes(6);
 all_axes = ui.preview_axes;
 for ax = all_axes
-    apply_tex_style(ax, 'Box', 'on');
+    studio_style('apply_axes', ax, 'Box', 'on');
 end
 
 
@@ -152,7 +151,7 @@ clear_preview();
         current_result = [];
         for ax_iter = all_axes(:)'
             cla(ax_iter, 'reset');
-            apply_tex_style(ax_iter, 'Box', 'on');
+            studio_style('apply_axes', ax_iter, 'Box', 'on');
             try, axis(ax_iter, 'off'); catch, end
         end
         image_output('reset_preview_group', preview_grid, all_axes, 'run to generate result');

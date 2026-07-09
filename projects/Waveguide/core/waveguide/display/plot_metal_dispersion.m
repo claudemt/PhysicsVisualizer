@@ -43,8 +43,9 @@ lgd = legend(ax, beta_handles, 'Location', legend_location(legendChoice), 'Inter
 render_result('legend', lgd);
 
 yyaxis(ax, 'left');
+style = studio_style('tokens');
 text(ax, 0.98, 0.05, '$\mathrm{solid}:\ \beta\quad \mathrm{dashed}:\ v_{\mathrm{g}}/c$', ...
-    'Units', 'normalized', 'Interpreter', 'latex', 'FontSize', 26, ...
+    'Units', 'normalized', 'Interpreter', 'latex', 'FontName', style.axesFontName, 'FontSize', style.axesFontSize, ...
     'HorizontalAlignment', 'right', 'VerticalAlignment', 'bottom');
 
 apply_plot_style(ax, 'curve');

@@ -44,6 +44,31 @@ Each project follows a similar organization:
 - `docs/physical_formulas.md` explains the relevant physics or mathematics and how to interpret the generated images or reports.
 - `output/` is created automatically when results are exported.
 
+## Shared Style Contract
+
+All projects must use the shared style utilities in `utils/` for GUI chrome, plot typography, preview behavior, and exports. New project code should not hardcode panel colors, button colors, font families, default axes font sizes, notes CSS, or ordinary export behavior unless the visual choice is part of the scientific/artistic data being rendered.
+
+The main public style entry point is `utils/studio_style.m`:
+
+- `studio_style('tokens')` returns the shared color, font, spacing, padding, and axes-size tokens.
+- `studio_style('apply_panel', panel)` styles panels and section headers.
+- `studio_style('apply_grid', grid, mode)` applies shared grid padding and spacing.
+- `studio_style('apply_label', label, mode)` styles normal and hint labels.
+- `studio_style('apply_component', component, mode)` styles edit fields, dropdowns, list boxes, text areas, and other controls.
+- `studio_style('apply_button', button, mode)` styles primary, secondary, and danger buttons.
+- `studio_style('apply_axes', ax, ...)` applies the shared MATLAB axes typography, title spacing, tick interpreters, grid/box settings, and labels.
+- `studio_style('apply_legend', lgd, ...)` applies shared legend typography.
+- `studio_style('notes_css')` returns the shared notes-browser CSS.
+- `studio_style('visible_colormap', n)` returns the shared visible-spectrum colormap.
+
+Project GUIs should be launched with `launch_gui_studio`, organized with `create_tab_layout`, populated with `create_control_panel`, and wired with `bind_workflow`. If a tab needs a custom `uipanel`, `uigridlayout`, label, field, text area, or button, it must call the matching `studio_style` helper immediately after creating that component. Local helper names such as `apply_axes_style` are acceptable only as thin semantic wrappers around `studio_style`.
+
+Plot output should use `studio_style('apply_axes')`, `apply_tex_style`, `render_result`, and `studio_style('apply_legend')` for shared fonts and mathematical text rendering. Colorbars should use `render_result('style_colorbar', ...)` or the equivalent shared defaults. Project-specific colormaps are allowed when they encode a physical field, visual spectrum, or generative-art palette; otherwise use the shared visible-spectrum colormap.
+
+Image export and preview code should use `image_output('save_figure')`, `image_output('export_bundle')`, `image_output('reset_preview')`, and the shared preview/composition helpers. This keeps export padding, smart cropping, title preservation, bundle naming, and preview states consistent. In particular, CreativePlotStudio titles should go through `safe_title` / `set_latex_title` so exported images keep their title band instead of being cropped away.
+
+When adding or refactoring a project, treat the shared style layer as the contract: extend `studio_style` or the existing shared utilities first, then connect project code to that interface.
+
 
 ## License
 

@@ -18,12 +18,13 @@ p.addParameter('ProgressMessage', 'Please wait...', @(s) ischar(s) || isstring(s
 p.addParameter('ConfirmExport', false, @(v) islogical(v) || isnumeric(v));
 p.parse(varargin{:});
 opt = p.Results;
+style = studio_style('tokens');
 
 grid = uigridlayout(parent, [1 3]);
 grid.RowHeight = {'fit'};
 grid.ColumnWidth = {'1x','1x','1x'};
 grid.Padding = [0 0 0 0];
-grid.ColumnSpacing = 8;
+grid.ColumnSpacing = style.gap;
 try
     grid.Layout.Row = 1;
     grid.Layout.Column = 1;
@@ -31,10 +32,13 @@ catch
 end
 
 buttons.generate = uibutton(grid, 'push', 'Text', char(string(opt.GenerateText)));
+studio_style('apply_button', buttons.generate, 'primary');
 buttons.generate.Layout.Column = 1;
 buttons.reset = uibutton(grid, 'push', 'Text', char(string(opt.ResetText)));
+studio_style('apply_button', buttons.reset, 'secondary');
 buttons.reset.Layout.Column = 2;
 buttons.export = uibutton(grid, 'push', 'Text', char(string(opt.ExportText)));
+studio_style('apply_button', buttons.export, 'secondary');
 buttons.export.Layout.Column = 3;
 
 % Compatibility aliases.

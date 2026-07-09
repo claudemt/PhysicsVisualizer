@@ -102,6 +102,7 @@ end
 function out = local_reset_preview(ax, message)
 if nargin < 2, message = 'run to generate result'; end
 if isempty(ax) || ~isgraphics(ax), out = []; return; end
+style = studio_style('tokens');
 cla(ax);
 ax.Visible = 'on';
 ax.XTick = [];
@@ -111,8 +112,9 @@ text(ax, 0.5, 0.5, char(string(message)), ...
     'HorizontalAlignment', 'center', ...
     'VerticalAlignment', 'middle', ...
     'Interpreter', 'none', ...
-    'FontSize', 20, ...
-    'Color', [0.35 0.35 0.35]);
+    'FontName', style.axesFontName, ...
+    'FontSize', style.fontSize, ...
+    'Color', style.mutedText);
 out = ax;
 end
 
@@ -143,12 +145,14 @@ catch
 end
 
 if isempty(label) || ~isgraphics(label)
+    style = studio_style('tokens');
     label = uilabel(container, ...
         'Text', char(string(message)), ...
         'HorizontalAlignment', 'center', ...
         'VerticalAlignment', 'center', ...
-        'FontSize', 12, ...
-        'FontColor', [0.35 0.35 0.35]);
+        'FontSize', style.fontSize, ...
+        'FontColor', style.mutedText);
+    studio_style('apply_label', label, 'empty');
     try
         label.Layout.Row = local_grid_span(container, 'row');
         label.Layout.Column = local_grid_span(container, 'column');
@@ -637,11 +641,36 @@ path = fullfile(folder_path, file_name);
 
 if isgraphics(fig_or_ax, 'axes')
     target = fig_or_ax;
+    fig = ancestor(fig_or_ax, 'figure');
 elseif isgraphics(fig_or_ax, 'figure')
     target = fig_or_ax;
+    fig = fig_or_ax;
 else
     error('Expected a figure or axes handle.');
 end
+
+cps_title = '';
+try
+    if ~isempty(fig) && isgraphics(fig) && isappdata(fig, 'CPSExportTitle')
+        cps_title = char(string(getappdata(fig, 'CPSExportTitle')));
+    end
+catch
+    cps_title = '';
+end
+cps_title_handles = [];
+cps_title_visible = {};
+if ~isempty(strtrim(cps_title))
+    try
+        cps_title_handles = [findall(fig, 'Tag', 'CPSFigureTitle'); findall(fig, 'Tag', 'CPSPlotTitle')];
+        cps_title_visible = get(cps_title_handles, 'Visible');
+        if ~iscell(cps_title_visible), cps_title_visible = {cps_title_visible}; end
+        set(cps_title_handles, 'Visible', 'off');
+    catch
+        cps_title_handles = [];
+        cps_title_visible = {};
+    end
+end
+restore_cps_titles = onCleanup(@() local_restore_visible(cps_title_handles, cps_title_visible));
 
 % Do not hide the parent figure here.  UIAxes belong to the visible app
 % window; forcing ancestor(fig,'Visible') = 'off' makes export callbacks
@@ -671,7 +700,11 @@ catch
         end
     end
 end
-local_auto_crop(path);
+clear restore_cps_titles
+local_auto_crop(path, 'Mode', 'smart');
+if ~isempty(strtrim(cps_title))
+    local_add_title_band(path, cps_title);
+end
 end
 
 function out_path = local_compose_grid(png_paths, out_path, varargin)
@@ -679,6 +712,7 @@ p = inputParser;
 p.addParameter('Layout', 'auto');
 p.addParameter('Background', uint8(255));
 p.addParameter('Padding', 40);
+p.addParameter('CropMode', 'smart');
 p.parse(varargin{:});
 opt = p.Results;
 
@@ -690,9 +724,13 @@ end
 
 imgs = cell(size(png_paths));
 for i = 1:numel(png_paths)
-    img = imread(png_paths{i});
-    if size(img,3) == 1, img = repmat(img, [1 1 3]); end
-    if size(img,3) > 3, img = img(:,:,1:3); end
+    [img, ~, alpha] = imread(png_paths{i});
+    img = local_rgb_image(img);
+    if strcmpi(char(string(opt.CropMode)), 'smart')
+        img = local_smart_crop_array(img, alpha, 'composite');
+    elseif any(strcmpi(char(string(opt.CropMode)), {'white','legacy'}))
+        img = local_legacy_crop_array(img);
+    end
     imgs{i} = img;
 end
 
@@ -1055,33 +1093,267 @@ function name = local_display_name(path)
 name = [n e];
 end
 
-function local_auto_crop(path)
-%LOCAL_AUTO_CROP Trim whitespace from a PNG image, keeping 5 px margin.
-% Detects the bounding box of non-white content and crops tightly.
+function local_auto_crop(path, varargin)
+%LOCAL_AUTO_CROP Trim image background while protecting text and fine lines.
 if nargin < 1 || isempty(path) || exist(path, 'file') ~= 2
     return;
 end
+p = inputParser;
+p.addParameter('Mode', 'smart');
+p.parse(varargin{:});
+mode = lower(char(string(p.Results.Mode)));
+if any(strcmp(mode, {'none','off'}))
+    return;
+end
 try
-    img = imread(path);
-    if size(img, 3) < 3, return; end
-    siz = size(img);
-    % Use double arithmetic to avoid uint8 wraparound
-    diff = max(abs(double(img) - 255), [], 3);
-    mask = diff > 10;
-    rows = any(mask, 2);
-    cols = any(mask, 1);
-    if ~any(rows) || ~any(cols), return; end
-    r0 = find(rows, 1, 'first');
-    r1 = find(rows, 1, 'last');
-    c0 = find(cols, 1, 'first');
-    c1 = find(cols, 1, 'last');
-    margin = 5;
-    r0 = max(1, r0 - margin);
-    r1 = min(siz(1), r1 + margin);
-    c0 = max(1, c0 - margin);
-    c1 = min(siz(2), c1 + margin);
-    imwrite(img(r0:r1, c0:c1, :), path);
+    [img, ~, alpha] = imread(path);
+    if size(img, 3) < 3 && isempty(alpha), return; end
+    img = local_rgb_image(img);
+    if any(strcmp(mode, {'white','legacy'}))
+        cropped = local_legacy_crop_array(img);
+    else
+        cropped = local_smart_crop_array(img, alpha, 'single');
+    end
+    imwrite(cropped, path);
 catch
     % Silently skip on failure
+end
+end
+
+function img = local_rgb_image(img)
+if size(img, 3) == 1
+    img = repmat(img, [1 1 3]);
+elseif size(img, 3) > 3
+    img = img(:,:,1:3);
+end
+if ~isa(img, 'uint8')
+    img = local_to_uint8(img);
+end
+end
+
+function out = local_to_uint8(img)
+if isa(img, 'uint16')
+    out = uint8(double(img) / 257);
+elseif islogical(img)
+    out = uint8(img) * 255;
+else
+    x = double(img);
+    if max(x(:), [], 'omitnan') <= 1
+        x = x * 255;
+    end
+    out = uint8(max(0, min(255, round(x))));
+end
+end
+
+function cropped = local_legacy_crop_array(img)
+diffv = max(abs(double(img) - 255), [], 3);
+mask = diffv > 10;
+cropped = local_crop_by_mask(img, mask, 5, 5);
+end
+
+function cropped = local_smart_crop_array(img, alpha, context)
+if nargin < 2, alpha = []; end
+if nargin < 3 || isempty(context), context = 'single'; end
+
+[h, w, ~] = size(img);
+if h < 4 || w < 4
+    cropped = img;
+    return;
+end
+
+rgb = double(img);
+gray = 0.299*rgb(:,:,1) + 0.587*rgb(:,:,2) + 0.114*rgb(:,:,3);
+border = local_border_mask(h, w);
+bg = local_border_median(rgb, border);
+dist = sqrt((rgb(:,:,1)-bg(1)).^2 + (rgb(:,:,2)-bg(2)).^2 + (rgb(:,:,3)-bg(3)).^2);
+
+border_dist = dist(border);
+dist_threshold = max(5, local_percentile(border_dist, 99.5) + 4);
+color_mask = dist > dist_threshold;
+
+grad = zeros(h, w);
+dx = abs(diff(gray, 1, 2));
+dy = abs(diff(gray, 1, 1));
+grad(:, 1:end-1) = max(grad(:, 1:end-1), dx);
+grad(:, 2:end) = max(grad(:, 2:end), dx);
+grad(1:end-1, :) = max(grad(1:end-1, :), dy);
+grad(2:end, :) = max(grad(2:end, :), dy);
+border_grad = grad(border);
+grad_threshold = max(3, local_percentile(border_grad, 99.5) + 2);
+edge_mask = grad > grad_threshold;
+
+alpha_mask = false(h, w);
+if ~isempty(alpha)
+    if ~isa(alpha, 'uint8'), alpha = local_to_uint8(alpha); end
+    if any(alpha(:) < 250)
+        alpha_mask = alpha > 8;
+    end
+end
+
+mask = color_mask | edge_mask | alpha_mask;
+mask = local_expand_mask(mask, 1);
+mask = local_drop_border_noise(mask, h, w);
+
+base_margin = max(12, round(0.018 * min(h, w)));
+top_margin = max(base_margin, round(0.032 * h));
+if strcmpi(context, 'composite')
+    base_margin = max(10, round(0.012 * min(h, w)));
+    top_margin = max(base_margin, round(0.025 * h));
+end
+cropped = local_crop_by_mask(img, mask, base_margin, top_margin);
+end
+
+function border = local_border_mask(h, w)
+strip = max(2, round(0.025 * min(h, w)));
+border = false(h, w);
+border(1:strip, :) = true;
+border(max(1,h-strip+1):h, :) = true;
+border(:, 1:strip) = true;
+border(:, max(1,w-strip+1):w) = true;
+end
+
+function bg = local_border_median(rgb, border)
+bg = zeros(1, 3);
+for k = 1:3
+    channel = rgb(:,:,k);
+    vals = channel(border);
+    bg(k) = median(vals(:), 'omitnan');
+end
+end
+
+function p = local_percentile(vals, q)
+vals = vals(isfinite(vals));
+if isempty(vals)
+    p = 0;
+    return;
+end
+vals = sort(vals(:));
+idx = 1 + (numel(vals)-1) * q / 100;
+lo = max(1, floor(idx));
+hi = min(numel(vals), ceil(idx));
+if lo == hi
+    p = vals(lo);
+else
+    p = vals(lo) + (vals(hi)-vals(lo)) * (idx-lo);
+end
+end
+
+function mask = local_expand_mask(mask, radius)
+if radius <= 0, return; end
+kernel = ones(2*radius + 1);
+mask = conv2(double(mask), kernel, 'same') > 0;
+end
+
+function mask = local_drop_border_noise(mask, h, w)
+neighbor_count = conv2(double(mask), ones(3), 'same');
+mask = mask & neighbor_count >= 2;
+end
+
+function cropped = local_crop_by_mask(img, mask, margin, top_margin)
+if nargin < 3 || isempty(margin), margin = 10; end
+if nargin < 4 || isempty(top_margin), top_margin = margin; end
+[h, w, ~] = size(img);
+rows = any(mask, 2);
+cols = any(mask, 1);
+if ~any(rows) || ~any(cols)
+    cropped = img;
+    return;
+end
+r0 = find(rows, 1, 'first');
+r1 = find(rows, 1, 'last');
+c0 = find(cols, 1, 'first');
+c1 = find(cols, 1, 'last');
+r0 = max(1, r0 - top_margin);
+r1 = min(h, r1 + margin);
+c0 = max(1, c0 - margin);
+c1 = min(w, c1 + margin);
+
+min_h = min(h, max(32, round(0.08*h)));
+min_w = min(w, max(32, round(0.08*w)));
+if (r1-r0+1) < min_h || (c1-c0+1) < min_w
+    cropped = img;
+    return;
+end
+cropped = img(r0:r1, c0:c1, :);
+end
+
+function local_add_title_band(path, title_text)
+if nargin < 2 || isempty(title_text) || exist(path, 'file') ~= 2
+    return;
+end
+try
+    style = studio_style('tokens');
+    img = imread(path);
+    img = local_rgb_image(img);
+    [h, w, ~] = size(img);
+    band_h = max(90, round(0.16 * h));
+    tmp = [tempname, '.png'];
+    fig = figure( ...
+        'Visible', 'off', ...
+        'HandleVisibility', 'off', ...
+        'IntegerHandle', 'off', ...
+        'MenuBar', 'none', ...
+        'ToolBar', 'none', ...
+        'NumberTitle', 'off', ...
+        'Color', 'w', ...
+        'Position', [100 100 max(320, round(w/2)) max(80, round(band_h/2))]);
+    cleanup = onCleanup(@() local_close_fig(fig));
+    ax = axes('Parent', fig, 'Position', [0 0 1 1], 'Visible', 'off');
+    axis(ax, [0 1 0 1]);
+    text(ax, 0.5, 0.48, char(string(title_text)), ...
+        'HorizontalAlignment', 'center', ...
+        'VerticalAlignment', 'middle', ...
+        'Interpreter', 'none', ...
+        'FontName', style.axesFontName, ...
+        'FontSize', max(style.fontSize, round(0.82 * style.axesFontSize)), ...
+        'FontWeight', 'normal', ...
+        'Color', style.text);
+    exportgraphics(fig, tmp, 'Resolution', 200, 'BackgroundColor', 'white');
+    clear cleanup
+    local_close_fig(fig);
+    title_img = local_rgb_image(imread(tmp));
+    if exist(tmp, 'file') == 2, delete(tmp); end
+    vpad = max(12, round(0.45 * size(title_img, 1)));
+    hpad = max(12, round(0.06 * size(title_img, 2)));
+    title_img = local_pad_rgb(title_img, vpad, vpad, hpad, hpad, uint8(255));
+    title_img = local_resize_nearest(title_img, band_h, w);
+    imwrite(cat(1, title_img, img), path);
+catch
+end
+end
+
+function out = local_pad_rgb(img, top, bottom, left, right, value)
+[h, w, ~] = size(img);
+out = value * ones(h + top + bottom, w + left + right, 3, 'uint8');
+out(top+1:top+h, left+1:left+w, :) = img;
+end
+
+function out = local_resize_nearest(img, target_h, target_w)
+[h, w, ~] = size(img);
+row_idx = max(1, min(h, round(linspace(1, h, target_h))));
+col_idx = max(1, min(w, round(linspace(1, w, target_w))));
+out = img(row_idx, col_idx, :);
+end
+
+function local_close_fig(fig)
+try
+    if ~isempty(fig) && isgraphics(fig)
+        close(fig);
+    end
+catch
+end
+end
+
+function local_restore_visible(handles, values)
+if isempty(handles) || isempty(values)
+    return;
+end
+try
+    for i = 1:numel(handles)
+        if isgraphics(handles(i)) && i <= numel(values)
+            handles(i).Visible = values{i};
+        end
+    end
+catch
 end
 end
