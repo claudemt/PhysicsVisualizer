@@ -1,0 +1,12 @@
+Dadras Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A nonlinear 3D flow with quadratic couplings.
+- The balance between nonlinear stretching and damping creates a bounded attractor.
+- It is useful as another visually distinct chaotic flow.
+
+Formula / model:
+Dadras equations include terms such as yz, xz, and xy with dissipative constants.
+
+Export note: rotating the preview before export preserves the current view.

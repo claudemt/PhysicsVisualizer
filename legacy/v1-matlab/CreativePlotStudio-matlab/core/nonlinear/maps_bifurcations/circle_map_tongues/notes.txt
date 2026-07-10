@@ -1,0 +1,12 @@
+Circle Map Tongues
+Domain: nonlinear | Category: Maps & Bifurcations
+
+Principle:
+- Models a periodically forced oscillator or rotator.
+- Regions of rational rotation number form Arnold tongues.
+- The diagram organizes synchronization and mode locking.
+
+Formula / model:
+θ_{n+1}=θ_n+Ω-(K/2π)sin(2πθ_n) mod 1.
+
+Export note: rotating the preview before export preserves the current view.

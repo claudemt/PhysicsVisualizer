@@ -1,0 +1,12 @@
+Sierpinski Carpet
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- Recursive removal of the central square from a 3x3 subdivision.
+- The process repeats on the remaining eight squares.
+- The limiting object has zero area but non-integer dimension.
+
+Formula / model:
+Dimension D=log(8)/log(3).
+
+Export note: rotating the preview before export preserves the current view.

@@ -1,0 +1,12 @@
+Pythagoras Tree
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- Squares are recursively attached using a right-triangle construction.
+- Child square side lengths follow the triangle legs.
+- The visual tree encodes repeated Pythagorean decomposition.
+
+Formula / model:
+Parent square side c has child sides a,b satisfying a^2+b^2=c^2.
+
+Export note: rotating the preview before export preserves the current view.

@@ -81,6 +81,16 @@ The solver uses these continuity conditions to determine reflection/transmission
 
 The report lists the incident setup, tensor/orientation information, computed wave branches, polarization information, and amplitude coefficients.  Sweeping polarization or orientation is useful for identifying cases where ordinary/extraordinary splitting is strong.  Complex dielectric entries model absorption; in that case transmitted amplitudes and energy-flow interpretation should be read with attenuation in mind.
 
+The Python core supports the same polarization cases as the MATLAB solver:
+
+| Type | Meaning |
+|---|---|
+| `vector` / `1` | arbitrary incident vector, projected transverse to \(\mathbf k_i\) |
+| `angle` / `2` | \(E_i=\cos\alpha\,\hat s+\sin\alpha\,\hat p\) |
+| `sweep` / `3` | uniform or explicit list of \(\alpha\) values |
+
+Sweep reports reuse the same boundary-matching solve for every angle and append a compact table of \(R\), \(T_\mathrm{total}\), and \(R+T-1\).  Orientation input may be a direct lab tensor, a rotation matrix, ZYX Euler angles, or a uniaxial optic-axis direction.
+
 ## Numerical notes
 
 The most delicate step is solving for the normal component of the transmitted wave vector.  Multiple roots can appear, and physical selection must reject waves that transport energy away from the interface in the wrong direction.  The GUI controls are intentionally compact; detailed tensor and wave-equation explanations live here so the tab stays readable.

@@ -2,14 +2,15 @@
 
 ## What this project visualizes
 
-This project compares metallic and dielectric waveguides: rectangular/circular PEC guides, planar dielectric slabs, and cylindrical dielectric fibers.  Outputs show field profiles, dispersion, cutoff behavior, and mode existence.
+This project compares metallic and dielectric waveguides: rectangular, circular, and annular PEC guides, planar dielectric slabs, and cylindrical dielectric fibers. Outputs show field profiles, dispersion, cutoff behavior, and mode existence.
 
 ## Symbols
 
 | Symbol | Meaning |
 |---|---|
 | \(a,b\) | rectangular guide dimensions |
-| \(R\) | circular guide or fiber radius |
+| \(R_i,R_o\) | inner and outer annular-guide radii |
+| \(R\) | circular-guide or fiber radius |
 | \(k_0=\omega/c\) | free-space wavenumber |
 | \(k_c\) | cutoff wavenumber |
 | \(\beta\) | propagation constant |
@@ -47,6 +48,24 @@ k_c=\frac{x'_{mn}}{R}
 \]
 The angular part contributes \(\cos(m\phi)\) or \(\sin(m\phi)\), producing lobed field patterns.
 
+## Annular metallic waveguides and TEM
+
+Let \(\xi_0=R_i/R_o\) and \(x=k_cR_o\). Unlike a circular guide, an annular guide must satisfy the PEC condition at both radii. The TM roots obey
+\[
+J_m(\xi_0x)Y_m(x)-Y_m(\xi_0x)J_m(x)=0,
+\]
+and the TE roots obey
+\[
+J_m'(\xi_0x)Y_m'(x)-Y_m'(\xi_0x)J_m'(x)=0.
+\]
+The corresponding longitudinal field is the matching \(J_m+Y_m\) combination, not a circular-guide field with its center hidden.
+
+Because the annulus has two conductors, it also supports a TEM mode:
+\[
+f_c=0,\qquad \beta=k_0,\qquad E_r\propto\frac{1}{r},\qquad H_\phi=\frac{E_r}{Z_0}.
+\]
+TEM is therefore exposed only by the annular/coaxial workflow.
+
 ## Planar dielectric slab
 
 A symmetric slab waveguide has a high-index core and lower-index cladding.  Guided modes satisfy
@@ -78,10 +97,40 @@ The transverse parameters satisfy
 \[
 u^2+w^2=V^2.
 \]
-LP modes are approximations to the full vector modes when the index contrast is small.  The field is oscillatory in the core and evanescent in the cladding:
+The cylindrical-dielectric dispersion preview uses the same characteristic equation as the MATLAB contour workflow.  With
+\[
+\eta=\left(\frac{n_2}{n_1}\right)^2,
+\]
+define
+\[
+F=\frac{J_m'(u)}{uJ_m(u)},\qquad
+G=\frac{K_m'(w)}{wK_m(w)}.
+\]
+For \(m=0\), TE and TM modes are separate factors:
+\[
+F+G=0\quad(\mathrm{TE}_{0n}),\qquad
+F+\eta G=0\quad(\mathrm{TM}_{0n}).
+\]
+For \(m>0\), the vector characteristic equation is
+\[
+(F+G)(F+\eta G)
+=m^2
+\left(\frac{1}{u^2}+\frac{1}{w^2}\right)
+\left(\frac{1}{u^2}+\frac{\eta}{w^2}\right).
+\]
+For \(m>0\), each root is classified as HE or EH from the null vector of the tangential-field boundary matrix. The mode-field workflow fixes \(V\), locates the requested family root in \(0<u<V\), and reconstructs all six cylindrical components
+\[
+(E_r,E_\phi,E_z,H_r,H_\phi,H_z).
+\]
+The longitudinal profiles are oscillatory in the core and evanescent in the cladding:
 \[
 E_\mathrm{core}\sim J_m(ur/a),\qquad
 E_\mathrm{clad}\sim K_m(wr/a).
+\]
+Core and cladding amplitudes satisfy continuity of \(E_z,H_z,E_\phi,H_\phi\) at \(r=a\); transverse components then follow directly from Maxwell's curl equations. The effective index follows
+\[
+b=\frac{w^2}{V^2},\qquad
+n_\mathrm{eff}^2=n_2^2+b(n_1^2-n_2^2).
 \]
 
 ## Dispersion and group behavior

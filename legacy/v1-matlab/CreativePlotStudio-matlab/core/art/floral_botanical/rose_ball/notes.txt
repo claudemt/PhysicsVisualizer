@@ -1,0 +1,12 @@
+Rose Ball
+Domain: art | Category: Floral & Botanical
+
+Principle:
+- Constructs a rose surface and replicates it with 3D rotation matrices.
+- Rotations distribute the rose patches over directions similar to spherical packing.
+- The color map is height-dependent, so each petal shares the same internal gradient.
+
+Formula / model:
+Rotated coordinates are [X',Y',Z']^T = R [X,Y,Z]^T with yaw and roll matrices.
+
+Export note: rotating the preview before export preserves the current view.

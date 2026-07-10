@@ -1,0 +1,12 @@
+Phoenix Julia
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- Adds memory of the previous iterate to a Julia-like recurrence.
+- The second-order recurrence creates feather-like or phoenix-like structures.
+- The parameter controlling z_{n-1} changes the swirl and branching.
+
+Formula / model:
+z_{n+1}=z_n^2+c+p z_{n-1}.
+
+Export note: rotating the preview before export preserves the current view.

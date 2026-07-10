@@ -79,12 +79,12 @@ so `xi_0` is the aspect ratio \(b/a\).
 
 ## Rectangular eigenmode solvers
 
-For an all-simply-supported rectangle, the solver uses a Navier-type basis whose mode shapes resemble
+For an all-simply-supported rectangle, the solver uses the exact Navier basis
 \[
 W_{mn}(x,y)=\sin\!\left(\frac{m\pi(x+a/2)}{a}\right)
 \sin\!\left(\frac{n\pi(y+b/2)}{b}\right).
 \]
-For general combinations of `C`, `S`, and `F`, the project uses Ritz/general rectangular boundary solvers.  The unknown mode is expanded in trial functions, the plate energy is assembled, and the discrete generalized eigenproblem is solved:
+When the left and right edges are simply supported, the mixed `?S?S` family uses the same Levy determinant solver as the MATLAB project: the x direction is sinusoidal and the y direction is expanded in \(\cosh(py)\), \(\sinh(py)\), \(\cos(qy)\), and \(\sin(qy)\), with boundary rows enforcing \(W,\theta,M,V\) as appropriate.  All-clamped `CCCC` uses a biharmonic finite-difference eigenproblem with clamped ghost-row closure.  All-free `FFFF` has a dedicated Ritz entry point that projects out the three rigid-body modes, and the legacy square-only `free_sparse` ghost-boundary formulation remains selectable for comparison.  Other mixed cases use the general Ritz trial basis.  `compute_rect_modes(..., solver=...)` accepts `auto`, `navier`, `clamped_fd`, `levy`, `free_ritz`, `free_sparse`, and `ritz`; `ritz` preserves the general variational path explicitly.
 \[
 K\mathbf{c}=\Lambda M\mathbf{c}.
 \]
@@ -102,7 +102,7 @@ separable modes have angular dependence
 \]
 and radial parts built from Bessel and modified-Bessel functions.  For a solid disk, regularity at the origin removes singular basis terms.  For an annulus, inner and outer boundary conditions both enter the radial system.
 
-The annulus boundary code is an ordered outer-inner pair, for example `CF` means clamped outer edge and free inner edge.  The solver searches eigen-roots using a balanced analytic boundary matrix: determinant sign changes and smallest singular value minima produce candidates, then root polishing refines them.
+The annulus boundary code is an ordered outer-inner pair, for example `CF` means clamped outer edge and free inner edge.  The Python solver now mirrors the MATLAB high-accuracy path: it builds the Bessel/modified-Bessel boundary matrix, equilibrates rows and columns, finds determinant sign changes and smallest-singular-value minima, polishes roots, and reconstructs each radial mode from the null vector.
 
 ## Static forced response
 
@@ -145,7 +145,7 @@ For completely free static plates, the problem is singular unless the load has z
 
 ## Static circular and annular algorithm
 
-For disks and annuli, the static solver uses polar Green-function expansions.  Point loads are summed directly; distributed loads are projected onto radial shells and angular Fourier moments.  The parameter `truncation` controls the maximum angular Fourier order.
+For disks and annuli, the static solver uses polar biharmonic Green-function expansions.  Point loads are summed directly over Fourier order \(m\); uniform loads are approximated by radial shell moments.  Free disk and free-free annulus static cases remain singular without a balancing gauge and are rejected.
 
 ## How to read the images
 

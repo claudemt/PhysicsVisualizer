@@ -1,0 +1,12 @@
+Duffing Sweep
+Domain: nonlinear | Category: Oscillators & Vibration
+
+Principle:
+- Sweeps the forcing amplitude and samples the stroboscopic state.
+- Branching indicates bifurcations and multistability.
+- It is the nonlinear vibration analogue of a bifurcation diagram.
+
+Formula / model:
+Same Duffing equation, with γ varied across the horizontal axis.
+
+Export note: rotating the preview before export preserves the current view.

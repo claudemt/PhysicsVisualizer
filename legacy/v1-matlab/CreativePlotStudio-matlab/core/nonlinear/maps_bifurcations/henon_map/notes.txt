@@ -1,0 +1,12 @@
+Henon Map
+Domain: nonlinear | Category: Maps & Bifurcations
+
+Principle:
+- A classic 2D invertible map with stretching and folding.
+- The attractor is fractal for standard parameter values.
+- It is a discrete-time analogue of chaotic dissipative dynamics.
+
+Formula / model:
+x_{n+1}=1-a x_n^2+y_n, y_{n+1}=b x_n.
+
+Export note: rotating the preview before export preserves the current view.

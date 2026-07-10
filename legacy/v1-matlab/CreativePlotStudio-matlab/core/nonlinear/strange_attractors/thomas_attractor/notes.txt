@@ -1,0 +1,12 @@
+Thomas Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A cyclically symmetric system using sinusoidal feedback.
+- The same damping is applied to all coordinates.
+- For small damping, trajectories form a smooth chaotic tangle.
+
+Formula / model:
+dx/dt=sin(y)-b x, dy/dt=sin(z)-b y, dz/dt=sin(x)-b z.
+
+Export note: rotating the preview before export preserves the current view.

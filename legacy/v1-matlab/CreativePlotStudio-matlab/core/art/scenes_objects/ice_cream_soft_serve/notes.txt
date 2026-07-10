@@ -1,0 +1,12 @@
+Ice Cream Soft Serve
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Builds a soft-serve swirl surface using radius modulation along height and angle.
+- Optional cone geometry is a tapered cylinder with grid-like cone lines.
+- Flavor controls the material color, while lighting highlights the 3D surface ridges.
+
+Formula / model:
+R(theta,z)=base(z)+ridge sin(k theta + m z), then X=R cos theta, Y=R sin theta.
+
+Export note: rotating the preview before export preserves the current view.

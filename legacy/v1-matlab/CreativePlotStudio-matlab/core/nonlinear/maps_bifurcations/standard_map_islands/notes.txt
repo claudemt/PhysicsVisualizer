@@ -1,0 +1,12 @@
+Standard Map Islands
+Domain: nonlinear | Category: Maps & Bifurcations
+
+Principle:
+- An area-preserving map for a kicked rotor.
+- Regular islands coexist with chaotic seas.
+- The plot visualizes Hamiltonian chaos in phase space.
+
+Formula / model:
+p_{n+1}=p_n+K sin θ_n, θ_{n+1}=θ_n+p_{n+1} mod 2π.
+
+Export note: rotating the preview before export preserves the current view.

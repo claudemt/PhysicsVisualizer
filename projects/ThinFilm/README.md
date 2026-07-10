@@ -1,32 +1,21 @@
 # ThinFilm
 
-## Scope
+Python transfer-matrix report studio for elastic thin films and optical multilayers.
 
-Layered thin-film transfer-matrix reports: **elastic waves** (P/SV/SH) and **optical multilayers** (s/p polarization, dielectric stack).
+## Run
 
-Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
+```bash
+python projects/ThinFilm/main.py
+```
 
-## User-facing organization
+## Project Layout
 
-- `app/tabs/` defines the GUI tab, its default input values, and the short control-level hints shown inside the tab.
-- `docs/physical_formulas.md` is the single formula note for this project.  It explains the mathematics/physics behind the previews and reports.
-- `output/` is created on export and contains images or reports plus `parameters.txt` and `reproduce_code.m`.
+- `app/` declares elastic and optical film controls through `utils.control_schema`.
+- `core/` contains thin-film common routines and optical/elastic models.
+- `docs/physical_formulas.md` records the formula reference for the Python port.
+- `example/` contains Python reproduction entries for saved legacy examples.
+- `output/` is the project-local export target.
 
-## Core organization
+All ordinary GUI styling, report styling, export naming, and metadata behavior must use the shared `utils/` layer. The MATLAB parity reference remains under `legacy/matlab/projects/ThinFilm/`.
 
-- `core/thin_film/` contains material/layer parsing, transfer-matrix assembly, and text report generation.
-
-## Main algorithms
-
-**Elastic**
-
-- P/SV potential representation
-- Layer interface matching
-- Stack transfer matrices
-- Reflection/transmission diagnostics
-
-**Optical**
-
-- Characteristic admittance \(\zeta=\sqrt{\varepsilon/\mu}\), Snell via fixed \(k_x\)
-- Layer matrices \(P\) (s) and \(Q\) (p), stack products
-- Fresnel limits at \
+Optical angle and thickness sweep plots are Python extensions. MATLAB supplied text-only thin-film workflows, so these plots are intentionally outside MATLAB figure parity while the single-case reports retain the legacy field order and formatting.

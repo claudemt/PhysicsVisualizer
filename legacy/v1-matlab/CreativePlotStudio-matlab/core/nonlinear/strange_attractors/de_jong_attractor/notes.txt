@@ -1,0 +1,12 @@
+De Jong Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A two-dimensional trigonometric map.
+- Sine/cosine recurrence folds the plane into a bounded cloud.
+- Fine point accumulation reveals the invariant measure of the map.
+
+Formula / model:
+x_{n+1}=sin(a y_n)-cos(b x_n), y_{n+1}=sin(c x_n)-cos(d y_n).
+
+Export note: rotating the preview before export preserves the current view.

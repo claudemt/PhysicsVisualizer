@@ -1,0 +1,12 @@
+Art Candlesticks
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Uses simulated OHLC data and maps open/high/low/close to stylized candlesticks.
+- The lower portion adds decorative mountain layers and volume bars.
+- Color themes emphasize different visual narratives rather than financial analysis.
+
+Formula / model:
+Candlestick body spans [open, close], wick spans [low, high], color depends on sign(close-open).
+
+Export note: rotating the preview before export preserves the current view.

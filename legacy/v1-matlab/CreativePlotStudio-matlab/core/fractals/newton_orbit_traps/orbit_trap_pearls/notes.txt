@@ -1,0 +1,12 @@
+Orbit Trap Pearls
+Domain: fractals | Category: Newton & Orbit Traps
+
+Principle:
+- Orbit-trap coloring records the closest approach to a geometric trap.
+- This reveals internal paths of the orbit instead of only escape speed.
+- Circular traps create pearl-like bands in Mandelbrot/Julia fields.
+
+Formula / model:
+Color ∝ min_n distance(z_n, trap).
+
+Export note: rotating the preview before export preserves the current view.

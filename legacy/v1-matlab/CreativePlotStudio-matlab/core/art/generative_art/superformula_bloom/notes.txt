@@ -1,0 +1,12 @@
+Superformula Bloom
+Domain: art | Category: Generative Art
+
+Principle:
+- Uses Johan Gielis' superformula to generate organic polar outlines.
+- Changing exponents and symmetry parameter m produces petal-like or star-like forms.
+- The project renders a layered bloom by sampling the formula over polar coordinates.
+
+Formula / model:
+r(φ)=((|cos(mφ/4)/a|)^n2 + (|sin(mφ/4)/b|)^n3)^(-1/n1).
+
+Export note: rotating the preview before export preserves the current view.

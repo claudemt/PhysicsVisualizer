@@ -1,0 +1,12 @@
+Plasma Clouds
+Domain: art | Category: Generative Art
+
+Principle:
+- Creates smooth cloud-like fields using interpolated random values and color gradients.
+- The visual effect is procedural texture rather than a physical fluid simulation.
+- Color interpolation maps scalar intensity into a luminous plasma palette.
+
+Formula / model:
+A scalar noise field F(x,y) is normalized and rendered through a multi-stop colormap.
+
+Export note: rotating the preview before export preserves the current view.

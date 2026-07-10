@@ -1,0 +1,12 @@
+Double Pendulum Trace
+Domain: nonlinear | Category: Oscillators & Vibration
+
+Principle:
+- A coupled nonlinear mechanical system with sensitive dependence on initial conditions.
+- The trace of the lower mass can become chaotic.
+- Energy exchange between arms creates complex trajectories.
+
+Formula / model:
+Two coupled second-order pendulum equations derived from the Lagrangian.
+
+Export note: rotating the preview before export preserves the current view.

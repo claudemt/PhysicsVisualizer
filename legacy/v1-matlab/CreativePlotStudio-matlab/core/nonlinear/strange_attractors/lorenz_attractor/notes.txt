@@ -1,0 +1,12 @@
+Lorenz Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A three-variable model of thermal convection.
+- Trajectories stay bounded but never settle to a fixed cycle in chaotic regimes.
+- The butterfly shape reflects stretching and folding in phase space.
+
+Formula / model:
+dx/dt=σ(y-x), dy/dt=x(ρ-z)-y, dz/dt=xy-βz.
+
+Export note: rotating the preview before export preserves the current view.

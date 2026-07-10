@@ -1,0 +1,13 @@
+family = spherical_harmonics
+variant = ylm
+param_text = (0:3,-3:3)
+arg_matrix = [0 -3;1 -3;2 -3;3 -3;0 -2;1 -2;2 -2;3 -2;0 -1;1 -1;2 -1;3 -1;0 0;1 0;2 0;3 0;0 1;1 1;2 1;3 1;0 2;1 2;2 2;3 2;0 3;1 3;2 3;3 3]
+xmin = 0
+xmax = 1
+crop.mode = auto
+crop.y_range = []
+layout_text = 4
+render_options.legend_location = northwest
+selected_preview_indices = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
+output_layout = 4
+output_dir = D:\Downloads\SpecialFunctionsStudio_cleaned_utils_core_v5\SpecialFunctionsStudio_cleaned_v4\output\spherical_harmonics_ylm_20260505_193508

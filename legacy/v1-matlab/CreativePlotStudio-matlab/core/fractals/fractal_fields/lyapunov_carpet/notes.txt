@@ -1,0 +1,12 @@
+Lyapunov Carpet
+Domain: fractals | Category: Fractal Fields
+
+Principle:
+- Measures sensitivity of a logistic map whose parameter alternates spatially.
+- Positive Lyapunov exponents indicate chaos; negative values indicate stability.
+- The parameter plane becomes a carpet of stable and chaotic regions.
+
+Formula / model:
+λ = lim_N (1/N) Σ log |r_n(1-2x_n)|.
+
+Export note: rotating the preview before export preserves the current view.

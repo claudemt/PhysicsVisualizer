@@ -1,0 +1,12 @@
+Lissajous Knot
+Domain: nonlinear | Category: Oscillators & Vibration
+
+Principle:
+- A 3D parametric curve using sinusoidal coordinates with different frequencies.
+- Frequency ratios determine knot closure and complexity.
+- Phase offsets control the apparent weaving.
+
+Formula / model:
+x=sin(a t+δ), y=sin(b t), z=sin(c t+φ).
+
+Export note: rotating the preview before export preserves the current view.

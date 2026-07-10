@@ -1,0 +1,12 @@
+Julia Nebula
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- Julia sets iterate z_{n+1}=z_n^2+c for fixed c while pixels are initial z_0 values.
+- Different c values yield connected, dust-like, or spiral boundaries.
+- Nebula-like coloring is based on smooth escape time.
+
+Formula / model:
+z_{n+1}=z_n^2+c with c fixed.
+
+Export note: rotating the preview before export preserves the current view.

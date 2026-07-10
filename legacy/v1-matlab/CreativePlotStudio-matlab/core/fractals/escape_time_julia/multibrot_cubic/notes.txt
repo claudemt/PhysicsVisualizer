@@ -1,0 +1,12 @@
+Multibrot Cubic
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- Generalizes the Mandelbrot set by using a cubic power.
+- The cubic map creates threefold rotational symmetry.
+- Escape-time coloring still follows boundedness of the orbit.
+
+Formula / model:
+z_{n+1}=z_n^3+c.
+
+Export note: rotating the preview before export preserves the current view.

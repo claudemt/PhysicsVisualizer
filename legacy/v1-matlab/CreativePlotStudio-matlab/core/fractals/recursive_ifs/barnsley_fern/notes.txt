@@ -1,0 +1,12 @@
+Barnsley Fern
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- An iterated function system using four affine transformations.
+- Randomly chosen transforms create a fern distribution through the chaos game.
+- Probabilities control stem, leaflet, and self-similar sub-leaf density.
+
+Formula / model:
+x_{n+1}=A_i x_n+b_i with transform i selected by probability p_i.
+
+Export note: rotating the preview before export preserves the current view.

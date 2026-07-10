@@ -1,0 +1,12 @@
+Rossler Ribbon
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A continuous-time chaotic flow with spiral motion and slow folding.
+- It is simpler than Lorenz but still exhibits chaos through a folded band.
+- The attractor often appears as a twisted ribbon.
+
+Formula / model:
+dx/dt=-y-z, dy/dt=x+ay, dz/dt=b+z(x-c).
+
+Export note: rotating the preview before export preserves the current view.

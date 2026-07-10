@@ -1,0 +1,12 @@
+Clifford Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A 2D discrete map using sine and cosine of the previous point.
+- Repeated iteration produces dense strange attractor point clouds.
+- Parameters control the symmetry, lobes, and filament density.
+
+Formula / model:
+x_{n+1}=sin(a y_n)+c cos(a x_n), y_{n+1}=sin(b x_n)+d cos(b y_n).
+
+Export note: rotating the preview before export preserves the current view.

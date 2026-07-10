@@ -1,0 +1,12 @@
+Bitwise Fractal
+Domain: art | Category: Pixel & Texture
+
+Principle:
+- Uses modular arithmetic on pixel coordinates: mod(X,Y) and mod(Y,X).
+- Combines bitwise operators AND, XOR, and OR to generate RGB channels.
+- The apparent self-similarity comes from integer remainder periodicity and binary masks rather than a classical iterated complex map.
+
+Formula / model:
+R = mod(bitand(mod(X,Y),mod(Y,X)),255), G = mod(bitxor(...),255), B = mod(bitor(...),255).
+
+Export note: rotating the preview before export preserves the current view.

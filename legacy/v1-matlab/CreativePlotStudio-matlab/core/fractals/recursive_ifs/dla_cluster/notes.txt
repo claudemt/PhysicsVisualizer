@@ -1,0 +1,12 @@
+DLA Cluster
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- Random walkers diffuse until touching the existing cluster.
+- Growth is limited by transport of walkers to the boundary.
+- The resulting branched cluster is fractal and resembles electrodeposition.
+
+Formula / model:
+A random walk sticks when neighboring an occupied site.
+
+Export note: rotating the preview before export preserves the current view.

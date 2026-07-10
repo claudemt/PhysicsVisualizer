@@ -1,0 +1,12 @@
+Moonlit Mountains
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Builds a layered 2D landscape using gradient sky, translucent clouds, and noise-generated mountain profiles.
+- The mountain ridges use inverse FFT noise to create smooth natural height variation.
+- A dark palette and alpha compositing make the mountain layers sit inside a night atmosphere.
+
+Formula / model:
+Mountain height uses abs(ifftn(exp(i random phase)/r^p)) sampled along a ridge row.
+
+Export note: rotating the preview before export preserves the current view.

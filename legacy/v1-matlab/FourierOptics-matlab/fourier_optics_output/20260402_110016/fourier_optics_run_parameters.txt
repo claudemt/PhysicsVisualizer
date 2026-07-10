@@ -1,0 +1,14 @@
+summary = Double slit + Zernike defocus + Circular low-pass | lambda = 632.8 nm | f = 250.0 mm | N = 768
+object_name = Double slit
+phase_name = Zernike defocus
+filter_name = Circular low-pass
+wavelength_nm = 632.800000
+focal_length_mm = 250.000000
+window_mm = 4.000000
+n_samples = 768
+object_scale_mm = 0.550000
+secondary_scale_mm = 0.300000
+phase_radius_mm = 1.000000
+zernike_coeff_waves = 0.300000
+filter_scale_ratio = 0.180000
+topological_charge = 1

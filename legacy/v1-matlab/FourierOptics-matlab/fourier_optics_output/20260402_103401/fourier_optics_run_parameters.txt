@@ -1,0 +1,14 @@
+summary = Cross aperture + Vortex charge 1 + Mesh | lambda = 632.8 nm | f = 250.0 mm | N = 1024
+object_name = Cross aperture
+phase_name = Vortex charge 1
+filter_name = Mesh
+wavelength_nm = 632.800000
+focal_length_mm = 250.000000
+window_mm = 4.000000
+n_samples = 1024
+object_scale_mm = 1.250000
+secondary_scale_mm = 0.300000
+phase_radius_mm = 1.000000
+zernike_coeff_waves = 0.300000
+filter_scale_ratio = 0.220000
+topological_charge = 1

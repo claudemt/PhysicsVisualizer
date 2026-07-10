@@ -1,0 +1,12 @@
+Nova Cubic Basin
+Domain: fractals | Category: Newton & Orbit Traps
+
+Principle:
+- Nova fractals are relaxed Newton iterations with an added step parameter.
+- Colors encode which cubic root is reached and how fast convergence occurs.
+- Changing relaxation creates spiral basin boundaries.
+
+Formula / model:
+z_{n+1}=z_n - α f(z_n)/f'(z_n), usually f(z)=z^3-1.
+
+Export note: rotating the preview before export preserves the current view.

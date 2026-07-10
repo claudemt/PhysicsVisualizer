@@ -1,28 +1,19 @@
 # Waveguide
 
-## Scope
+Python waveguide mode visualizer for rectangular, circular, and annular PEC guides, dielectric slabs, and exact-vector cylindrical fiber modes.
 
-Waveguide mode visualizer for metallic guides, dielectric slabs, and cylindrical fibers.
+## Run
 
-Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
+```bash
+python projects/Waveguide/main.py
+```
 
-## User-facing organization
+## Project Layout
 
-- `app/tabs/` defines the GUI tab, its default input values, and the short control-level hints shown inside the tab.
-- `docs/physical_formulas.md` is the single formula note for this project.  It explains the mathematics/physics behind the previews and reports.
-- `output/` is created on export and contains images or reports plus `parameters.txt` and `reproduce_code.m`.
+- `app/` declares geometry-specific PEC, planar-dielectric, vector-dispersion, and vector-field controls.
+- `core/` contains metal, planar, cylindrical, display, and model dispatch code.
+- `docs/physical_formulas.md` records the formula reference for the Python port.
+- `example/` contains Python reproduction entries for saved legacy examples.
+- `output/` is the project-local export target.
 
-## Core organization
-
-- `core/waveguide/` contains mode equations, root finding, field sampling, display, and export helpers.
-
-## Main algorithms
-
-- PEC cutoff formulas
-- Bessel-root circular modes
-- Slab/fiber guided-mode equations
-- Mode-field rendering and dispersion plots
-
-## Maintenance notes
-
-Keep layout, button sizing, preview placement, image export, and notes rendering in the shared `utils/` files.  Project code should contain only parameter collection, domain-specific computation, and calls into the shared rendering/export functions.
+All ordinary GUI styling, matplotlib styling, title-safe export, and composite behavior must use the shared `utils/` layer. The MATLAB parity reference remains under `legacy/matlab/projects/Waveguide/`.

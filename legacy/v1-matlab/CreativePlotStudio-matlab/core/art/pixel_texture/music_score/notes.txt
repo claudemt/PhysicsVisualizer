@@ -1,0 +1,12 @@
+Music Score
+Domain: art | Category: Pixel & Texture
+
+Principle:
+- Creates pseudo-score stripes through sine quantization and bitwise masking.
+- The fixed/floor operation converts smooth sinusoidal variation into discrete staff-like bands.
+- The result is abstract generative texture, not a semantic music transcription.
+
+Formula / model:
+P = mod(bitand(fix(100 sin(fix((i+400)(j+100)/11115))), i) * 1021, 256).
+
+Export note: rotating the preview before export preserves the current view.

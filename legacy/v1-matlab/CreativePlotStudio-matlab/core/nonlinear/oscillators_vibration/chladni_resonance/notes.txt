@@ -1,0 +1,12 @@
+Chladni Resonance
+Domain: nonlinear | Category: Oscillators & Vibration
+
+Principle:
+- Standing wave modes on a plate create nodal lines where vibration amplitude is zero.
+- The plotted pattern resembles particles collecting on nodal curves.
+- Mode numbers determine the symmetry of the resonance.
+
+Formula / model:
+Z(x,y)=sin(nπx)sin(mπy)-sin(mπx)sin(nπy).
+
+Export note: rotating the preview before export preserves the current view.
