@@ -1,0 +1,12 @@
+Logistic Bifurcation
+Domain: nonlinear | Category: Maps & Bifurcations
+
+Principle:
+- Shows the route from fixed point to period doubling and chaos.
+- The vertical slice at each r shows the long-term states.
+- The self-similar windows are a signature of one-dimensional chaos.
+
+Formula / model:
+x_{n+1}=r x_n(1-x_n).
+
+Export note: rotating the preview before export preserves the current view.

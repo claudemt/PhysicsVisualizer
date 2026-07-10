@@ -1,0 +1,12 @@
+Tablecloth
+Domain: art | Category: Pixel & Texture
+
+Principle:
+- Uses perspective-like scaling s = 3/(j+99) to compress rows with depth.
+- Adds sinusoidal distortion to simulate cloth waviness.
+- Different spatial frequencies are mapped to RGB channels to create woven colored checks.
+
+Formula / model:
+y = (j + 35 sin((i^2 + 5(j-700)^2)/(100N))) s, then parity patterns define color.
+
+Export note: rotating the preview before export preserves the current view.

@@ -2,10 +2,14 @@
 
 ## What this project computes
 
-The OpticsStudio project contains two independent simulation modules:
+The OpticsStudio project contains six simulation modules:
 
-1. **CT Tomography** — Filtered backprojection (FBP) reconstruction from parallel-beam projections, using analytic 2D phantoms.
-2. **Wave Optics** — Scalar wave propagation via the angular-spectrum method, and 4f Fourier-plane filtering.
+1. **Fourier Studio** - Modular object, phase, Fourier-plane filter, and image planes.
+2. **Wave Optics** - Scalar angular-spectrum propagation and Fourier-plane filtering.
+3. **Imaging** - Aberrated pupil fields, widefield/confocal/STED PSFs, and OTFs.
+4. **Interference** - Moire patterns, lateral shearing, and Gerchberg-Saxton retrieval.
+5. **Geometric Optics** - Thin lenses, spherical refraction, and Fresnel reflection.
+6. **CT Tomography** - Parallel-beam filtered backprojection of analytic phantoms.
 
 ---
 
@@ -119,6 +123,68 @@ The OTF is the normalized Fourier transform of the PSF:
 \]
 
 and its magnitude \(|\mathrm{OTF}|\) describes the contrast transfer as a function of spatial frequency.
+
+For the confocal mode, the detector response and effective PSF are
+
+\[
+h_{\mathrm{det}}=\operatorname{norm}\!\left(h_{\mathrm{wf}}^{1/p}\right),
+\qquad h_{\mathrm{conf}}=\operatorname{norm}(h_{\mathrm{wf}}h_{\mathrm{det}}),
+\]
+
+where \(p\) is the pinhole factor. The simplified STED model uses a vortex depletion PSF \(h_{\mathrm{STED}}\):
+
+\[
+h_{\mathrm{eff}}=\operatorname{norm}\!\left(h_{\mathrm{wf}}e^{-S h_{\mathrm{STED}}}\right).
+\]
+
+---
+
+## Interference and phase retrieval
+
+Two gratings with normalized spatial coordinates \(q_j\) produce
+
+\[
+g_j=\frac{1+\cos(2\pi f_j q_j+\phi_j)}{2},
+\qquad I_{\mathrm{moire}}=\operatorname{norm}(g_1g_2).
+\]
+
+For lateral shearing, a shifted pupil phase \(\Phi_s(x,y)=\Phi(x-s,y)\) is compared with the original phase over their common pupil:
+
+\[
+\Delta\Phi=\Phi_s-\Phi,
+\qquad I=M\left[1+\cos\left(\Delta\Phi+2\pi f_c x\right)\right].
+\]
+
+Gerchberg-Saxton iteration alternates between the pupil and focal planes. The focal-plane amplitude is replaced by the requested spot-lattice amplitude, while the pupil update retains a phase-only circular aperture. Efficiency is the fraction of focal power in the target mask; uniformity compares the largest and smallest target-region intensities.
+
+---
+
+## Geometric optics
+
+The thin-lens image distance and transverse magnification are
+
+\[
+\frac{1}{f}=\frac{1}{s}+\frac{1}{s'},
+\qquad m=-\frac{s'}{s}=-\frac{f}{s-f}.
+\]
+
+At a spherical dielectric interface, each ray is intersected with the surface and refracted by vector Snell's law. For incident angle \(\theta_i\),
+
+\[
+n_1\sin\theta_i=n_2\sin\theta_t,
+\]
+
+and the power reflectances are
+
+\[
+R_s=\left|\frac{n_1\cos\theta_i-n_2\cos\theta_t}
+{n_1\cos\theta_i+n_2\cos\theta_t}\right|^2,
+\qquad
+R_p=\left|\frac{n_2\cos\theta_i-n_1\cos\theta_t}
+{n_2\cos\theta_i+n_1\cos\theta_t}\right|^2.
+\]
+
+When \(|(n_1/n_2)\sin\theta_i|>1\), total internal reflection gives \(R_s=R_p=1\).
 
 ---
 

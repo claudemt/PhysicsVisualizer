@@ -1,0 +1,12 @@
+Gray-Scott Coral
+Domain: nonlinear | Category: Reaction Waves
+
+Principle:
+- Reaction-diffusion model with activator/inhibitor-like behavior.
+- Diffusion smooths fields while nonlinear reaction amplifies local contrast.
+- Feed and kill rates choose spots, stripes, worms, or coral patterns.
+
+Formula / model:
+u_t=D_u∇²u-uv²+F(1-u), v_t=D_v∇²v+uv²-(F+k)v.
+
+Export note: rotating the preview before export preserves the current view.

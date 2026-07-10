@@ -1,0 +1,12 @@
+Celtic Mandelbrot
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- A folded Mandelbrot variant using the absolute value of the real part of z^2.
+- The fold creates woven cusp shapes and mirror-like branches.
+- It remains an escape-time fractal but no longer follows the standard holomorphic map.
+
+Formula / model:
+z_{n+1}=|Re(z_n^2)| + i Im(z_n^2) + c.
+
+Export note: rotating the preview before export preserves the current view.

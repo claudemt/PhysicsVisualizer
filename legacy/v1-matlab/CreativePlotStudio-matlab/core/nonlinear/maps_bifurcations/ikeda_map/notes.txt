@@ -1,0 +1,12 @@
+Ikeda Map
+Domain: nonlinear | Category: Maps & Bifurcations
+
+Principle:
+- Originates from nonlinear optical cavity modeling.
+- A radius-dependent phase shift folds the plane into a chaotic set.
+- The parameter u controls contraction strength.
+
+Formula / model:
+t=0.4-6/(1+x²+y²), then rotate/contract by t and add offset.
+
+Export note: rotating the preview before export preserves the current view.

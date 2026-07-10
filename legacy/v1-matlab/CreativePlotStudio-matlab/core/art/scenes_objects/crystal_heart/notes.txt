@@ -1,0 +1,12 @@
+Crystal Heart
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Uses a classical parametric heart curve as the base locus.
+- At many heart-curve points, small random crystal segments are grown outward.
+- The final scene combines a deterministic 2D heart with stochastic 3D crystal geometry.
+
+Formula / model:
+x=16 sin^3(t), y=13 cos(t)-5 cos(2t)-2 cos(3t)-cos(4t).
+
+Export note: rotating the preview before export preserves the current view.

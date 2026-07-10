@@ -1,39 +1,19 @@
 # OpticsStudio
 
-## Scope
+Python computational optics studio covering Fourier 4f systems, scalar propagation, imaging, interference, ray optics, and tomography across six GUI tabs.
 
-Computational optics simulations: **CT tomography** (filtered backprojection) and **scalar wave optics** (angular-spectrum propagation, Fourier-plane filtering).
+## Run
 
-Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
+```bash
+python projects/OpticsStudio/main.py
+```
 
-## User-facing organization
+## Project Layout
 
-- `app/tabs/` defines two GUI tabs:
-  - `create_tomography_tab.m` — CT phantom sinogram / filtered backprojection reconstruction.
-  - `create_wave_optics_tab.m` — scalar wave propagation (free-space / 4f-filtering).
-- `docs/physical_formulas.md` is the single formula note for this project.
-- `output/` is created on export and contains images or reports plus `parameters.txt` and `reproduce_code.m`.
+- `app/` declares the six MATLAB-style optics tabs through `utils.control_schema`.
+- `core/` contains common optics helpers and per-workflow physics modules.
+- `docs/physical_formulas.md` records the formula reference for the Python port.
+- `example/` contains the saved Fourier 4f reproduction entry.
+- `output/` is the project-local export target.
 
-## Core organization
-
-- `core/imaging/` — PSF, OTF, Zernike wavefront, circular pupil utilities.
-- `core/wave/` — Angular-spectrum propagation, Fourier filter masks.
-
-## Main algorithms
-
-**Tomography (CT)**
-
-- Analytic 2D phantoms (Shepp–Logan, three disks)
-- Parallel-beam Radon transform
-- Filtered backprojection with user-selectable ramp/window filters
-- Reconstruction error metrics (RMSE)
-
-**Wave optics**
-
-- Angular-spectrum propagation with optional band-limiting
-- 4f imaging system with Fourier-plane masks (pinhole, ring, slits)
-- Synthetic objects (bars, mesh, double slit, aperture, gaussian lattice)
-
-## Maintenance notes
-
-Keep layout, button sizing, preview placement, image export, and notes rendering in the shared `utils/` files.  Project code should contain only parameter collection, domain-specific computation, and calls into the shared rendering/export functions.
+All ordinary GUI styling, matplotlib styling, title-safe export, and composite behavior must use the shared `utils/` layer. The MATLAB parity reference remains under `legacy/matlab/projects/OpticsStudio/`.

@@ -83,6 +83,12 @@ C=\frac{\operatorname{mod}(\phi,2\pi)}{2\pi}.
 
 The selected script draws directly into the shared preview axes.  GUI-level layout, export, cache handling, and file naming come from the shared utilities.  The script itself should focus on geometry, iteration, and color.  Exported images are named by category/project rather than by a long parameter list because run metadata is recorded in `parameters.txt`.
 
+## Python reproduction parity
+
+The Python catalog mirrors the MATLAB domain/category/project catalog: 17 art entries, 22 fractal entries, and 23 nonlinear entries.  The `everything_composite` reproduction exports the 62 canonical individual PNG files plus the root preview composite, and also writes a legacy-compatible partial batch under `output/creative_plot_studio_all_python/individual` with the first 34 legacy file names and its preview composite.  This matches the legacy example's 98 PNG file structure while keeping reusable export behavior in `utils.image_output`.
+
+The current Python renderers are item-specific rather than category placeholders.  They cover MATLAB-style escape-time sets, Newton/Nova basins, orbit traps, recursive fractals, Gray-Scott and FitzHugh-Nagumo fields, ODE attractors, maps, oscillators, procedural floral/scene drawings, and generative surfaces.  Randomized scenes use deterministic local seeds so repeated reproduction runs are stable.
+
 ## Interpretation notes
 
 A generative plot is usually not a direct measurement of a physical observable.  It is a visualization of an algorithmic rule.  When comparing two images, ask which part changed: the curve equation, the sampling density, the iteration limit, the palette, the axes scaling, or the random seed.  The same mathematical object can look very different under a different palette or camera view.

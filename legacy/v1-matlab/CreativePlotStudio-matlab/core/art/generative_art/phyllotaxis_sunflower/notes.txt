@@ -1,0 +1,12 @@
+Phyllotaxis Sunflower
+Domain: art | Category: Generative Art
+
+Principle:
+- Uses Fermat spiral placement and the golden angle to mimic sunflower seed arrangements.
+- Point radius scales with sqrt(n), giving approximately uniform packing density.
+- The golden angle minimizes radial alignment and creates visible parastichy spirals.
+
+Formula / model:
+theta_n = n * 137.50776°, r_n = c sqrt(n).
+
+Export note: rotating the preview before export preserves the current view.

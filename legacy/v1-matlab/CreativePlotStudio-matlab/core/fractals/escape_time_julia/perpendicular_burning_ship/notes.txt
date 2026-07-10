@@ -1,0 +1,12 @@
+Perpendicular Burning Ship
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- A Burning-Ship family variant with only part of the complex value folded.
+- The perpendicular fold generates different flame and ridge structures.
+- Escape time again determines color.
+
+Formula / model:
+A folded quadratic recurrence with absolute value applied to one coordinate before squaring.
+
+Export note: rotating the preview before export preserves the current view.

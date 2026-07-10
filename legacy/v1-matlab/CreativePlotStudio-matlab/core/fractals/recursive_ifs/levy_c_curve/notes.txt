@@ -1,0 +1,12 @@
+Levy C Curve
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- Each line segment is replaced by two perpendicular half-scale segments.
+- The replacement rule corresponds to the sides of an isosceles right triangle.
+- Repeated folding creates a self-similar C-shaped curve.
+
+Formula / model:
+Segment vector v is replaced by rotations of v/sqrt(2) by ±45°.
+
+Export note: rotating the preview before export preserves the current view.

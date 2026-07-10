@@ -1,0 +1,12 @@
+Blue Rose
+Domain: art | Category: Floral & Botanical
+
+Principle:
+- Uses a parametric surface in polar-like coordinates.
+- A decaying angle p(t) controls petal opening from the center outward.
+- The height and radius couple x and t to form layered rose petals.
+
+Formula / model:
+r = u(x sin p + y cos p), h = u(x cos p - y sin p), plotted as (r cos t, r sin t, h).
+
+Export note: rotating the preview before export preserves the current view.

@@ -1,0 +1,12 @@
+Duffing Poincare
+Domain: nonlinear | Category: Oscillators & Vibration
+
+Principle:
+- A nonlinear forced oscillator with cubic stiffness.
+- Sampling once per forcing period gives a Poincare section.
+- The section reveals periodic, quasi-periodic, or chaotic response.
+
+Formula / model:
+x''+δx'+αx+βx^3=γ cos(ωt).
+
+Export note: rotating the preview before export preserves the current view.

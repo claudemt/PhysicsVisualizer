@@ -1,0 +1,12 @@
+Koch Snowflake
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- Each segment is replaced by four segments forming an equilateral bump.
+- The perimeter grows without bound while the area approaches a finite value.
+- It is one of the canonical self-similar fractal curves.
+
+Formula / model:
+Dimension D=log(4)/log(3).
+
+Export note: rotating the preview before export preserves the current view.

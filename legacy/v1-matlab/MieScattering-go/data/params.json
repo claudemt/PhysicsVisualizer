@@ -1,0 +1,14 @@
+{
+  "width": 800,
+  "height": 800,
+  "count": 4,
+  "r_start": 1.25,
+  "r_inc": 0.01,
+  "n": 1.33,
+  "n_img": 0.2,
+  "max_l": 42,
+  "lambda": 0.2,
+  "out_dir": "./data",
+  "prefix_total": "mie-total",
+  "prefix_scattered": "mie-scattered"
+}

@@ -1,28 +1,19 @@
 # RigidBodyRotation
 
-## Scope
+Python rigid-body attitude dynamics visualizer for torque-free rotation and fixed-point gravity cases.
 
-Rigid-body attitude-dynamics visualizer for free rotation and fixed-point gravity cases.
+## Run
 
-Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
+```bash
+python projects/RigidBodyRotation/main.py
+```
 
-## User-facing organization
+## Project Layout
 
-- `app/tabs/` defines the GUI tab, its default input values, and the short control-level hints shown inside the tab.
-- `docs/physical_formulas.md` is the single formula note for this project.  It explains the mathematics/physics behind the previews and reports.
-- `output/` is created on export and contains images or reports plus `parameters.txt` and `reproduce_code.m`.
+- `app/` declares rigid-body parameter, comparison, and export controls.
+- `core/` contains kinematics, solver, model dispatch, and rendering code.
+- `docs/physical_formulas.md` records the formula reference for the Python port.
+- `example/` contains canonical Python reproduction entries.
+- `output/` is the project-local export target.
 
-## Core organization
-
-- `core/rigid_body/` contains ODE solvers, attitude kinematics, plot renderers, and animation routines.
-
-## Main algorithms
-
-- Euler equations in principal axes
-- Quaternion/rotation-matrix attitude integration
-- Energy/angular-momentum diagnostics
-- Static image and video output
-
-## Maintenance notes
-
-Keep layout, button sizing, preview placement, image export, and notes rendering in the shared `utils/` files.  Project code should contain only parameter collection, domain-specific computation, and calls into the shared rendering/export functions.
+All ordinary GUI styling, matplotlib styling, title-safe export, animation export, and composite behavior must use the shared `utils/` layer. The MATLAB parity reference remains under `legacy/matlab/projects/RigidBodyRotation/`.

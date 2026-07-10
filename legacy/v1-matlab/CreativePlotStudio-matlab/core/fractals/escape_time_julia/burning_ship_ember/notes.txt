@@ -1,0 +1,12 @@
+Burning Ship Ember
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- A folded complex quadratic map using absolute values of real and imaginary parts.
+- The folding operation creates flame-like asymmetry and vertical structures.
+- Escape-time coloring reveals dense embedded mini-ships.
+
+Formula / model:
+z_{n+1}=(|Re z_n|+i|Im z_n|)^2+c.
+
+Export note: rotating the preview before export preserves the current view.

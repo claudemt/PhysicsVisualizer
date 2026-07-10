@@ -1,0 +1,12 @@
+Fireworks
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Starts from random bright noise points, dilates them, then smears them with a wind-like decay.
+- A polar transform converts horizontal streaks into radial explosion trails.
+- A radial color map tints the grayscale explosion intensity.
+
+Formula / model:
+I_{k+1}(x,y)=max(I_k(x,y), ratio I_k(x-1,y)); then remap from Cartesian to polar.
+
+Export note: rotating the preview before export preserves the current view.

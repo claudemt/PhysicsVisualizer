@@ -1,0 +1,12 @@
+Lyapunov Carpet
+Domain: nonlinear | Category: Maps & Bifurcations
+
+Principle:
+- Uses Lyapunov exponents to classify local stability of a parameter-varying map.
+- Positive exponent means exponential divergence of nearby trajectories.
+- The resulting diagram is a nonlinear stability landscape.
+
+Formula / model:
+λ = average log of derivative magnitude along the orbit.
+
+Export note: rotating the preview before export preserves the current view.

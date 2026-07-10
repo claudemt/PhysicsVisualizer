@@ -1,0 +1,12 @@
+Tricorn Mandelbar
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- The Mandelbar or Tricorn uses complex conjugation before squaring.
+- Conjugation breaks analytic orientation and produces three-cornered symmetry.
+- It is an anti-holomorphic counterpart of the Mandelbrot iteration.
+
+Formula / model:
+z_{n+1}=conj(z_n)^2+c.
+
+Export note: rotating the preview before export preserves the current view.

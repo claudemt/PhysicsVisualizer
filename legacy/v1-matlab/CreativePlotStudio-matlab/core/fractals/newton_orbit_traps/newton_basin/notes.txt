@@ -1,0 +1,12 @@
+Newton Basin
+Domain: fractals | Category: Newton & Orbit Traps
+
+Principle:
+- Newton fractals visualize convergence basins of Newton's root-finding method.
+- Each pixel starts at a complex initial guess and converges to one root.
+- Fractal basin boundaries show sensitivity of nonlinear iteration.
+
+Formula / model:
+z_{n+1}=z_n - f(z_n)/f'(z_n).
+
+Export note: rotating the preview before export preserves the current view.

@@ -55,15 +55,29 @@ Polarization settings change how these amplitudes combine in the displayed field
 
 ## Near fields
 
-The near-field plots evaluate components of the total, incident, or scattered field on a spatial grid.  Depending on the selected view mode, the preview may include components such as
+The near-field plots evaluate components of the total or scattered electric field on a spatial grid.  Depending on the selected view mode, the preview may include components such as
 \[
-E_x,\ E_y,\ E_z,\ |E|,\ H_x,\ H_y,\ H_z,\ |H|.
+E_x,\ E_y,\ E_z,\ |E|.
 \]
-Signed components use a diverging/symmetric color scale; magnitudes use a positive scale.
+The selected-field codes follow the MATLAB project semantics:
+
+| Code family | Meaning |
+|---|---|
+| `sca_rex`, `sca_rey`, `sca_rez` | real scattered-field components |
+| `sca_aex`, `sca_aey`, `sca_aez`, `sca_emag` | scattered-field magnitudes |
+| `tot_rex`, `tot_rey`, `tot_rez` | real total-field components |
+| `tot_aex`, `tot_aey`, `tot_aez`, `tot_emag` | total-field magnitudes |
+
+Signed components use a diverging/symmetric color scale; magnitudes use a positive scale.  When `maskInside` is true, scattered-field plots are masked inside the inclusion.  Total-field plots are not masked: inside a sphere or cylinder they use the internal-field expansion, while outside they use incident plus scattered field.
 
 ## Cylinder option
 
-For cylindrical scattering, the separable basis changes from spherical harmonics to cylindrical Bessel/Hankel functions.  The conceptual role of boundary matching is the same: tangential electric and magnetic fields are continuous at the material boundary, producing coefficient sequences for each angular order.
+For cylindrical scattering, the separable basis changes from spherical harmonics to cylindrical Bessel/Hankel functions.  The incident wave propagates along \(+x\), and the polarization basis is in the \(y,z\) plane:
+\[
+E_{y0}=\frac{A_++A_-}{\sqrt{2}},\qquad
+E_{z0}=i\frac{A_+-A_-}{\sqrt{2}}.
+\]
+The \(E_z\)-driven branch and transverse-electric branch use separate coefficient sequences \(a^E_m,a^M_m\) outside and \(b^E_m,b^M_m\) inside.  This mirrors the MATLAB implementation: outside points use Hankel functions for scattered fields; inside points use Bessel functions for total internal fields.
 
 ## Numerical notes
 

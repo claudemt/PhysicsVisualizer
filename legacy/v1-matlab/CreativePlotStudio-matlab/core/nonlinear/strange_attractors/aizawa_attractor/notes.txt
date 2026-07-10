@@ -1,0 +1,12 @@
+Aizawa Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A 3D nonlinear flow with toroidal folding.
+- Dissipation keeps the orbit bounded while nonlinear terms stretch the flow.
+- The attractor appears like a folded vortex shell.
+
+Formula / model:
+Aizawa ODE with z-dependent rotation and cubic z damping.
+
+Export note: rotating the preview before export preserves the current view.

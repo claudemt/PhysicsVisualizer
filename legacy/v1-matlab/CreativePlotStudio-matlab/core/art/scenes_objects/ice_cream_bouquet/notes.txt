@@ -1,0 +1,12 @@
+Ice Cream Bouquet
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Combines multiple rotated soft-serve/flower-like surfaces into a bouquet arrangement.
+- Bezier curves are used as stems or support curves.
+- Rotation matrices generate repeated elements around the central axis.
+
+Formula / model:
+Uses repeated yaw rotations Rz(72°) and roll rotations to place bouquet elements.
+
+Export note: rotating the preview before export preserves the current view.

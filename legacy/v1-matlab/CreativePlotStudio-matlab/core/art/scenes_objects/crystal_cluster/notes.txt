@@ -1,0 +1,12 @@
+Crystal Cluster
+Domain: art | Category: Scenes & Objects
+
+Principle:
+- Generates random 3D vectors from a seed point and draws crystal prisms along them.
+- Each crystal is a small polyhedron built from two endpoints and a rotated cross-section.
+- Transparency and edge lighting create the impression of glass-like facets.
+
+Formula / model:
+Facet points are rotated about the crystal axis using a Rodrigues-style axis rotation matrix.
+
+Export note: rotating the preview before export preserves the current view.

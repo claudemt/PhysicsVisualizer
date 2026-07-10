@@ -1,0 +1,5 @@
+Special Functions Studio
+
+Choose a family and a function, enter parameter tuples, then run to generate a preview.
+
+The Notes button opens the full Markdown reference with mathematical definitions and differential-equation context.

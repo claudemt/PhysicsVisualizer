@@ -1,29 +1,19 @@
 # MovingChargeFields
 
-## Scope
+Python moving point-charge field visualizer with scalar maps, streamlines, retarded-time fields, and phase-sweep video export.
 
-Moving point-charge field visualizer with scalar maps, streamlines, and phase-sweep video export.
+## Run
 
-Run the project with `main.m`.  The GUI uses the shared root-level `utils/` for tab layout, controls, preview behavior, notes browser, export, and parameter/reproduce-code output.
+```bash
+python projects/MovingChargeFields/main.py
+```
 
-## User-facing organization
+## Project Layout
 
-- `app/tabs/` defines the GUI tab, its default input values, and the short control-level hints shown inside the tab.
-- `docs/physical_formulas.md` is the single formula note for this project.  It explains the mathematics/physics behind the previews and reports.
-- `output/` is created on export and contains images or reports plus `parameters.txt` and `reproduce_code.m`.
+- `app/` declares motion, slice, field, and display controls.
+- `core/` contains motion, retarded-time field, formula, model, and rendering code.
+- `docs/physical_formulas.md` records the formula reference for the Python port.
+- `example/` contains Python reproduction entries for saved legacy examples.
+- `output/` is the project-local export target.
 
-## Core organization
-
-- `core/moving_charge/` contains retarded-time and Lienard--Wiechert field formulas.
-- `app/special/run_moving_charge_generation.m` orchestrates project-level preview/video generation.
-
-## Main algorithms
-
-- Retarded-time solve
-- Velocity/radiation field decomposition
-- Poynting-vector streamlines
-- Frame-normalized video export
-
-## Maintenance notes
-
-Keep layout, button sizing, preview placement, image export, and notes rendering in the shared `utils/` files.  Project code should contain only parameter collection, domain-specific computation, and calls into the shared rendering/export functions.
+All ordinary GUI styling, matplotlib styling, title-safe export, animation export, and composite behavior must use the shared `utils/` layer. The MATLAB parity reference remains under `legacy/matlab/projects/MovingChargeFields/`.

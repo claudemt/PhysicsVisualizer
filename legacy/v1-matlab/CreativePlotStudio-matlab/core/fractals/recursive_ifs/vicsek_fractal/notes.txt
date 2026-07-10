@@ -1,0 +1,12 @@
+Vicsek Fractal
+Domain: fractals | Category: Recursive & IFS
+
+Principle:
+- A square is replaced by five scaled copies in a cross arrangement.
+- Kronecker products efficiently implement the recursion.
+- The shape is a deterministic self-similar fractal.
+
+Formula / model:
+Dimension D=log(5)/log(3).
+
+Export note: rotating the preview before export preserves the current view.

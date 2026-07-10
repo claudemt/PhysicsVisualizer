@@ -1,0 +1,12 @@
+Sakura Tree
+Domain: art | Category: Floral & Botanical
+
+Principle:
+- Uses an iterative branching system storing branch tip position and angle.
+- At each generation, a random mask decides whether a branch splits or continues.
+- Late-generation endpoints are plotted as blossoms, producing a stochastic tree silhouette.
+
+Formula / model:
+New tips are advanced by [cos(theta), sin(theta)]L and rotated by ±pi/10.
+
+Export note: rotating the preview before export preserves the current view.

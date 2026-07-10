@@ -1,3 +1,0 @@
-Legacy versions of each PhysicsVisualizer project are fully functional and independently runnable on their own, with complete features intact.
-The current iteration is fully developed and refactored based on these legacy projects. The main improvements lie in unified GUI styling, standardized file structure, centralized shared utility modules, and consistent directory layout across all subprojects.
-Legacy files are retained only for archiving and reference; they remain usable independently, while the new unified structure serves as the official maintained version for subsequent iteration and expansion.

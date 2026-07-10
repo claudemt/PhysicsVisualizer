@@ -1,0 +1,12 @@
+Blooming Rose
+Domain: art | Category: Floral & Botanical
+
+Principle:
+- A parameter-modified rose surface with larger radius and stronger petal modulation.
+- Increasing the frequency of sinusoidal perturbation gives richer petal folds.
+- Warm gradient colors emphasize a more open flower morphology.
+
+Formula / model:
+Same rose surface as Blue Rose, with modified modulation and radius scaling.
+
+Export note: rotating the preview before export preserves the current view.

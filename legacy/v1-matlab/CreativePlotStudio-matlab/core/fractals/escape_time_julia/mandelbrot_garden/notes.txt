@@ -1,0 +1,12 @@
+Mandelbrot Garden
+Domain: fractals | Category: Escape-Time & Julia
+
+Principle:
+- Classical escape-time rendering of z_{n+1}=z_n^2+c.
+- Pixels correspond to complex parameters c; color records escape speed.
+- The boundary is fractal because nearby parameters can have qualitatively different boundedness.
+
+Formula / model:
+z_0=0, z_{n+1}=z_n^2+c; escape when |z_n|>2.
+
+Export note: rotating the preview before export preserves the current view.

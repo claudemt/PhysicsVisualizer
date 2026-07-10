@@ -45,6 +45,8 @@ The amplitudes of the incident, reflected, and transmitted waves are then obtain
 
 The reported power quantities \(R\) and \(T\) are flux-normalized versions of the complex amplitude coefficients \(r\) and \(t\).  For lossless media with propagating incident and transmitted waves, the corresponding energy sums should be close to one.  With evanescent waves, complex material parameters, or lossy media, the same algebra is still useful, but the energy-sum line should be interpreted as a diagnostic rather than a strict conservation law.
 
+The Python core also exposes the MATLAB facade workflows for optical stacks: resolving `coeff*lambda` thickness strings, applying quarter-wave thicknesses, constructing alternating high/low quarter-wave stacks, sweeping incidence angle, and sweeping a selected layer thickness.  Text reports include the total transfer matrices (`P`, `Q`, `Ptot`, `Psh`) so saved results can be compared against MATLAB report bundles beyond scalar energy sums.
+
 ---
 
 ## Elastic-wave tab

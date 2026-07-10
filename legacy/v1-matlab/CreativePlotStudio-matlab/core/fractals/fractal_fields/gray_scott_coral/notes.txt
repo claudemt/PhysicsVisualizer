@@ -1,0 +1,12 @@
+Gray-Scott Coral
+Domain: fractals | Category: Fractal Fields
+
+Principle:
+- Two chemical species diffuse and react on a grid.
+- Feed and kill rates control spots, worms, and coral-like textures.
+- The pattern is a reaction-diffusion instability.
+
+Formula / model:
+u_t=D_u∇²u-uv²+F(1-u), v_t=D_v∇²v+uv²-(F+k)v.
+
+Export note: rotating the preview before export preserves the current view.

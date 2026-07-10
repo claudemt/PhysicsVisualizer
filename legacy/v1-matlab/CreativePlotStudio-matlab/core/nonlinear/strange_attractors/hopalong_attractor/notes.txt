@@ -1,0 +1,12 @@
+Hopalong Attractor
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A discrete map with a sign-dependent square-root nonlinearity.
+- The branch structure creates shells and arcs.
+- Despite a short formula, it can produce ornate attractor geometry.
+
+Formula / model:
+x_{n+1}=y_n-sign(x_n)sqrt(|b x_n-c|), y_{n+1}=a-x_n.
+
+Export note: rotating the preview before export preserves the current view.

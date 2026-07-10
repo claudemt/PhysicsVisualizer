@@ -1,0 +1,74 @@
+function fibonacci_spiral ( n )
+
+%*****************************************************************************80
+%
+%% fibonacci_spiral() draws points on a Fibonacci spiral.
+%
+%  Licensing:
+%
+%    This code is distributed under the MIT license.
+%
+%  Modified:
+%
+%    06 June 2022
+%
+%  Author:
+%
+%    John Burkardt
+%
+%  Input:
+%
+%    integer N, the number of points to plot.
+%    Default is 101.
+%
+  if ( nargin < 1 )
+    n = 101;
+  end
+%
+%  PHI is the golden ratio, the limit of the ratio of
+%  successive Fibonacci numbers:  
+%
+%    PHI = limit ( N->oo ) F(N+1)/F(N)
+%
+  phi = ( 1.0 + sqrt ( 5.0 ) ) / 2.0;
+%
+%  Allocate storage for the data.
+%
+  x = zeros ( n, 1 );
+  y = zeros ( n, 1 );
+%
+%  Set the angle and radius of the first point.
+%
+  a = 0.0;
+  r = 0.0;
+%
+%  Set the increments.
+%
+  da = 2.0 * pi * ( phi - 1.0 ) / phi;
+  dr = 1.0;
+%
+%  Create a spiral in which the radius R and angle A both
+%  increase by a constant increment,
+%
+  for i = 1 : n
+    x(i) = r * cos ( a );
+    y(i) = r * sin ( a );
+    a = mod ( a + da, 2 * pi );
+    r = r + dr;
+  end
+%
+%  Display the data in a scatter plot.
+%
+  figure ( );
+  clf ( );
+  scatter ( x, y, 'b.' );
+  axis ( 'equal' );
+  title ( sprintf ( 'Fibonacci spiral, N = %d', n ) );
+  filename = sprintf ( 'spiral_%d.png', n );
+  print ( '-dpng', filename );
+  fprintf ( 1, '  Graphics saved as "', filename, '"' );
+
+  return
+end
+
+

@@ -1,0 +1,12 @@
+Chua Double Scroll
+Domain: nonlinear | Category: Strange Attractors
+
+Principle:
+- A nonlinear circuit model with a piecewise-linear resistor.
+- The double-scroll attractor alternates between two lobes.
+- It is a canonical physical example of electronic chaos.
+
+Formula / model:
+Chua equations couple capacitor voltages and inductor current with nonlinear conductance g(x).
+
+Export note: rotating the preview before export preserves the current view.

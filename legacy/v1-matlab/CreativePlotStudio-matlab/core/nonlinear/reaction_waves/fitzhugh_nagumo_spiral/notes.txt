@@ -1,0 +1,12 @@
+FitzHugh-Nagumo Spiral
+Domain: nonlinear | Category: Reaction Waves
+
+Principle:
+- Reduced excitable-media model inspired by neuronal firing.
+- Diffusion in the activator variable supports spiral wave propagation.
+- Spiral tips are coherent nonlinear structures in the reaction-diffusion field.
+
+Formula / model:
+u_t=u-u³/3-v+D_u∇²u, v_t=(u+a-bv)/τ+D_v∇²v.
+
+Export note: rotating the preview before export preserves the current view.

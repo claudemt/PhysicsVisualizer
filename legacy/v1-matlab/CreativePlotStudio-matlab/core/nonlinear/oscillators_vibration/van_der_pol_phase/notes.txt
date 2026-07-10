@@ -1,0 +1,12 @@
+Van der Pol Phase
+Domain: nonlinear | Category: Oscillators & Vibration
+
+Principle:
+- A self-excited oscillator with nonlinear damping.
+- Negative damping at small amplitude and positive damping at large amplitude create a limit cycle.
+- The phase portrait shows attraction toward that cycle.
+
+Formula / model:
+x''-μ(1-x²)x'+x=0.
+
+Export note: rotating the preview before export preserves the current view.

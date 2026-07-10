@@ -77,6 +77,18 @@ Zeros of special functions often define modal frequencies or quadrature nodes.  
 
 The tab builds a result structure describing curves or surfaces, then passes it to the shared renderer.  For 1D plots the x-range and legend controls determine the displayed curves.  For 3D plots the selected preview list and layout field determine the exported composite.  Filenames describe the function family/variant and image order; parameter tuples are recorded in `parameters.txt`.
 
+## MATLAB parity families
+
+The Python core includes the MATLAB result families used by the original tab: Bessel \(J,Y,I,K\), spherical Bessel \(j_n,y_n\), Airy \(Ai,Bi\) and derivatives, complete/incomplete elliptic integrals, Jacobi elliptic functions, Gauss \({}_2F_1\), Lane-Emden curves, scalar spherical harmonics, and the three vector spherical harmonic views \(X_{\ell m}\), \(\Psi_{\ell m}\), and \(\hat rY_{\ell m}\).  Lane-Emden integration follows the MATLAB event rule and terminates at the first zero.  The hypergeometric branch uses the same power-series recurrence in the visualization interval.
+
+Vector spherical harmonic previews are constructed from the spherical surface gradient:
+\[
+\Psi_{\ell m}=\nabla_S Y_{\ell m},\qquad
+X_{\ell m}=\hat r\times\nabla_S Y_{\ell m},\qquad
+R_{\ell m}=\hat rY_{\ell m}.
+\]
+The plotted surface is a compact visual embedding of those vector components rather than a certified vector-field quadrature.
+
 ## Numerical notes
 
 Special functions can grow, oscillate, or become singular.  Automatic cropping is used to keep curves readable, but manual y-ranges are useful when comparing orders.  Very high orders may require specialized asymptotic methods for high precision; the GUI is intended for visualization and teaching rather than certified numerical analysis.

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "physics-visualizer"
+version = "0.1.0"
+description = "Python desktop and batch visualizer for physics, optics, mechanics, electromagnetics, and applied mathematics."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "Pillow",
+  "PySide6",
+  "imageio",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+physics-visualizer = "cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*", "projects*", "utils*"]
+
+[tool.setuptools]
+py-modules = ["cli"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["."]
